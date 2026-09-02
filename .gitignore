@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+.output/
+dist/
+dist-ssr/
+.tanstack/
+.nitro/
+.vinxi/
+.wrangler/
+__unconfig*/
+
+# Local environment/secrets
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+.env.*.local
+*.local
+
+# Supabase local temp/cache
+supabase/.temp/
+supabase/.branches/
+supabase/snippets/
+
+# Local backups/exports/logs
+backups/
+exports/
+*.log
+*.zip
+
+# OS/editor
+.DS_Store
+todos.json
