@@ -50,7 +50,7 @@ export function AccountMenuPanel({
     <div className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-slate-200 bg-white p-2 text-left shadow-2xl">
       <div className="border-b border-slate-100 px-4 py-3">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700">
-          BBJF Member Access
+          PTI Member Access
         </p>
         <p className="mt-1 text-sm font-semibold text-slate-500">
           Membership portal shortcuts

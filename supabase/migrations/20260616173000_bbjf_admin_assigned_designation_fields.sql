@@ -1,4 +1,4 @@
--- BBJF Admin Assigned Designation Fields
+-- PTI Admin Assigned Designation Fields
 -- Purpose: Support JAS-style workflow where members do NOT enter official designation.
 -- Admin assigns designation after approval and it appears on card + QR verification.
 -- Safe to run multiple times.

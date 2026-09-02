@@ -119,10 +119,10 @@ function SignupPage() {
   }
 
   return (
-    <main className="bbjf-auth-page px-4 py-12" dir={direction}>
-      <div className="bbjf-auth-card mx-auto max-w-md p-7 md:p-8">
+    <main className="pti-auth-page px-4 py-12" dir={direction}>
+      <div className="pti-auth-card mx-auto max-w-md p-7 md:p-8">
         <div className="mb-7 text-center">
-          <span className="bbjf-auth-badge">BBJF Member</span>
+          <span className="pti-auth-badge">PTI Member</span>
           <h1 className="mt-5 text-3xl font-black tracking-[-0.03em] text-slate-950">
             {t('signup.form.title')}
           </h1>
@@ -167,7 +167,7 @@ function SignupPage() {
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
               required
-              className="bbjf-input"
+              className="pti-input"
               placeholder={t('signup.fullName.placeholder')}
               autoComplete="name"
             />
@@ -183,7 +183,7 @@ function SignupPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required={method === 'email'}
-                className="bbjf-input"
+                className="pti-input"
                 placeholder={t('login.email.placeholder')}
                 autoComplete="email"
               />
@@ -199,7 +199,7 @@ function SignupPage() {
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
                 required={method === 'phone'}
-                className="bbjf-input"
+                className="pti-input"
                 placeholder="03001234567"
                 autoComplete="tel"
               />
@@ -252,7 +252,7 @@ function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bbjf-auth-button w-full disabled:opacity-60"
+            className="pti-auth-button w-full disabled:opacity-60"
           >
             {loading ? t('signup.submit.loading') : t('signup.submit.cta')}
           </button>

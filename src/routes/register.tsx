@@ -1570,7 +1570,7 @@ function memberToForm(data: ExistingMember): RegisterFormState {
 }
 
 function draftKey(userId: string) {
-  return `bbjf-register-draft:${REGISTER_DRAFT_VERSION}:${userId}`
+  return `pti-register-draft:${REGISTER_DRAFT_VERSION}:${userId}`
 }
 
 function readDraft(userId: string) {

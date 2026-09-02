@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bbjf-pwa-v1'
+const CACHE_NAME = 'pti-pwa-v1'
 const APP_SHELL = ['/', '/offline.html', '/site.webmanifest', '/icon-192x192.png', '/icon-512x512.png']
 
 self.addEventListener('install', (event) => {

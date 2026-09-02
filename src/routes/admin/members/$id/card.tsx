@@ -19,8 +19,8 @@ import {
 import { AdminShell } from '../../../../components/admin/AdminShell'
 import {
   APP_SHORT_NAME,
-  BBJF_ICON_PATH,
-  BBJF_LEADER_IMAGE_PATH,
+  PTI_ICON_PATH,
+  PTI_LEADER_IMAGE_PATH,
   CARD_EXPORT_HEIGHT,
   CARD_EXPORT_WIDTH,
   type MembershipCardMember,
@@ -109,12 +109,12 @@ function AdminMemberCardPage() {
         }
 
         const [iconDataUrl, leaderDataUrl] = await Promise.all([
-          imageUrlToDataUrl(BBJF_ICON_PATH),
-          imageUrlToDataUrl(BBJF_LEADER_IMAGE_PATH),
+          imageUrlToDataUrl(PTI_ICON_PATH),
+          imageUrlToDataUrl(PTI_LEADER_IMAGE_PATH),
         ])
 
-        setBrandIconUrl(iconDataUrl || BBJF_ICON_PATH)
-        setLeaderImageUrl(leaderDataUrl || BBJF_LEADER_IMAGE_PATH)
+        setBrandIconUrl(iconDataUrl || PTI_ICON_PATH)
+        setLeaderImageUrl(leaderDataUrl || PTI_LEADER_IMAGE_PATH)
 
         const data = await fetchMemberForCard(id)
 

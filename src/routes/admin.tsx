@@ -430,7 +430,7 @@ function AdminPage() {
 
       const rows = (data ?? []) as ExportMember[]
       const csv = buildMembersCsv(rows, showSensitive, language)
-      const filename = `bbjf-members-${new Date().toISOString().slice(0, 10)}.csv`
+      const filename = `pti-members-${new Date().toISOString().slice(0, 10)}.csv`
       downloadTextFile(csv, filename, 'text/csv;charset=utf-8')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'CSV export failed.')
@@ -460,13 +460,13 @@ function AdminPage() {
           <div className="relative flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-200">
-                BBJF Membership Console
+                PTI Membership Console
               </p>
               <h1 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">
                 {t('admin.title')}
               </h1>
               <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-white/70 md:text-base">
-                Review applications, verify Rs. 500 membership receipts, approve members, reject incomplete forms and manage QR-enabled digital cards. Donation and program modules are not included in this BBJF portal.
+                Review applications, verify Rs. 500 membership receipts, approve members, reject incomplete forms and manage QR-enabled digital cards. Donation and program modules are not included in this PTI portal.
               </p>
             </div>
 

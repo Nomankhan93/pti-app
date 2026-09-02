@@ -1,6 +1,6 @@
 // src/lib/membership-fee.ts
-// BBJF manual membership-fee helpers adapted from the JAS membership portal.
-// Fee remains BBJF-specific at Rs. 500; payment account/QR details match JAS.
+// PTI manual membership-fee helpers adapted from the JAS membership portal.
+// Fee remains PTI-specific at Rs. 500; payment account/QR details match JAS.
 
 export const MEMBERSHIP_BASE_FEE = 500
 export const MEMBERSHIP_FEE_CURRENCY = 'PKR'
@@ -18,7 +18,7 @@ export const MEMBERSHIP_RECEIPT_ALLOWED_TYPES = [
   'application/pdf',
 ]
 
-export const MEMBERSHIP_PAYMENT_QR_IMAGE_PATH = '/bbjf/membership-payment-qr.jpg'
+export const MEMBERSHIP_PAYMENT_QR_IMAGE_PATH = '/pti/membership-payment-qr.jpg'
 
 export const MEMBERSHIP_MANUAL_PAYMENT_DETAILS = {
   bankName: 'Mobilink Microfinance Bank',

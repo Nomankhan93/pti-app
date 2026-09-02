@@ -1,5 +1,5 @@
 {
-  "name": "bbjf-app",
+  "name": "pti-app",
   "private": true,
   "type": "module",
   "imports": {
@@ -17,7 +17,7 @@
     "check-safe-archive": "bash scripts/check-safe-archive.sh",
     "lock:sync": "npm install --package-lock-only",
     "cleanup:starter": "bash scripts/cleanup-unused-starter-files.sh",
-    "cleanup:payment": "bash scripts/cleanup-bbjf-payment-remnants.sh",
+    "cleanup:payment": "bash scripts/cleanup-pti-payment-remnants.sh",
     "security:audit": "npm audit --audit-level=high",
     "security:audit:prod": "npm audit --omit=dev --audit-level=high",
     "verify:production": "bash scripts/verify-production-readiness.sh",

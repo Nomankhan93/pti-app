@@ -21,7 +21,7 @@ export function AdminShell({
         <section className="admin-shell-content">
           <div className="admin-mobile-bar">
             <div>
-              <p className="admin-mobile-eyebrow">BBJF Admin</p>
+              <p className="admin-mobile-eyebrow">PTI Admin</p>
               <h1>{title}</h1>
               <p>{subtitle}</p>
             </div>
@@ -52,7 +52,7 @@ export function AdminShell({
           <div className="admin-mobile-drawer-panel">
             <div className="admin-mobile-drawer-header">
               <div>
-                <p>BBJF Admin</p>
+                <p>PTI Admin</p>
                 <h2>Navigation</h2>
               </div>
 

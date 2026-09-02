@@ -39,7 +39,7 @@ export function AdminSidebar({
       aria-label="Admin navigation"
     >
       <div className="admin-sidebar-brand">
-        <span className="admin-sidebar-brand-icon">BBJF</span>
+        <span className="admin-sidebar-brand-icon">PTI</span>
         <span>
           <strong>Admin Panel</strong>
           <small>Membership Console</small>

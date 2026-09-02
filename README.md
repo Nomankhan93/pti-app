@@ -1,6 +1,6 @@
-# BBJF Membership Portal
+# PTI Membership Portal
 
-Bilawal Bhutto Jayala Federation (BBJF) digital membership portal built with TanStack Start, React, TypeScript, Tailwind CSS, and Supabase.
+Pakistan Tehreek-e-Insaf (PTI) digital membership portal built with TanStack Start, React, TypeScript, Tailwind CSS, and Supabase.
 
 ## Scope
 
@@ -14,7 +14,7 @@ This app is a membership portal only. It includes:
 - Public verification page
 - Admin member management
 
-Payment collection is intentionally disabled in the BBJF app. Do not re-enable payment tables, receipt uploads, or payment UI unless BBJF explicitly approves a new payment workflow.
+Payment collection is intentionally disabled in the PTI app. Do not re-enable payment tables, receipt uploads, or payment UI unless PTI explicitly approves a new payment workflow.
 
 ## Tech Stack
 
@@ -71,10 +71,10 @@ Run migrations locally with Supabase CLI, or apply them in Supabase Cloud SQL ed
 Important latest migration:
 
 ```txt
-supabase/migrations/20260618150000_bbjf_membership_payment_rs500.sql
+supabase/migrations/20260618150000_pti_membership_payment_rs500.sql
 ```
 
-It re-enables the BBJF membership payment workflow with a fixed Rs. 500 fee, private receipt uploads, and admin payment verification policies. The earlier `20260613120000_bbjf_constraints_and_payment_cleanup.sql` migration is still part of history and should remain in order.
+It re-enables the PTI membership payment workflow with a fixed Rs. 500 fee, private receipt uploads, and admin payment verification policies. The earlier `20260613120000_pti_constraints_and_payment_cleanup.sql` migration is still part of history and should remain in order.
 
 ## Admin Setup
 
@@ -99,7 +99,7 @@ It excludes secrets, local Supabase state, dependencies, build output, logs, and
 To verify an exported ZIP:
 
 ```bash
-bash scripts/check-safe-archive.sh exports/bbjf-app-safe-YYYYMMDD-HHMMSS.zip
+bash scripts/check-safe-archive.sh exports/pti-app-safe-YYYYMMDD-HHMMSS.zip
 ```
 
 ## Key Routes

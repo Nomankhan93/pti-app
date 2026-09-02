@@ -7,7 +7,7 @@ import {
 
 const approvedMember: VerifyMemberRow = {
   id: 'member-1',
-  member_no: 'BBJF-2026-0001',
+  member_no: 'PTI-2026-0001',
   full_name: 'Ali Khan',
   district: 'Umerkot',
   taluka: 'Kunri',
@@ -39,7 +39,7 @@ describe('buildPublicVerifyPayload', () => {
       verified: false,
       member: {
         id: 'member-1',
-        member_no: 'BBJF-2026-0001',
+        member_no: 'PTI-2026-0001',
         full_name: 'Not disclosed',
         district: 'Not disclosed',
         taluka: null,

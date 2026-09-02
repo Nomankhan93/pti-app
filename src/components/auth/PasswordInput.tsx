@@ -15,16 +15,16 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       : t('authPage.common.showPassword')
 
     return (
-      <div className={`bbjf-password-field ${className}`.trim()}>
+      <div className={`pti-password-field ${className}`.trim()}>
         <input
           ref={ref}
           {...props}
           type={isVisible ? 'text' : 'password'}
-          className={`bbjf-input bbjf-password-input ${inputClassName}`.trim()}
+          className={`pti-input pti-password-input ${inputClassName}`.trim()}
         />
         <button
           type="button"
-          className="bbjf-password-toggle"
+          className="pti-password-toggle"
           onClick={() => setIsVisible((value) => !value)}
           aria-label={label}
           title={label}

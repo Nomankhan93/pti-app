@@ -1,4 +1,4 @@
--- BBJF i18n register patch support
+-- PTI i18n register patch support
 -- Adds complete profile fields, designation, manual membership payment records,
 -- and receipt upload storage used by the multilingual registration form.
 
@@ -18,7 +18,7 @@ alter table public.members
   add column if not exists emergency_contact_mobile text,
   add column if not exists declaration_accepted boolean not null default false;
 
--- Keep BBJF card numbers separate from JAS.
+-- Keep PTI card numbers separate from JAS.
 create or replace function public.approve_member(
   _member_id uuid,
   _reviewed_by uuid default null
@@ -61,7 +61,7 @@ begin
   do update set last_seq = public.member_counters.last_seq + 1
   returning last_seq into next_seq;
 
-  generated_no := 'BBJF-' || current_year || '-' || lpad(next_seq::text, 4, '0');
+  generated_no := 'PTI-' || current_year || '-' || lpad(next_seq::text, 4, '0');
 
   update public.members
   set

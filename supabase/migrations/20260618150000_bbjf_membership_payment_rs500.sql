@@ -1,5 +1,5 @@
--- BBJF Membership Payment Rs. 500 Re-enable
--- Re-introduces the JAS-style manual membership payment workflow for BBJF.
+-- PTI Membership Payment Rs. 500 Re-enable
+-- Re-introduces the JAS-style manual membership payment workflow for PTI.
 -- Scope: applicant receipt upload, private receipt storage, admin verification,
 -- and Rs. 500 fixed membership fee records.
 
@@ -7,7 +7,7 @@ begin;
 
 create extension if not exists "pgcrypto";
 
--- Payment enums remain compatible with the earlier JAS/BBJF payment work.
+-- Payment enums remain compatible with the earlier JAS/PTI payment work.
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'membership_payment_status') then
@@ -63,7 +63,7 @@ alter table public.membership_payments
   alter column currency set default 'PKR',
   alter column payment_method set default 'bank';
 
--- Normalize pending/retry rows to the BBJF Rs. 500 fee. Final paid/waived rows
+-- Normalize pending/retry rows to the PTI Rs. 500 fee. Final paid/waived rows
 -- are preserved except where they were zero/legacy placeholders.
 update public.membership_payments
 set
@@ -108,7 +108,7 @@ create index if not exists membership_payments_receipt_path_idx
   where receipt_path is not null;
 
 -- Keep updated_at current. app_private.set_updated_at already exists in the
--- original schema; this trigger name matches the earlier BBJF migration.
+-- original schema; this trigger name matches the earlier PTI migration.
 drop trigger if exists membership_payments_set_updated_at on public.membership_payments;
 create trigger membership_payments_set_updated_at
 before update on public.membership_payments
@@ -275,9 +275,9 @@ using (
 );
 
 comment on table public.membership_payments is
-  'BBJF dedicated Rs. 500 membership application fee/payment records using manual Mobilink Microfinance Bank / JazzCash Raast receipt verification. Do not mix voluntary donations here.';
+  'PTI dedicated Rs. 500 membership application fee/payment records using manual Mobilink Microfinance Bank / JazzCash Raast receipt verification. Do not mix voluntary donations here.';
 
 comment on column public.membership_payments.receipt_path is
-  'Private storage path in membership-receipts bucket for manual BBJF membership fee receipt.';
+  'Private storage path in membership-receipts bucket for manual PTI membership fee receipt.';
 
 commit;

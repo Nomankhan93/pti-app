@@ -1,13 +1,13 @@
 import { forwardRef, type CSSProperties, type ReactNode, type Ref } from 'react'
 import { useI18n } from '../lib/i18n'
 
-export const APP_NAME = 'Bilawal Bhutto Jayala Federation'
-export const APP_SHORT_NAME = 'BBJF'
-export const BBJF_ICON_PATH = '/bbjf-icon-512.png'
-export const BBJF_LEADER_IMAGE_PATH = '/card-assets/bilawal-bhutto-card-leader.png'
-export const BBJF_AUTHORIZED_SIGNATURE_IMAGE_PATH = '/bbjf/authorized-signature-taj-muhammad-bhurgai.png'
-export const BBJF_AUTHORIZED_SIGNATORY_NAME = 'Taj Muhammad Bhurgai'
-export const BBJF_AUTHORIZED_SIGNATORY_TITLE = 'Provincial President, Sindh'
+export const APP_NAME = 'Pakistan Tehreek-e-Insaf'
+export const APP_SHORT_NAME = 'PTI'
+export const PTI_ICON_PATH = '/pti-icon-512.png'
+export const PTI_LEADER_IMAGE_PATH = '/card-assets/pti-leader.png'
+export const PTI_AUTHORIZED_SIGNATURE_IMAGE_PATH = '/pti/authorized-signature.png'
+export const PTI_AUTHORIZED_SIGNATORY_NAME = 'PTI Leadership'
+export const PTI_AUTHORIZED_SIGNATORY_TITLE = 'Party Representative'
 export const CARD_EXPORT_WIDTH = 1016
 export const CARD_EXPORT_HEIGHT = 638
 
@@ -351,8 +351,8 @@ const CardBack = forwardRef<HTMLElement, {
             >
               <div className="relative h-[70px] overflow-visible">
                 <img
-                  src={BBJF_AUTHORIZED_SIGNATURE_IMAGE_PATH}
-                  alt={`${BBJF_AUTHORIZED_SIGNATORY_NAME} authorized signature`}
+                  src={PTI_AUTHORIZED_SIGNATURE_IMAGE_PATH}
+                  alt={`${PTI_AUTHORIZED_SIGNATORY_NAME} authorized signature`}
                   className="pointer-events-none absolute left-[60%] top-[-18px] h-[98px] w-[300px] -translate-x-1/2 object-contain object-center mix-blend-multiply"
                   draggable={false}
                 />
@@ -364,10 +364,10 @@ const CardBack = forwardRef<HTMLElement, {
                 {t('card.back.authorizedSignature')}
               </p>
               <p className="mt-0.5 text-[14px] font-black leading-tight text-slate-950">
-                {BBJF_AUTHORIZED_SIGNATORY_NAME}
+                {PTI_AUTHORIZED_SIGNATORY_NAME}
               </p>
               <p className="mt-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-600">
-                {BBJF_AUTHORIZED_SIGNATORY_TITLE}
+                {PTI_AUTHORIZED_SIGNATORY_TITLE}
               </p>
             </BackPanel>
           </main>
@@ -424,7 +424,7 @@ function LogoMark({
 }
 
 function LeaderPortrait({ leaderImageUrl }: { leaderImageUrl?: string | null }) {
-  const src = leaderImageUrl || BBJF_LEADER_IMAGE_PATH
+  const src = leaderImageUrl || PTI_LEADER_IMAGE_PATH
 
   return (
     <div className="pointer-events-none absolute bottom-0 right-0 z-[6] h-full w-[38%] overflow-hidden">

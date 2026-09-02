@@ -1,7 +1,7 @@
 {
-  "name": "Bilawal Bhutto Jayala Federation",
-  "short_name": "BBJF",
-  "description": "Bilawal Bhutto Jayala Federation digital membership platform.",
+  "name": "Pakistan Tehreek-e-Insaf",
+  "short_name": "PTI",
+  "description": "Pakistan Tehreek-e-Insaf digital membership platform.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

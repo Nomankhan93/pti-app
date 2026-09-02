@@ -7,7 +7,7 @@ type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>
 }
 
-const DISMISS_KEY = 'bbjf-pwa-install-dismissed-at'
+const DISMISS_KEY = 'pti-pwa-install-dismissed-at'
 const DISMISS_DAYS = 7
 
 function isStandaloneDisplay(): boolean {
@@ -52,7 +52,7 @@ async function registerServiceWorker() {
   try {
     await navigator.serviceWorker.register('/sw.js')
   } catch (error) {
-    console.warn('[BBJF PWA] Service worker registration failed:', error)
+    console.warn('[PTI PWA] Service worker registration failed:', error)
   }
 }
 
@@ -98,10 +98,10 @@ export function InstallAppPrompt() {
 
   const helperText = useMemo(() => {
     if (isIosHint) {
-      return 'Open Share menu, then choose Add to Home Screen for faster BBJF access.'
+      return 'Open Share menu, then choose Add to Home Screen for faster PTI access.'
     }
 
-    return 'Install the BBJF member portal for faster access to registration, dashboard, digital cards, and admin tools.'
+    return 'Install the PTI member portal for faster access to registration, dashboard, digital cards, and admin tools.'
   }, [isIosHint])
 
   const handleDismiss = () => {
@@ -137,7 +137,7 @@ export function InstallAppPrompt() {
 
   return (
     <aside
-      aria-label="Install BBJF app"
+      aria-label="Install PTI app"
       className="fixed bottom-4 right-4 z-[70] w-[calc(100vw-2rem)] max-w-[28rem] rounded-[1.45rem] border border-emerald-100 bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.18)] backdrop-blur-md sm:p-5"
     >
       <button
@@ -160,10 +160,10 @@ export function InstallAppPrompt() {
 
         <div className="min-w-0">
           <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-800">
-            Install BBJF App
+            Install PTI App
           </p>
           <h2 className="mt-1 text-lg font-black leading-tight text-slate-950">
-            Install BBJF App
+            Install PTI App
           </h2>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
             {helperText}
@@ -184,7 +184,7 @@ export function InstallAppPrompt() {
             disabled={isInstalling}
             className="inline-flex items-center justify-center rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-extrabold text-white shadow-[0_14px_30px_rgba(6,95,70,0.2)] transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isInstalling ? 'Opening...' : 'Install BBJF App'}
+            {isInstalling ? 'Opening...' : 'Install PTI App'}
           </button>
         )}
 

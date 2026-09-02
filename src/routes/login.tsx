@@ -71,10 +71,10 @@ function LoginPage() {
   }
 
   return (
-    <main className="bbjf-auth-page px-4 py-12" dir={direction}>
-      <div className="bbjf-auth-card mx-auto max-w-md p-7 md:p-8">
+    <main className="pti-auth-page px-4 py-12" dir={direction}>
+      <div className="pti-auth-card mx-auto max-w-md p-7 md:p-8">
         <div className="mb-7 text-center">
-          <span className="bbjf-auth-badge">BBJF Access</span>
+          <span className="pti-auth-badge">PTI Access</span>
           <h1 className="mt-5 text-3xl font-black tracking-[-0.03em] text-slate-950">
             {t('login.form.title')}
           </h1>
@@ -121,7 +121,7 @@ function LoginPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required={method === 'email'}
-                className="bbjf-input"
+                className="pti-input"
                 placeholder={t('login.email.placeholder')}
                 autoComplete="email"
               />
@@ -137,7 +137,7 @@ function LoginPage() {
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
                 required={method === 'phone'}
-                className="bbjf-input"
+                className="pti-input"
                 placeholder="03001234567"
                 autoComplete="tel"
               />
@@ -169,7 +169,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bbjf-auth-button w-full disabled:opacity-60"
+            className="pti-auth-button w-full disabled:opacity-60"
           >
             {loading ? t('login.submit.loading') : t('auth.login')}
           </button>

@@ -13,10 +13,10 @@ import { PwaBootstrap } from '../components/layout/PwaBootstrap'
 import { I18nProvider, useI18n } from '../lib/i18n'
 import styles from '../styles.css?url'
 
-const APP_NAME = 'Bilawal Bhutto Jayala Federation'
-const APP_SHORT_NAME = 'BBJF'
+const APP_NAME = 'Pakistan Tehreek-e-Insaf'
+const APP_SHORT_NAME = 'PTI'
 const APP_FULL_TITLE = `${APP_NAME} | Digital Membership Portal`
-const BBJF_ICON_PATH = '/bbjf-icon-512.png'
+const PTI_ICON_PATH = '/pti-icon-512.png'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -27,7 +27,7 @@ export const Route = createRootRoute({
       {
         name: 'description',
         content:
-          'Bilawal Bhutto Jayala Federation digital membership portal for signup, member registration, admin approval, digital cards and QR verification.',
+          'Pakistan Tehreek-e-Insaf digital membership portal for signup, member registration, admin approval, digital cards and QR verification.',
       },
       { name: 'theme-color', content: '#0f172a' },
       { name: 'application-name', content: APP_SHORT_NAME },
@@ -41,10 +41,10 @@ export const Route = createRootRoute({
       {
         property: 'og:description',
         content:
-          'Register, manage and verify BBJF digital membership with QR-enabled cards.',
+          'Register, manage and verify PTI digital membership with QR-enabled cards.',
       },
       { property: 'og:type', content: 'website' },
-      { property: 'og:image', content: BBJF_ICON_PATH },
+      { property: 'og:image', content: PTI_ICON_PATH },
     ],
     links: [
       { rel: 'stylesheet', href: styles },

@@ -1,4 +1,4 @@
--- BBJF Admin Profile Edit Permissions
+-- PTI Admin Profile Edit Permissions
 -- Purpose: Allow JAS-style admin profile corrections from /admin/members/:id.
 -- Admin can edit member profile fields and upload replacement photos to member-photos/{member_user_id}/.
 -- Safe to run multiple times.

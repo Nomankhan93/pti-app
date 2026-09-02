@@ -10,7 +10,7 @@ import {
 } from '../../config/navigation'
 import { useAuthRole } from '../../hooks/useAuthRole'
 import { LanguageSwitcher } from '../../lib/i18n'
-import { BBJF_ICON_PATH } from '../MembershipCard'
+import { PTI_ICON_PATH } from '../MembershipCard'
 import { AccountMenuButton, AccountMenuPanel } from './AccountMenu'
 import { NavLink } from './NavLink'
 
@@ -110,8 +110,8 @@ export function Header({ compact }: { compact: boolean }) {
         <Link to="/" className="group flex min-w-0 items-center gap-3 no-underline">
           <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-950 p-1.5 shadow-lg ring-1 ring-black/5">
             <img
-              src={BBJF_ICON_PATH}
-              alt="BBJF logo"
+              src={PTI_ICON_PATH}
+              alt="PTI logo"
               className="h-full w-full rounded-xl object-cover"
             />
             <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white ring-2 ring-white">
@@ -120,10 +120,10 @@ export function Header({ compact }: { compact: boolean }) {
           </span>
           <span className="min-w-0">
             <span className="block truncate text-[15px] font-black leading-5 text-slate-950 sm:text-base">
-              Bilawal Bhutto Jayala Federation
+              Pakistan Tehreek-e-Insaf
             </span>
             <span className="block text-xs font-extrabold uppercase tracking-[0.22em] text-emerald-700">
-              BBJF Membership Portal
+              PTI Membership Portal
             </span>
           </span>
         </Link>
@@ -200,7 +200,7 @@ export function Header({ compact }: { compact: boolean }) {
             <div className="flex items-center justify-between border-b border-slate-100 p-4">
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700">
-                  BBJF
+                  PTI
                 </p>
                 <h2 className="truncate text-lg font-black text-slate-950">
                   Membership Menu

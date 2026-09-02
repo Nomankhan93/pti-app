@@ -1,4 +1,4 @@
-# BBJF Card Equal Size Patch
+# PTI Card Equal Size Patch
 
 ## Changes
 

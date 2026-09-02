@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight, BadgeCheck, ClipboardCheck, IdCard, ShieldCheck, UsersRound } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { BBJF_ICON_PATH } from '../components/MembershipCard'
+import { PTI_ICON_PATH } from '../components/MembershipCard'
 import { useAuthRole } from '../hooks/useAuthRole'
 import { useI18n, type AppLanguage } from '../lib/i18n'
 
@@ -42,10 +42,10 @@ type HomeCopy = {
 
 const HOME_COPY: Record<AppLanguage, HomeCopy> = {
   en: {
-    kicker: 'BBJF Membership Portal',
+    kicker: 'PTI Membership Portal',
     titleLines: ['Digital', 'Membership', 'System'],
     lede:
-      'A focused membership portal for BBJF: signup, membership form, admin approval, digital card, QR verification and member dashboard.',
+      'A focused membership portal for PTI: signup, membership form, admin approval, digital card, QR verification and member dashboard.',
     ctaDashboard: 'Open Dashboard',
     ctaSignup: 'Become a Member',
     ctaCard: 'Digital Card',
@@ -62,31 +62,31 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     },
     slides: [
       {
-        src: '/home-slides/bbjf-slide-01.jpg',
-        alt: 'BBJF leadership portrait for digital membership platform',
+        src: '/home-slides/pti-slide-01.jpg',
+        alt: 'PTI leadership portrait for digital membership platform',
         title: 'Digital Membership',
         text: 'A verified member record, secure profile and QR-enabled digital card.',
       },
       {
-        src: '/home-slides/bbjf-slide-02.jpg',
-        alt: 'BBJF public gathering and outreach moment',
+        src: '/home-slides/pti-slide-02.jpg',
+        alt: 'PTI public gathering and outreach moment',
         title: 'Member Registration',
         text: 'Members submit complete details once and track the review status online.',
       },
       {
-        src: '/home-slides/bbjf-slide-03.jpg',
-        alt: 'BBJF leadership speaking at a formal event',
+        src: '/home-slides/pti-slide-03.jpg',
+        alt: 'PTI leadership speaking at a formal event',
         title: 'Admin Approval',
         text: 'Admin officers review applications before member number and card activation.',
       },
       {
-        src: '/home-slides/bbjf-slide-04.jpg',
-        alt: 'BBJF public address and member engagement',
+        src: '/home-slides/pti-slide-04.jpg',
+        alt: 'PTI public address and member engagement',
         title: 'QR Verification',
         text: 'Approved members receive a public verification link and downloadable card.',
       },
     ],
-    workflow: 'BBJF Workflow',
+    workflow: 'PTI Workflow',
     slideButtonLabel: 'Show home slide',
     features: [
       {
@@ -104,7 +104,7 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ],
     scopeKicker: 'Membership portal only',
     scopeTitle:
-      'Clean BBJF scope with Rs. 500 membership fee receipt verification, digital cards and admin workflows.',
+      'Clean PTI scope with Rs. 500 membership fee receipt verification, digital cards and admin workflows.',
     scopeText:
       'This app is intentionally focused on membership lifecycle: account, registration, review, approval, card and public QR verification.',
     scopeItems: [
@@ -117,10 +117,10 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ],
   },
   ur: {
-    kicker: 'بی بی جے ایف ممبرشپ پورٹل',
+    kicker: 'پی ٹی آئی ممبرشپ پورٹل',
     titleLines: ['ڈیجیٹل', 'ممبرشپ', 'سسٹم'],
     lede:
-      'BBJF کے لیے ایک مکمل ممبرشپ پورٹل: سائن اَپ، ممبرشپ فارم، ایڈمن منظوری، ڈیجیٹل کارڈ، QR ویریفکیشن اور ممبر ڈیش بورڈ۔',
+      'پی ٹی آئی کے لیے ایک مکمل ممبرشپ پورٹل: سائن اَپ، ممبرشپ فارم، ایڈمن منظوری، ڈیجیٹل کارڈ، QR ویریفکیشن اور ممبر ڈیش بورڈ۔',
     ctaDashboard: 'ڈیش بورڈ کھولیں',
     ctaSignup: 'ممبر بنیں',
     ctaCard: 'ڈیجیٹل کارڈ',
@@ -137,31 +137,31 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     },
     slides: [
       {
-        src: '/home-slides/bbjf-slide-01.jpg',
-        alt: 'ڈیجیٹل ممبرشپ پلیٹ فارم کے لیے BBJF قیادت کی تصویر',
+        src: '/home-slides/pti-slide-01.jpg',
+        alt: 'ڈیجیٹل ممبرشپ پلیٹ فارم کے لیے پی ٹی آئی قیادت کی تصویر',
         title: 'ڈیجیٹل ممبرشپ',
         text: 'تصدیق شدہ ممبر ریکارڈ، محفوظ پروفائل اور QR سے منسلک ڈیجیٹل کارڈ۔',
       },
       {
-        src: '/home-slides/bbjf-slide-02.jpg',
-        alt: 'BBJF عوامی اجتماع اور رابطہ مہم',
+        src: '/home-slides/pti-slide-02.jpg',
+        alt: 'پی ٹی آئی عوامی اجتماع اور رابطہ مہم',
         title: 'ممبر رجسٹریشن',
         text: 'ممبرز اپنی مکمل معلومات ایک بار جمع کراتے ہیں اور ریویو اسٹیٹس آن لائن دیکھتے ہیں۔',
       },
       {
-        src: '/home-slides/bbjf-slide-03.jpg',
-        alt: 'BBJF قیادت رسمی تقریب میں خطاب کرتے ہوئے',
+        src: '/home-slides/pti-slide-03.jpg',
+        alt: 'پی ٹی آئی قیادت رسمی تقریب میں خطاب کرتے ہوئے',
         title: 'ایڈمن منظوری',
         text: 'ایڈمن افسران ممبر نمبر اور کارڈ ایکٹیویشن سے پہلے درخواستوں کا جائزہ لیتے ہیں۔',
       },
       {
-        src: '/home-slides/bbjf-slide-04.jpg',
-        alt: 'BBJF عوامی خطاب اور ممبر رابطہ',
+        src: '/home-slides/pti-slide-04.jpg',
+        alt: 'پی ٹی آئی عوامی خطاب اور ممبر رابطہ',
         title: 'QR ویریفکیشن',
         text: 'منظور شدہ ممبرز کو پبلک ویریفکیشن لنک اور ڈاؤن لوڈ ایبل کارڈ ملتا ہے۔',
       },
     ],
-    workflow: 'BBJF ورک فلو',
+    workflow: 'پی ٹی آئی ورک فلو',
     slideButtonLabel: 'ہوم سلائیڈ دکھائیں',
     features: [
       {
@@ -179,7 +179,7 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ],
     scopeKicker: 'صرف ممبرشپ پورٹل',
     scopeTitle:
-      'Rs. 500 ممبرشپ فیس رسید ویریفکیشن، ڈیجیٹل کارڈز اور ایڈمن ورک فلو کے ساتھ صاف BBJF اسکوپ۔',
+      'Rs. 500 ممبرشپ فیس رسید ویریفکیشن، ڈیجیٹل کارڈز اور ایڈمن ورک فلو کے ساتھ صاف پی ٹی آئی اسکوپ۔',
     scopeText:
       'یہ ایپ ممبرشپ لائف سائیکل پر فوکس کرتی ہے: اکاؤنٹ، رجسٹریشن، ریویو، منظوری، کارڈ اور پبلک QR ویریفکیشن۔',
     scopeItems: [
@@ -192,10 +192,10 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ],
   },
   sd: {
-    kicker: 'بي بي جي ايف ميمبرشپ پورٽل',
+    kicker: 'پی ٹی آئی ميمبرشپ پورٽل',
     titleLines: ['ڊجيٽل', 'ميمبرشپ', 'سسٽم'],
     lede:
-      'BBJF لاءِ مڪمل ميمبرشپ پورٽل: سائن اَپ، ميمبرشپ فارم، ايڊمن منظوري، ڊجيٽل ڪارڊ، QR ويريفڪيشن ۽ ميمبر ڊيش بورڊ.',
+      'پی ٹی آئی لاءِ مڪمل ميمبرشپ پورٽل: سائن اَپ، ميمبرشپ فارم، ايڊمن منظوري، ڊجيٽل ڪارڊ، QR ويريفڪيشن ۽ ميمبر ڊيش بورڊ.',
     ctaDashboard: 'ڊيش بورڊ کوليو',
     ctaSignup: 'ميمبر بڻجو',
     ctaCard: 'ڊجيٽل ڪارڊ',
@@ -212,31 +212,31 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     },
     slides: [
       {
-        src: '/home-slides/bbjf-slide-01.jpg',
-        alt: 'ڊجيٽل ميمبرشپ پليٽ فارم لاءِ BBJF قيادت جي تصوير',
+        src: '/home-slides/pti-slide-01.jpg',
+        alt: 'ڊجيٽل ميمبرشپ پليٽ فارم لاءِ پی ٹی آئی قيادت جي تصوير',
         title: 'ڊجيٽل ميمبرشپ',
         text: 'تصديق ٿيل ميمبر رڪارڊ، محفوظ پروفائل ۽ QR سان ڳنڍيل ڊجيٽل ڪارڊ.',
       },
       {
-        src: '/home-slides/bbjf-slide-02.jpg',
-        alt: 'BBJF عوامي گڏجاڻي ۽ رابطا مهم',
+        src: '/home-slides/pti-slide-02.jpg',
+        alt: 'پی ٹی آئی عوامي گڏجاڻي ۽ رابطا مهم',
         title: 'ميمبر رجسٽريشن',
         text: 'ميمبر مڪمل معلومات هڪ ڀيرو جمع ڪرائين ٿا ۽ ريويو اسٽيٽس آن لائن ڏسن ٿا.',
       },
       {
-        src: '/home-slides/bbjf-slide-03.jpg',
-        alt: 'BBJF قيادت رسمي تقريب ۾ خطاب ڪندي',
+        src: '/home-slides/pti-slide-03.jpg',
+        alt: 'پی ٹی آئی قيادت رسمي تقريب ۾ خطاب ڪندي',
         title: 'ايڊمن منظوري',
         text: 'ايڊمن آفيسر ميمبر نمبر ۽ ڪارڊ ايڪٽيويشن کان اڳ درخواستن جو جائزو وٺن ٿا.',
       },
       {
-        src: '/home-slides/bbjf-slide-04.jpg',
-        alt: 'BBJF عوامي خطاب ۽ ميمبر رابطي',
+        src: '/home-slides/pti-slide-04.jpg',
+        alt: 'پی ٹی آئی عوامي خطاب ۽ ميمبر رابطي',
         title: 'QR ويريفڪيشن',
         text: 'منظور ٿيل ميمبرن کي پبلڪ ويريفڪيشن لنڪ ۽ ڊائون لوڊ ٿيندڙ ڪارڊ ملي ٿو.',
       },
     ],
-    workflow: 'BBJF ورڪ فلو',
+    workflow: 'پی ٹی آئی ورڪ فلو',
     slideButtonLabel: 'هوم سلائيڊ ڏيکاريو',
     features: [
       {
@@ -254,7 +254,7 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ],
     scopeKicker: 'صرف ميمبرشپ پورٽل',
     scopeTitle:
-      'Rs. 500 ميمبرشپ فيس رسيد ويريفڪيشن، ڊجيٽل ڪارڊز ۽ ايڊمن ورڪ فلو سان صاف BBJF اسڪوپ.',
+      'Rs. 500 ميمبرشپ فيس رسيد ويريفڪيشن، ڊجيٽل ڪارڊز ۽ ايڊمن ورڪ فلو سان صاف پی ٹی آئی اسڪوپ.',
     scopeText:
       'هي ايپ ميمبرشپ لائيف سائيڪل تي فوڪس ڪري ٿي: اڪائونٽ، رجسٽريشن، ريويو، منظوري، ڪارڊ ۽ پبلڪ QR ويريفڪيشن.',
     scopeItems: [
@@ -275,22 +275,22 @@ function HomePage() {
   const isRtl = direction === 'rtl'
 
   return (
-    <main dir={direction} className="bbjf-home-page px-3 py-6 sm:px-4 md:py-12">
-      <div className="page-wrap bbjf-home-wrap space-y-7 md:space-y-8">
-        <section className="bbjf-home-hero relative isolate overflow-hidden rounded-[2rem] border border-white/70 bg-white/85 p-4 shadow-[0_28px_90px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-5 md:rounded-[2.5rem] md:p-8 lg:p-10">
+    <main dir={direction} className="pti-home-page px-3 py-6 sm:px-4 md:py-12">
+      <div className="page-wrap pti-home-wrap space-y-7 md:space-y-8">
+        <section className="pti-home-hero relative isolate overflow-hidden rounded-[2rem] border border-white/70 bg-white/85 p-4 shadow-[0_28px_90px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-5 md:rounded-[2.5rem] md:p-8 lg:p-10">
           <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-red-500/10 blur-3xl" />
           <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-500/12 blur-3xl" />
           <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-700 via-slate-950 to-emerald-700" />
 
           <div className="relative z-10 grid min-w-0 items-center gap-7 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
             <div className={`min-w-0 max-w-3xl text-start ${isRtl ? 'lg:order-1' : ''}`}>
-              <div className="bbjf-home-kicker inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-800 sm:gap-3 sm:px-4 sm:text-xs sm:tracking-[0.22em]">
-                <img src={BBJF_ICON_PATH} alt="" className="h-6 w-6 rounded-full object-cover" />
+              <div className="pti-home-kicker inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-800 sm:gap-3 sm:px-4 sm:text-xs sm:tracking-[0.22em]">
+                <img src={PTI_ICON_PATH} alt="" className="h-6 w-6 rounded-full object-cover" />
                 <span>{copy.kicker}</span>
               </div>
 
               <h1
-                className={`bbjf-home-title mt-5 max-w-none text-[clamp(2.85rem,8.2vw,5.15rem)] font-black leading-[0.94] text-slate-950 sm:mt-6 md:text-[4.95rem] lg:text-[5.2rem] xl:text-[5.55rem] ${
+                className={`pti-home-title mt-5 max-w-none text-[clamp(2.85rem,8.2vw,5.15rem)] font-black leading-[0.94] text-slate-950 sm:mt-6 md:text-[4.95rem] lg:text-[5.2rem] xl:text-[5.55rem] ${
                   isRtl ? 'tracking-normal' : 'tracking-[-0.055em]'
                 }`}
               >
@@ -299,11 +299,11 @@ function HomePage() {
                 <span className="block whitespace-nowrap">{copy.titleLines[2]}</span>
               </h1>
 
-              <p className="bbjf-home-lede mt-5 max-w-2xl text-[0.98rem] font-semibold leading-7 text-slate-600 sm:text-lg sm:leading-8 md:text-xl">
+              <p className="pti-home-lede mt-5 max-w-2xl text-[0.98rem] font-semibold leading-7 text-slate-600 sm:text-lg sm:leading-8 md:text-xl">
                 {copy.lede}
               </p>
 
-              <div className="bbjf-home-actions mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
+              <div className="pti-home-actions mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
                 <Link
                   to={isLoggedIn ? '/dashboard' : '/signup'}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-950/15 no-underline transition hover:-translate-y-0.5 hover:bg-black sm:w-auto sm:px-6"
@@ -329,7 +329,7 @@ function HomePage() {
                 ) : null}
               </div>
 
-              <div className="bbjf-home-steps mt-7 grid gap-3 sm:mt-8 sm:grid-cols-3">
+              <div className="pti-home-steps mt-7 grid gap-3 sm:mt-8 sm:grid-cols-3">
                 <MiniMetric icon={<UsersRound className="h-5 w-5" />} label={copy.steps[0].label} value={copy.steps[0].value} />
                 <MiniMetric icon={<ClipboardCheck className="h-5 w-5" />} label={copy.steps[1].label} value={copy.steps[1].value} />
                 <MiniMetric icon={<IdCard className="h-5 w-5" />} label={copy.steps[2].label} value={copy.steps[2].value} />
@@ -403,7 +403,7 @@ function HomePhotoSlider({ copy }: { copy: HomeCopy }) {
   const slide = copy.slides[activeSlide]
 
   return (
-    <div className="bbjf-photo-slider relative overflow-hidden rounded-[1.7rem] border border-white/60 bg-slate-950 shadow-[0_30px_90px_rgba(15,23,42,0.30)] md:rounded-[2.2rem]">
+    <div className="pti-photo-slider relative overflow-hidden rounded-[1.7rem] border border-white/60 bg-slate-950 shadow-[0_30px_90px_rgba(15,23,42,0.30)] md:rounded-[2.2rem]">
       <div className="relative aspect-[4/3] min-h-[280px] sm:min-h-[430px] lg:min-h-[560px]">
         {copy.slides.map((item, index) => (
           <img
