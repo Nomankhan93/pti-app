@@ -108,10 +108,10 @@ const CardFront = forwardRef<HTMLElement, {
     >
       <CardWatermark brandIconUrl={brandIconUrl} />
 
-      <div className="relative h-[214px] overflow-hidden bg-slate-950 px-7 py-6 text-white">
+      <div className="relative h-[214px] overflow-hidden bg-emerald-950 px-7 py-6 text-white">
         <FlagStripes />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-black/40 to-black/15" />
-        <div className="absolute inset-y-0 right-0 w-[36%] bg-emerald-800/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/20 via-transparent to-red-950/20" />
+        <div className="absolute inset-y-0 right-0 w-[36%] bg-red-800/45" />
         <LeaderPortrait leaderImageUrl={leaderImageUrl} />
 
         <div className="relative z-10 flex h-full items-start gap-5">
@@ -247,11 +247,11 @@ const CardBack = forwardRef<HTMLElement, {
       dir={direction}
       style={CARD_SIDE_STYLE}
     >
-      <header className="relative h-[142px] shrink-0 overflow-hidden bg-slate-950 px-6 py-5 text-white">
+      <header className="relative h-[142px] shrink-0 overflow-hidden bg-emerald-950 px-6 py-5 text-white">
         <FlagStripes />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/15 via-black/55 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/20 via-transparent to-red-950/20" />
         <div className="absolute right-0 top-0 h-36 w-36 rounded-bl-full bg-white/10" />
-        <div className="absolute inset-x-0 bottom-0 h-[4px] bg-gradient-to-r from-red-700 via-black to-green-700" />
+        <div className="absolute inset-x-0 bottom-0 h-[4px] bg-gradient-to-r from-green-700 to-red-700" />
 
         <div className="relative flex h-full items-start justify-between gap-5">
           <div className="flex min-w-0 items-start gap-4">
@@ -387,9 +387,9 @@ const CardBack = forwardRef<HTMLElement, {
 function FlagStripes() {
   return (
     <>
-      <div className="absolute inset-y-0 left-0 w-1/3 bg-red-700" />
-      <div className="absolute inset-y-0 left-1/3 w-1/3 bg-black" />
-      <div className="absolute inset-y-0 right-0 w-1/3 bg-green-700" />
+      {/* Top stripe order: GREEN first, RED second. No black section. */}
+      <div className="absolute inset-y-0 left-0 w-1/2 bg-green-700" />
+      <div className="absolute inset-y-0 right-0 w-1/2 bg-red-700" />
     </>
   )
 }
