@@ -286,6 +286,300 @@ export type Database = {
         }
         Relationships: []
       }
+      duty_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          completed_at: string | null
+          duty_id: string
+          id: string
+          responded_at: string | null
+          response_note: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["duty_status"]
+          updated_at: string
+          volunteer_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          completed_at?: string | null
+          duty_id: string
+          id?: string
+          responded_at?: string | null
+          response_note?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["duty_status"]
+          updated_at?: string
+          volunteer_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          completed_at?: string | null
+          duty_id?: string
+          id?: string
+          responded_at?: string | null
+          response_note?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["duty_status"]
+          updated_at?: string
+          volunteer_id?: string
+        }
+        Relationships: []
+      }
+      operation_coordinators: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          id: string
+          is_active: boolean
+          operation_id: string
+          revoked_at: string | null
+          revoked_by: string | null
+          role: Database["public"]["Enums"]["operation_coordinator_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          id?: string
+          is_active?: boolean
+          operation_id: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role: Database["public"]["Enums"]["operation_coordinator_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          id?: string
+          is_active?: boolean
+          operation_id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role?: Database["public"]["Enums"]["operation_coordinator_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      operation_duties: {
+        Row: {
+          created_at: string
+          created_by: string
+          ends_at: string | null
+          id: string
+          instructions: string | null
+          is_active: boolean
+          location: string | null
+          operation_id: string
+          org_unit_id: string
+          priority: Database["public"]["Enums"]["duty_priority"]
+          shift_id: string | null
+          starts_at: string | null
+          team_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          ends_at?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          location?: string | null
+          operation_id: string
+          org_unit_id: string
+          priority?: Database["public"]["Enums"]["duty_priority"]
+          shift_id?: string | null
+          starts_at?: string | null
+          team_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          ends_at?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          location?: string | null
+          operation_id?: string
+          org_unit_id?: string
+          priority?: Database["public"]["Enums"]["duty_priority"]
+          shift_id?: string | null
+          starts_at?: string | null
+          team_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      operation_shifts: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          created_by: string
+          ends_at: string
+          id: string
+          is_active: boolean
+          location: string | null
+          name: string
+          operation_id: string
+          org_unit_id: string
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          created_by: string
+          ends_at: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name: string
+          operation_id: string
+          org_unit_id: string
+          starts_at: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          created_by?: string
+          ends_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name?: string
+          operation_id?: string
+          org_unit_id?: string
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      operation_team_members: {
+        Row: {
+          added_by: string
+          id: string
+          is_active: boolean
+          joined_at: string
+          removed_at: string | null
+          removed_by: string | null
+          team_id: string
+          volunteer_id: string
+        }
+        Insert: {
+          added_by: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          removed_at?: string | null
+          removed_by?: string | null
+          team_id: string
+          volunteer_id: string
+        }
+        Update: {
+          added_by?: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          removed_at?: string | null
+          removed_by?: string | null
+          team_id?: string
+          volunteer_id?: string
+        }
+        Relationships: []
+      }
+      operation_teams: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean
+          lead_volunteer_id: string | null
+          name: string
+          operation_id: string
+          org_unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          lead_volunteer_id?: string | null
+          name: string
+          operation_id: string
+          org_unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          lead_volunteer_id?: string | null
+          name?: string
+          operation_id?: string
+          org_unit_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      operations: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["operation_kind"]
+          location: string | null
+          org_unit_id: string
+          starts_at: string | null
+          status: Database["public"]["Enums"]["operation_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["operation_kind"]
+          location?: string | null
+          org_unit_id: string
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["operation_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["operation_kind"]
+          location?: string | null
+          org_unit_id?: string
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["operation_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -426,6 +720,139 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_operation_duty: {
+        Args: { p_duty_id: string; p_volunteer_id: string }
+        Returns: string
+      }
+      cancel_duty_assignment: {
+        Args: { p_assignment_id: string; p_reason: string }
+        Returns: undefined
+      }
+      list_my_duty_assignments: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          assigned_at: string
+          assignment_id: string
+          completed_at: string | null
+          duty_id: string
+          duty_title: string
+          ends_at: string | null
+          instructions: string | null
+          location: string | null
+          operation_id: string
+          operation_status: Database["public"]["Enums"]["operation_status"]
+          operation_title: string
+          priority: Database["public"]["Enums"]["duty_priority"]
+          responded_at: string | null
+          response_note: string | null
+          shift_name: string | null
+          started_at: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["duty_status"]
+          team_name: string | null
+        }[]
+      }
+      list_operation_coordinator_candidates: {
+        Args: { p_operation_id: string }
+        Returns: {
+          email: string | null
+          org_unit_id: string
+          org_unit_name: string
+          role: Database["public"]["Enums"]["organization_role"]
+          user_id: string
+        }[]
+      }
+      list_operations_for_my_scope: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          assignment_count: number
+          completed_count: number
+          created_at: string
+          description: string | null
+          duty_count: number
+          ends_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["operation_kind"]
+          location: string | null
+          org_level: Database["public"]["Enums"]["organization_level"]
+          org_unit_id: string
+          org_unit_name: string
+          shift_count: number
+          starts_at: string | null
+          status: Database["public"]["Enums"]["operation_status"]
+          team_count: number
+          title: string
+          updated_at: string
+        }[]
+      }
+      my_operations_workbench_access: {
+        Args: Record<PropertyKey, never>
+        Returns: { can_create: boolean; can_manage: boolean; can_view: boolean }[]
+      }
+      save_operation: {
+        Args: { p_operation_id: string | null; p_org_unit_id: string; p_payload: Json }
+        Returns: string
+      }
+      save_operation_duty: {
+        Args: {
+          p_duty_id: string | null
+          p_operation_id: string
+          p_org_unit_id: string
+          p_payload: Json
+          p_shift_id: string | null
+          p_team_id: string | null
+        }
+        Returns: string
+      }
+      save_operation_shift: {
+        Args: {
+          p_capacity: number | null
+          p_ends_at: string
+          p_location: string
+          p_name: string
+          p_operation_id: string
+          p_org_unit_id: string
+          p_shift_id: string | null
+          p_starts_at: string
+        }
+        Returns: string
+      }
+      save_operation_team: {
+        Args: {
+          p_description: string
+          p_lead_volunteer_id: string | null
+          p_name: string
+          p_operation_id: string
+          p_org_unit_id: string
+          p_team_id: string | null
+        }
+        Returns: string
+      }
+      set_operation_coordinator: {
+        Args: {
+          p_is_active: boolean
+          p_operation_id: string
+          p_role: Database["public"]["Enums"]["operation_coordinator_role"]
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      set_operation_status: {
+        Args: { p_operation_id: string; p_status: Database["public"]["Enums"]["operation_status"] }
+        Returns: undefined
+      }
+      set_operation_team_member: {
+        Args: { p_is_active: boolean; p_team_id: string; p_volunteer_id: string }
+        Returns: undefined
+      }
+      update_my_duty_status: {
+        Args: {
+          p_assignment_id: string
+          p_note: string
+          p_status: Database["public"]["Enums"]["duty_status"]
+        }
+        Returns: undefined
+      }
       list_volunteers_for_my_scope: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -501,6 +928,19 @@ export type Database = {
     Enums: {
       app_role: "admin"
       geography_kind: "province" | "division" | "district" | "tehsil"
+      duty_priority: "low" | "normal" | "high" | "urgent"
+      duty_status: "assigned" | "accepted" | "in_progress" | "completed" | "unable" | "cancelled"
+      operation_coordinator_role: "coordinator" | "supervisor"
+      operation_kind:
+        | "long_march"
+        | "public_gathering"
+        | "convention"
+        | "membership_campaign"
+        | "fundraising_campaign"
+        | "protest"
+        | "relief_campaign"
+        | "other"
+      operation_status: "draft" | "planned" | "active" | "completed" | "cancelled"
       organization_level: "central" | "province" | "division" | "district" | "tehsil"
       volunteer_availability: "available" | "limited" | "unavailable"
       organization_role:

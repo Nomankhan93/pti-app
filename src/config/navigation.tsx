@@ -5,6 +5,7 @@ import {
   Home,
   IdCard,
   LayoutDashboard,
+  ListChecks,
   LogIn,
   LogOut,
   ShieldCheck,
@@ -16,7 +17,7 @@ export const adminRoleNames = ['admin'] as const
 
 export type HeaderMenuKey = 'account' | null
 
-export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/admin'
+export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/admin'
 
 export type NavigationItem = {
   label: string
@@ -78,7 +79,7 @@ export const loggedOutAccountItems: NavigationItem[] = [
   },
 ]
 
-export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false): NavigationItem[] {
+export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false, hasOperationsWorkbenchAccess = false): NavigationItem[] {
   return [
     ...memberNavigationItems,
     ...(hasVolunteerWorkbenchAccess
@@ -89,6 +90,17 @@ export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = 
             to: '/operations/volunteers' as const,
             icon: <UsersRound className="h-4 w-4" />,
             badge: 'Operations',
+          },
+        ]
+      : []),
+    ...(hasOperationsWorkbenchAccess
+      ? [
+          {
+            label: 'Operations Workbench',
+            description: 'Manage operations, teams, shifts and duties',
+            to: '/operations/workbench' as const,
+            icon: <ListChecks className="h-4 w-4" />,
+            badge: 'Phase 3',
           },
         ]
       : []),

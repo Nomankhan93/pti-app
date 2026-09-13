@@ -5,6 +5,7 @@ import {
   Building2,
   ClipboardList,
   Download,
+  ListChecks,
   IdCard,
   LayoutDashboard,
   SearchCheck,
@@ -20,6 +21,7 @@ export type AdminNavigationRoute =
   | '/admin/roles'
   | '/admin/audit'
   | '/operations/volunteers'
+  | '/operations/workbench'
 
 export type AdminNavigationItem = {
   label: string
@@ -114,6 +116,13 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
   {
     title: 'Operations',
     items: [
+      {
+        label: 'Operations Workbench',
+        description: 'Operations, teams, shifts, duties and assignments',
+        to: '/operations/workbench',
+        icon: <ListChecks size={17} />,
+        badge: 'PHASE 3',
+      },
       {
         label: 'Volunteer Workbench',
         description: 'Search and manage volunteers within authorized scope',

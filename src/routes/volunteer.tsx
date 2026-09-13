@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { formatMobileInput, normalizeMobile } from '../lib/shared/formatters'
+import { MyDutiesPanel } from '../components/volunteer/MyDutiesPanel'
 import { supabase } from '../lib/supabase/client'
 import type { Tables } from '../lib/supabase/database.types'
 import {
@@ -398,9 +399,11 @@ function VolunteerPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               {capabilities.length ? capabilities.map((item) => <span key={item} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700">{item}</span>) : <span className="text-sm font-semibold text-slate-500">No operational capabilities selected yet.</span>}
             </div>
-            <p className="mt-4 text-xs font-semibold leading-5 text-slate-500">Teams, assigned duties and attendance will appear in the volunteer dashboard after the Operations, Teams & Duties phase is added.</p>
+            <p className="mt-4 text-xs font-semibold leading-5 text-slate-500">Your skills and availability now feed team membership and duty assignment. Attendance/check-in remains a separate next phase.</p>
           </section>
         ) : null}
+
+        <MyDutiesPanel enabled={Boolean(profile)} />
       </div>
     </main>
   )

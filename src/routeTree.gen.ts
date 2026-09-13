@@ -18,6 +18,7 @@ import { Route as CardRouteImport } from './routes/card'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyMemberNoRouteImport } from './routes/verify/$memberNo'
+import { Route as OperationsWorkbenchRouteImport } from './routes/operations/workbench'
 import { Route as OperationsVolunteersRouteImport } from './routes/operations/volunteers'
 import { Route as AdminRolesRouteImport } from './routes/admin/roles'
 import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
@@ -70,6 +71,11 @@ const VerifyMemberNoRoute = VerifyMemberNoRouteImport.update({
   path: '/verify/$memberNo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OperationsWorkbenchRoute = OperationsWorkbenchRouteImport.update({
+  id: '/operations/workbench',
+  path: '/operations/workbench',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OperationsVolunteersRoute = OperationsVolunteersRouteImport.update({
   id: '/operations/volunteers',
   path: '/operations/volunteers',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
+  '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
+  '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
+  '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/admin/organization'
     | '/admin/roles'
     | '/operations/volunteers'
+    | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/admin/members/$id/card'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/admin/organization'
     | '/admin/roles'
     | '/operations/volunteers'
+    | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/admin/members/$id/card'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/admin/organization'
     | '/admin/roles'
     | '/operations/volunteers'
+    | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/admin/members/$id/card'
@@ -217,6 +229,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   VolunteerRoute: typeof VolunteerRoute
   OperationsVolunteersRoute: typeof OperationsVolunteersRoute
+  OperationsWorkbenchRoute: typeof OperationsWorkbenchRoute
   VerifyMemberNoRoute: typeof VerifyMemberNoRoute
 }
 
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       path: '/verify/$memberNo'
       fullPath: '/verify/$memberNo'
       preLoaderRoute: typeof VerifyMemberNoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/operations/workbench': {
+      id: '/operations/workbench'
+      path: '/operations/workbench'
+      fullPath: '/operations/workbench'
+      preLoaderRoute: typeof OperationsWorkbenchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/operations/volunteers': {
@@ -368,6 +388,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   VolunteerRoute: VolunteerRoute,
   OperationsVolunteersRoute: OperationsVolunteersRoute,
+  OperationsWorkbenchRoute: OperationsWorkbenchRoute,
   VerifyMemberNoRoute: VerifyMemberNoRoute,
 }
 export const routeTree = rootRouteImport
