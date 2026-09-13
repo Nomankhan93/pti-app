@@ -48,7 +48,7 @@ export function MyDutiesPanel({ enabled }: { enabled: boolean }) {
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700">Operations</p>
           <h2 className="mt-1 text-xl font-black text-slate-950">My assigned duties</h2>
-          <p className="mt-1 text-sm font-semibold text-slate-500">Accept assigned work, start it when you are on duty, and mark completion. Attendance/check-in will be added separately.</p>
+          <p className="mt-1 text-sm font-semibold text-slate-500">Accept assigned work, start it when you are on duty, and mark completion. Attendance and participation are tracked separately below your duty list.</p>
         </div>
         <button type="button" onClick={() => void loadAssignments()} disabled={loading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-600"><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh</button>
       </div>

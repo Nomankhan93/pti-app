@@ -9,6 +9,7 @@ import {
   IdCard,
   LayoutDashboard,
   SearchCheck,
+  ScanLine,
   ShieldCheck,
   UserCog,
   Users,
@@ -22,6 +23,7 @@ export type AdminNavigationRoute =
   | '/admin/audit'
   | '/operations/volunteers'
   | '/operations/workbench'
+  | '/operations/attendance'
 
 export type AdminNavigationItem = {
   label: string
@@ -122,6 +124,13 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         to: '/operations/workbench',
         icon: <ListChecks size={17} />,
         badge: 'PHASE 3',
+      },
+      {
+        label: 'Attendance & Participation',
+        description: 'QR check-in, attendance roster and participation history',
+        to: '/operations/attendance',
+        icon: <ScanLine size={17} />,
+        badge: 'PHASE 4',
       },
       {
         label: 'Volunteer Workbench',

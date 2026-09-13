@@ -6,6 +6,7 @@ import {
   IdCard,
   LayoutDashboard,
   ListChecks,
+  ScanLine,
   LogIn,
   LogOut,
   ShieldCheck,
@@ -17,7 +18,7 @@ export const adminRoleNames = ['admin'] as const
 
 export type HeaderMenuKey = 'account' | null
 
-export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/admin'
+export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/operations/attendance' | '/admin'
 
 export type NavigationItem = {
   label: string
@@ -101,6 +102,13 @@ export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = 
             to: '/operations/workbench' as const,
             icon: <ListChecks className="h-4 w-4" />,
             badge: 'Phase 3',
+          },
+          {
+            label: 'Attendance & Participation',
+            description: 'QR check-in, attendance roster and participation tracking',
+            to: '/operations/attendance' as const,
+            icon: <ScanLine className="h-4 w-4" />,
+            badge: 'Phase 4',
           },
         ]
       : []),

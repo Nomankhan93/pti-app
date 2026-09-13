@@ -20,9 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyMemberNoRouteImport } from './routes/verify/$memberNo'
 import { Route as OperationsWorkbenchRouteImport } from './routes/operations/workbench'
 import { Route as OperationsVolunteersRouteImport } from './routes/operations/volunteers'
+import { Route as OperationsAttendanceRouteImport } from './routes/operations/attendance'
 import { Route as AdminRolesRouteImport } from './routes/admin/roles'
 import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
+import { Route as AttendanceCheckInTokenRouteImport } from './routes/attendance/check-in/$token'
 import { Route as AdminMembersIdRouteImport } from './routes/admin/members/$id'
 import { Route as AdminMembersIdCardRouteImport } from './routes/admin/members/$id/card'
 
@@ -81,6 +83,11 @@ const OperationsVolunteersRoute = OperationsVolunteersRouteImport.update({
   path: '/operations/volunteers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OperationsAttendanceRoute = OperationsAttendanceRouteImport.update({
+  id: '/operations/attendance',
+  path: '/operations/attendance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRolesRoute = AdminRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -95,6 +102,11 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
   getParentRoute: () => AdminRoute,
+} as any)
+const AttendanceCheckInTokenRoute = AttendanceCheckInTokenRouteImport.update({
+  id: '/attendance/check-in/$token',
+  path: '/attendance/check-in/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminMembersIdRoute = AdminMembersIdRouteImport.update({
   id: '/members/$id',
@@ -119,10 +131,12 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/operations/attendance': typeof OperationsAttendanceRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
   '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
+  '/attendance/check-in/$token': typeof AttendanceCheckInTokenRoute
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
 }
 export interface FileRoutesByTo {
@@ -137,10 +151,12 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/operations/attendance': typeof OperationsAttendanceRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
   '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
+  '/attendance/check-in/$token': typeof AttendanceCheckInTokenRoute
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
 }
 export interface FileRoutesById {
@@ -156,10 +172,12 @@ export interface FileRoutesById {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
+  '/operations/attendance': typeof OperationsAttendanceRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
   '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
+  '/attendance/check-in/$token': typeof AttendanceCheckInTokenRoute
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
 }
 export interface FileRouteTypes {
@@ -176,10 +194,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/organization'
     | '/admin/roles'
+    | '/operations/attendance'
     | '/operations/volunteers'
     | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
+    | '/attendance/check-in/$token'
     | '/admin/members/$id/card'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -194,10 +214,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/organization'
     | '/admin/roles'
+    | '/operations/attendance'
     | '/operations/volunteers'
     | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
+    | '/attendance/check-in/$token'
     | '/admin/members/$id/card'
   id:
     | '__root__'
@@ -212,10 +234,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/organization'
     | '/admin/roles'
+    | '/operations/attendance'
     | '/operations/volunteers'
     | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
+    | '/attendance/check-in/$token'
     | '/admin/members/$id/card'
   fileRoutesById: FileRoutesById
 }
@@ -228,9 +252,11 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   VolunteerRoute: typeof VolunteerRoute
+  OperationsAttendanceRoute: typeof OperationsAttendanceRoute
   OperationsVolunteersRoute: typeof OperationsVolunteersRoute
   OperationsWorkbenchRoute: typeof OperationsWorkbenchRoute
   VerifyMemberNoRoute: typeof VerifyMemberNoRoute
+  AttendanceCheckInTokenRoute: typeof AttendanceCheckInTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OperationsVolunteersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/operations/attendance': {
+      id: '/operations/attendance'
+      path: '/operations/attendance'
+      fullPath: '/operations/attendance'
+      preLoaderRoute: typeof OperationsAttendanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/roles': {
       id: '/admin/roles'
       path: '/roles'
@@ -332,6 +365,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/attendance/check-in/$token': {
+      id: '/attendance/check-in/$token'
+      path: '/attendance/check-in/$token'
+      fullPath: '/attendance/check-in/$token'
+      preLoaderRoute: typeof AttendanceCheckInTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/members/$id': {
       id: '/admin/members/$id'
@@ -387,9 +427,11 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
   VolunteerRoute: VolunteerRoute,
+  OperationsAttendanceRoute: OperationsAttendanceRoute,
   OperationsVolunteersRoute: OperationsVolunteersRoute,
   OperationsWorkbenchRoute: OperationsWorkbenchRoute,
   VerifyMemberNoRoute: VerifyMemberNoRoute,
+  AttendanceCheckInTokenRoute: AttendanceCheckInTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

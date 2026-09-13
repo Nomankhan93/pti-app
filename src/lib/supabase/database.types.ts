@@ -34,6 +34,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          check_in_at: string | null
+          check_out_at: string | null
+          created_at: string
+          id: string
+          marked_by: string | null
+          note: string | null
+          operation_id: string
+          org_unit_id: string
+          session_id: string | null
+          shift_id: string | null
+          source: Database["public"]["Enums"]["attendance_source"]
+          status: Database["public"]["Enums"]["attendance_status"]
+          updated_at: string
+          volunteer_id: string
+        }
+        Insert: {
+          check_in_at?: string | null
+          check_out_at?: string | null
+          created_at?: string
+          id?: string
+          marked_by?: string | null
+          note?: string | null
+          operation_id: string
+          org_unit_id: string
+          session_id?: string | null
+          shift_id?: string | null
+          source?: Database["public"]["Enums"]["attendance_source"]
+          status: Database["public"]["Enums"]["attendance_status"]
+          updated_at?: string
+          volunteer_id: string
+        }
+        Update: {
+          check_in_at?: string | null
+          check_out_at?: string | null
+          created_at?: string
+          id?: string
+          marked_by?: string | null
+          note?: string | null
+          operation_id?: string
+          org_unit_id?: string
+          session_id?: string | null
+          shift_id?: string | null
+          source?: Database["public"]["Enums"]["attendance_source"]
+          status?: Database["public"]["Enums"]["attendance_status"]
+          updated_at?: string
+          volunteer_id?: string
+        }
+        Relationships: []
+      }
+      attendance_sessions: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          closes_at: string
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          late_after: string | null
+          opens_at: string
+          operation_id: string
+          org_unit_id: string
+          require_assignment: boolean
+          shift_id: string | null
+          token: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closes_at: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          late_after?: string | null
+          opens_at: string
+          operation_id: string
+          org_unit_id: string
+          require_assignment?: boolean
+          shift_id?: string | null
+          token: string
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closes_at?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          late_after?: string | null
+          opens_at?: string
+          operation_id?: string
+          org_unit_id?: string
+          require_assignment?: boolean
+          shift_id?: string | null
+          token?: string
+        }
+        Relationships: []
+      }
       audit_events: {
         Row: {
           action: string
@@ -720,6 +822,135 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_in_with_attendance_token: {
+        Args: { p_token: string }
+        Returns: {
+          check_in_at: string
+          check_out_at: string | null
+          operation_title: string
+          record_id: string
+          shift_name: string | null
+          status: Database["public"]["Enums"]["attendance_status"]
+        }[]
+      }
+      check_out_attendance_record: {
+        Args: { p_record_id: string }
+        Returns: string
+      }
+      check_out_my_attendance: {
+        Args: { p_record_id: string }
+        Returns: string
+      }
+      close_attendance_session: {
+        Args: { p_session_id: string }
+        Returns: undefined
+      }
+      create_attendance_session: {
+        Args: {
+          p_closes_at: string
+          p_late_after: string | null
+          p_opens_at: string
+          p_operation_id: string
+          p_require_assignment?: boolean
+          p_shift_id: string | null
+        }
+        Returns: { session_id: string; token: string }[]
+      }
+      list_attendance_operations_for_my_scope: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          absent_count: number
+          active_sessions: number
+          attendance_records: number
+          checked_out_count: number
+          engaged_volunteers: number
+          ends_at: string | null
+          excused_count: number
+          late_count: number
+          operation_id: string
+          operation_status: Database["public"]["Enums"]["operation_status"]
+          operation_title: string
+          org_unit_id: string
+          org_unit_name: string
+          present_count: number
+          starts_at: string | null
+        }[]
+      }
+      list_attendance_sessions: {
+        Args: { p_operation_id: string }
+        Returns: {
+          closes_at: string
+          created_at: string
+          is_active: boolean
+          late_after: string | null
+          opens_at: string
+          require_assignment: boolean
+          session_id: string
+          shift_id: string | null
+          shift_name: string | null
+          token: string | null
+        }[]
+      }
+      list_my_participation_history: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          attendance_source: Database["public"]["Enums"]["attendance_source"]
+          attendance_status: Database["public"]["Enums"]["attendance_status"]
+          check_in_at: string | null
+          check_out_at: string | null
+          note: string | null
+          operation_ends_at: string | null
+          operation_id: string
+          operation_kind: Database["public"]["Enums"]["operation_kind"]
+          operation_starts_at: string | null
+          operation_status: Database["public"]["Enums"]["operation_status"]
+          operation_title: string
+          record_id: string
+          shift_id: string | null
+          shift_name: string | null
+        }[]
+      }
+      list_operation_attendance_roster: {
+        Args: { p_operation_id: string; p_shift_id?: string | null }
+        Returns: {
+          check_in_at: string | null
+          check_out_at: string | null
+          full_name: string
+          is_engaged: boolean
+          mobile: string
+          note: string | null
+          org_unit_name: string
+          record_id: string | null
+          source: Database["public"]["Enums"]["attendance_source"] | null
+          status: Database["public"]["Enums"]["attendance_status"] | null
+          volunteer_id: string
+        }[]
+      }
+      my_attendance_workbench_access: {
+        Args: Record<PropertyKey, never>
+        Returns: { can_manage: boolean; can_view: boolean }[]
+      }
+      my_participation_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          completed_duties: number
+          excused_count: number
+          late_count: number
+          operations_participated: number
+          present_count: number
+          total_hours: number
+        }[]
+      }
+      set_attendance_record: {
+        Args: {
+          p_note?: string | null
+          p_operation_id: string
+          p_shift_id: string | null
+          p_status: Database["public"]["Enums"]["attendance_status"]
+          p_volunteer_id: string
+        }
+        Returns: string
+      }
       assign_operation_duty: {
         Args: { p_duty_id: string; p_volunteer_id: string }
         Returns: string
@@ -926,6 +1157,8 @@ export type Database = {
       }
     }
     Enums: {
+      attendance_source: "qr" | "manual"
+      attendance_status: "present" | "absent" | "late" | "excused"
       app_role: "admin"
       geography_kind: "province" | "division" | "district" | "tehsil"
       duty_priority: "low" | "normal" | "high" | "urgent"

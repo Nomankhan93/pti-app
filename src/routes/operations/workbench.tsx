@@ -8,6 +8,7 @@ import {
   Plus,
   RefreshCw,
   Save,
+  ScanLine,
   ShieldCheck,
   UserCog,
   UserPlus,
@@ -325,6 +326,7 @@ function OperationsWorkbenchPage() {
               </div>
             </div>
             <Link to="/operations/volunteers" className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200/70 hover:bg-slate-50"><UsersRound className="h-5 w-5 text-emerald-700" /> Open Volunteer Workbench</Link>
+            <Link to="/operations/attendance" className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200/70 hover:bg-slate-50"><ScanLine className="h-5 w-5 text-emerald-700" /> Open Attendance Workbench</Link>
           </aside>
 
           <div className="space-y-5">
