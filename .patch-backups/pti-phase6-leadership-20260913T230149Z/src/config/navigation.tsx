@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import {
-  BarChart3,
   ClipboardList,
   HeartHandshake,
   HandCoins,
@@ -20,7 +19,7 @@ export const adminRoleNames = ['admin'] as const
 
 export type HeaderMenuKey = 'account' | null
 
-export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/operations/attendance' | '/finance/workbench' | '/leadership' | '/admin'
+export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/operations/attendance' | '/finance/workbench' | '/admin'
 
 export type NavigationItem = {
   label: string
@@ -82,7 +81,7 @@ export const loggedOutAccountItems: NavigationItem[] = [
   },
 ]
 
-export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false, hasOperationsWorkbenchAccess = false, hasFinanceWorkbenchAccess = false, hasLeadershipAccess = false): NavigationItem[] {
+export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false, hasOperationsWorkbenchAccess = false, hasFinanceWorkbenchAccess = false): NavigationItem[] {
   return [
     ...memberNavigationItems,
     ...(hasVolunteerWorkbenchAccess
@@ -122,17 +121,6 @@ export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = 
             to: '/finance/workbench' as const,
             icon: <HandCoins className="h-4 w-4" />,
             badge: 'Phase 5',
-          },
-        ]
-      : []),
-    ...(hasLeadershipAccess
-      ? [
-          {
-            label: 'Leadership Monitoring',
-            description: 'Central-to-Tehsil KPIs, reporting and drill-down analytics',
-            to: '/leadership' as const,
-            icon: <BarChart3 className="h-4 w-4" />,
-            badge: 'Phase 6',
           },
         ]
       : []),

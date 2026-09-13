@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import {
   Activity,
-  BarChart3,
   BriefcaseBusiness,
   Building2,
   ClipboardList,
@@ -27,7 +26,6 @@ export type AdminNavigationRoute =
   | '/operations/workbench'
   | '/operations/attendance'
   | '/finance/workbench'
-  | '/leadership'
 
 export type AdminNavigationItem = {
   label: string
@@ -154,18 +152,6 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         to: '/finance/workbench',
         icon: <HandCoins size={17} />,
         badge: 'PHASE 5',
-      },
-    ],
-  },
-  {
-    title: 'Leadership & Reporting',
-    items: [
-      {
-        label: 'Leadership Monitoring',
-        description: 'Central-to-Tehsil KPIs, reporting and drill-down analytics',
-        to: '/leadership',
-        icon: <BarChart3 size={17} />,
-        badge: 'PHASE 6',
       },
     ],
   },

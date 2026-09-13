@@ -519,13 +519,11 @@ export type Database = {
           father_name: string
           full_name: string
           gender: string | null
-          geography_id: string | null
           id: string
           is_active: boolean
           issued_at: string
           member_no: string | null
           mobile: string
-          org_unit_id: string | null
           photo_url: string
           profession: string | null
           taluka: string | null
@@ -551,13 +549,11 @@ export type Database = {
           father_name: string
           full_name: string
           gender?: string | null
-          geography_id?: string | null
           id?: string
           is_active?: boolean
           issued_at?: string
           member_no?: string | null
           mobile: string
-          org_unit_id?: string | null
           photo_url: string
           profession?: string | null
           taluka?: string | null
@@ -583,36 +579,16 @@ export type Database = {
           father_name?: string
           full_name?: string
           gender?: string | null
-          geography_id?: string | null
           id?: string
           is_active?: boolean
           issued_at?: string
           member_no?: string | null
           mobile?: string
-          org_unit_id?: string | null
           photo_url?: string
           profession?: string | null
           taluka?: string | null
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      organization_unit_closure: {
-        Row: {
-          ancestor_id: string
-          depth: number
-          descendant_id: string
-        }
-        Insert: {
-          ancestor_id: string
-          depth: number
-          descendant_id: string
-        }
-        Update: {
-          ancestor_id?: string
-          depth?: number
-          descendant_id?: string
         }
         Relationships: []
       }
@@ -1125,34 +1101,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_leadership_dashboard: {
-        Args: {
-          p_from?: string | null
-          p_org_unit_id: string
-          p_to?: string | null
-        }
-        Returns: Json
-      }
-      list_leadership_scopes: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          code: string
-          depth: number
-          id: string
-          level: Database["public"]["Enums"]["organization_level"]
-          name: string
-          parent_id: string | null
-        }[]
-      }
-      my_leadership_access: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          can_view: boolean
-          default_org_unit_id: string | null
-          default_org_unit_level: Database["public"]["Enums"]["organization_level"] | null
-          default_org_unit_name: string | null
-        }[]
-      }
       add_donation_adjustment: {
         Args: {
           p_amount_delta: number

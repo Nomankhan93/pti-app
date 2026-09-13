@@ -608,7 +608,6 @@ function RegisterPage() {
       mobile: normalizedMobile,
       district: form.district,
       taluka: form.taluka,
-      geography_id: geographySelection.tehsilId || null,
       profession: optionalText(form.profession),
       caste_branch: optionalText(form.casteBranch),
       address: form.address.trim(),
