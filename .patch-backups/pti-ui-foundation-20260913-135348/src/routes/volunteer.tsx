@@ -337,7 +337,7 @@ function VolunteerPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Profession"><input value={form.profession} onChange={(e) => setForm({ ...form, profession: e.target.value })} className={inputClass} maxLength={160} /></Field>
               <Field label="Education"><input value={form.education} onChange={(e) => setForm({ ...form, education: e.target.value })} className={inputClass} maxLength={300} /></Field>
-              <Field label="Languages"><input value={form.languages} onChange={(e) => setForm({ ...form, languages: e.target.value })} className={inputClass} placeholder="Urdu, English, Pashto, Punjabi" /></Field>
+              <Field label="Languages"><input value={form.languages} onChange={(e) => setForm({ ...form, languages: e.target.value })} className={inputClass} placeholder="Urdu, Sindhi, English" /></Field>
               <Field label="Skills"><input value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} className={inputClass} placeholder="Data entry, First aid, Photography" /></Field>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">

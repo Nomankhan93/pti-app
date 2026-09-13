@@ -31,6 +31,13 @@ export const APP_LANGUAGES: Array<{
     englishLabel: 'Urdu',
     direction: 'rtl',
   },
+  {
+    code: 'sd',
+    shortLabel: 'سنڌي',
+    nativeLabel: 'سنڌي',
+    englishLabel: 'Sindhi',
+    direction: 'rtl',
+  },
 ]
 
 const STORAGE_KEY = 'pti_language'
@@ -41,7 +48,7 @@ const translations = {
     'language.switchTo': 'Switch language',
     'language.current': 'Current language',
     'brand.name': 'Pakistan Tehreek-e-Insaf',
-    'brand.platform': 'Digital Operations Platform',
+    'brand.platform': 'Member Platform',
     'nav.home': 'Home',
     'nav.programs': 'Programs',
     'nav.donate': 'Donate',
@@ -425,8 +432,6 @@ const translations = {
     'register.field.fatherName': 'Father\'s Name',
     'register.field.cnic': 'CNIC',
     'register.field.mobile': 'Mobile Number',
-    'register.field.province': 'Province / Territory',
-    'register.field.division': 'Division',
     'register.field.district': 'District',
     'register.field.taluka': 'Taluka / Town / Sub-division',
     'register.field.address': 'Complete Residential Address',
@@ -493,7 +498,7 @@ const translations = {
     'language.switchTo': 'زبان تبدیل کریں',
     'language.current': 'موجودہ زبان',
     'brand.name': 'بلاول بھٹو جیالا فیڈریشن',
-    'brand.platform': 'ڈیجیٹل آپریشنز پلیٹ فارم',
+    'brand.platform': 'ممبر پلیٹ فارم',
     'nav.home': 'ہوم',
     'nav.programs': 'پروگرامز',
     'nav.donate': 'عطیہ',
@@ -877,8 +882,6 @@ const translations = {
     'register.field.fatherName': 'والد کا نام',
     'register.field.cnic': 'شناختی کارڈ نمبر',
     'register.field.mobile': 'موبائل نمبر',
-    'register.field.province': 'صوبہ / علاقہ',
-    'register.field.division': 'ڈویژن',
     'register.field.district': 'ضلع',
     'register.field.taluka': 'تعلقہ / ٹاؤن / سب ڈویژن',
     'register.field.address': 'مکمل رہائشی پتہ',
@@ -945,7 +948,7 @@ const translations = {
     'language.switchTo': 'ٻولي مٽايو',
     'language.current': 'موجوده ٻولي',
     'brand.name': 'بلاول ڀٽو جيالا فيڊريشن',
-    'brand.platform': 'ڊجيٽل آپريشنز پليٽ فارم',
+    'brand.platform': 'ميمبر پليٽ فارم',
     'nav.home': 'هوم',
     'nav.programs': 'پروگرام',
     'nav.donate': 'عطيو',
@@ -1329,8 +1332,6 @@ const translations = {
     'register.field.fatherName': 'والد جو نالو',
     'register.field.cnic': 'شناختي ڪارڊ نمبر',
     'register.field.mobile': 'موبائل نمبر',
-    'register.field.province': 'صوبو / علائقو',
-    'register.field.division': 'ڊويزن',
     'register.field.district': 'ضلعو',
     'register.field.taluka': 'تعلقو / ٽائون / سب ڊويزن',
     'register.field.address': 'مڪمل رهائشي پتو',
@@ -1406,7 +1407,7 @@ type I18nContextValue = {
 const I18nContext = createContext<I18nContextValue | null>(null)
 
 function isAppLanguage(value: unknown): value is AppLanguage {
-  return value === 'en' || value === 'ur'
+  return value === 'en' || value === 'ur' || value === 'sd'
 }
 
 export function getLanguageDirection(language: AppLanguage) {

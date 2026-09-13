@@ -1,47 +1,21 @@
 {
   "id": "/",
   "short_name": "PTI",
-  "name": "Pakistan Tehreek-e-Insaf - PTI",
-  "description": "Official PTI membership portal for registration, digital cards, member updates, donations and support programs.",
+  "name": "Pakistan Tehreek-e-Insaf Digital Operations Platform",
+  "description": "PTI digital platform for membership, volunteers, operations, duties and participation tracking.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait-primary",
-  "theme_color": "#7f1734",
-  "background_color": "#fff8f5",
-  "categories": [
-    "social",
-    "productivity",
-    "utilities"
-  ],
+  "theme_color": "#0b5d36",
+  "background_color": "#f6f8f5",
+  "categories": ["social", "productivity", "utilities"],
   "icons": [
-    {
-      "src": "/favicon.ico",
-      "sizes": "16x16 32x32 48x48",
-      "type": "image/vnd.microsoft.icon",
-      "purpose": "any"
-    },
-    {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    {"src": "/favicon.ico", "sizes": "16x16 32x32 48x48", "type": "image/vnd.microsoft.icon", "purpose": "any"},
+    {"src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png"},
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
   ],
   "shortcuts": [
     {
@@ -49,48 +23,21 @@
       "short_name": "Dashboard",
       "description": "Open your PTI member dashboard.",
       "url": "/dashboard",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Volunteer Profile",
+      "short_name": "Volunteer",
+      "description": "Open your PTI volunteer profile and participation history.",
+      "url": "/volunteer",
+      "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]
     },
     {
       "name": "Digital Card",
       "short_name": "Card",
       "description": "Open the PTI digital membership card.",
       "url": "/card",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Donate",
-      "short_name": "Donate",
-      "description": "Submit a PTI donation record.",
-      "url": "/donate",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Member Updates",
-      "short_name": "Updates",
-      "description": "Open PTI in-app updates and notifications.",
-      "url": "/notifications",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]
     }
   ],
   "lang": "en",

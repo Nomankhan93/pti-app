@@ -1,516 +1,339 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowRight, BadgeCheck, ClipboardCheck, IdCard, ShieldCheck, UsersRound } from 'lucide-react'
-import { useEffect, useState, type ReactNode } from 'react'
-import { PTI_ICON_PATH } from '../components/MembershipCard'
+import {
+  ArrowRight,
+  BadgeCheck,
+  CalendarCheck2,
+  ChevronRight,
+  ClipboardList,
+  Globe2,
+  IdCard,
+  Layers3,
+  MapPinned,
+  QrCode,
+  ShieldCheck,
+  UsersRound,
+} from 'lucide-react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { PTI_LOGO_PATH } from '../components/layout/BrandMark'
 import { useAuthRole } from '../hooks/useAuthRole'
-import { useI18n, type AppLanguage } from '../lib/i18n'
+import { useI18n } from '../lib/i18n'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
 })
 
-type HomeSlide = {
+type Slide = {
   src: string
-  alt: string
   title: string
   text: string
 }
 
 type HomeCopy = {
-  kicker: string
-  titleLines: [string, string, string]
+  eyebrow: string
+  title: string
+  highlight: string
   lede: string
-  ctaDashboard: string
-  ctaSignup: string
-  ctaCard: string
-  ctaLogin: string
-  ctaAdmin: string
-  steps: Array<{ label: string; value: string }>
-  badges: {
-    secureReview: string
-    qrVerified: string
-  }
-  slides: HomeSlide[]
-  workflow: string
-  slideButtonLabel: string
-  features: Array<{ title: string; text: string }>
-  scopeKicker: string
-  scopeTitle: string
-  scopeText: string
-  scopeItems: string[]
+  primary: string
+  secondary: string
+  proof: string[]
+  modulesKicker: string
+  modulesTitle: string
+  modulesText: string
+  nationwideKicker: string
+  nationwideTitle: string
+  nationwideText: string
+  scope: string[]
+  modules: Array<{ title: string; text: string }>
+  slides: Slide[]
 }
 
-const HOME_COPY: Record<AppLanguage, HomeCopy> = {
+const HOME_COPY: Record<'en' | 'ur', HomeCopy> = {
   en: {
-    kicker: 'PTI Membership Portal',
-    titleLines: ['Digital', 'Membership', 'System'],
+    eyebrow: 'Pakistan Tehreek-e-Insaf',
+    title: 'One digital platform for',
+    highlight: 'membership and field operations.',
     lede:
-      'A focused PTI membership portal with free self-registration, automatic member number issuance, digital card, QR verification and member dashboard.',
-    ctaDashboard: 'Open Dashboard',
-    ctaSignup: 'Become a Member',
-    ctaCard: 'Digital Card',
-    ctaLogin: 'Login',
-    ctaAdmin: 'Admin Panel',
-    steps: [
-      { label: 'Step 01', value: 'Signup' },
-      { label: 'Step 02', value: 'Auto Issue' },
-      { label: 'Step 03', value: 'QR Card' },
+      'A secure PTI platform for digital membership, volunteer registration, organization-wide coordination, teams, duties and participation tracking — built for nationwide scale.',
+    primary: 'Join PTI',
+    secondary: 'Open Dashboard',
+    proof: ['Free self-issued membership', 'Role-based access', 'Audited operations'],
+    modulesKicker: 'Built as one connected system',
+    modulesTitle: 'From member registration to on-ground coordination.',
+    modulesText:
+      'Every module uses the same identity, geography and permission foundation so leadership and coordinators work from one consistent source of truth.',
+    nationwideKicker: 'Nationwide structure',
+    nationwideTitle: 'Central visibility. Local control.',
+    nationwideText:
+      'The platform follows Pakistan’s administrative hierarchy and keeps coordinator access scoped to the organization units they are authorized to manage.',
+    scope: ['Central', 'Province / Territory', 'Division', 'District', 'Tehsil / Taluka'],
+    modules: [
+      {
+        title: 'Digital Membership',
+        text: 'Free self-registration, automatic PTI member number, digital card and public QR verification.',
+      },
+      {
+        title: 'Volunteer Network',
+        text: 'Skills, availability, geography and coordinator workbench for organized volunteer deployment.',
+      },
+      {
+        title: 'Operations & Duties',
+        text: 'Create operations, teams, shifts and duties with scoped coordinator responsibility.',
+      },
+      {
+        title: 'Attendance & Participation',
+        text: 'Secure QR check-in, manual attendance and long-term volunteer participation history.',
+      },
     ],
-    badges: {
-      secureReview: 'Self-Issued',
-      qrVerified: 'QR Verified',
-    },
     slides: [
       {
         src: '/home-slides/pti-slide-01.jpg',
-        alt: 'PTI leadership portrait for digital membership platform',
         title: 'Digital Membership',
-        text: 'A verified member record, secure profile and QR-enabled digital card.',
+        text: 'A verified PTI member identity with automatic issuance and QR-enabled digital card.',
       },
       {
         src: '/home-slides/pti-slide-02.jpg',
-        alt: 'PTI public gathering and outreach moment',
-        title: 'Member Registration',
-        text: 'Members submit complete details once and receive their membership number automatically.',
+        title: 'Volunteer Coordination',
+        text: 'Organize people by geography, skills and availability through controlled coordinator access.',
       },
       {
         src: '/home-slides/pti-slide-03.jpg',
-        alt: 'PTI leadership speaking at a formal event',
-        title: 'Automatic Issuance',
-        text: 'Membership number and active status are issued automatically when registration is submitted.',
+        title: 'Field Operations',
+        text: 'Create teams, shifts and duties for campaigns, gatherings and operational activities.',
       },
       {
         src: '/home-slides/pti-slide-04.jpg',
-        alt: 'PTI public address and member engagement',
-        title: 'QR Verification',
-        text: 'Active members receive a public verification link and downloadable card.',
+        title: 'Participation Tracking',
+        text: 'Track check-in, attendance and completed duties while preserving a clear audit trail.',
       },
-    ],
-    workflow: 'PTI Workflow',
-    slideButtonLabel: 'Show home slide',
-    features: [
-      {
-        title: 'Membership Form',
-        text: 'Collects member identity, area and contact details in a clean mobile-first flow. Official designations remain admin-managed.',
-      },
-      {
-        title: 'Admin Console',
-        text: 'Admins can search, edit, activate/deactivate, assign designations and export member records.',
-      },
-      {
-        title: 'Digital Card',
-        text: 'Active members get front/back digital card, QR code, verification page and PNG download.',
-      },
-    ],
-    scopeKicker: 'Membership portal only',
-    scopeTitle:
-      'Free PTI membership with self-issuance, digital cards, QR verification and admin member management.',
-    scopeText:
-      'This app is intentionally focused on membership lifecycle: account, free registration, automatic issuance, card and public QR verification.',
-    scopeItems: [
-      'Mobile-first member dashboard',
-      'Automatic self-issuance',
-      'Searchable member records',
-      'QR public verification',
-      'Front/back card export',
-      'English / Urdu / Sindhi support',
     ],
   },
   ur: {
-    kicker: 'پی ٹی آئی ممبرشپ پورٹل',
-    titleLines: ['ڈیجیٹل', 'ممبرشپ', 'سسٹم'],
+    eyebrow: 'پاکستان تحریکِ انصاف',
+    title: 'ممبرشپ اور فیلڈ آپریشنز کے لیے',
+    highlight: 'ایک متحد ڈیجیٹل پلیٹ فارم۔',
     lede:
-      'پی ٹی آئی کے لیے مفت ممبرشپ پورٹل: سائن اَپ، ممبرشپ فارم، خودکار ممبر نمبر، ڈیجیٹل کارڈ، QR ویریفکیشن اور ممبر ڈیش بورڈ۔',
-    ctaDashboard: 'ڈیش بورڈ کھولیں',
-    ctaSignup: 'ممبر بنیں',
-    ctaCard: 'ڈیجیٹل کارڈ',
-    ctaLogin: 'لاگ اِن',
-    ctaAdmin: 'ایڈمن پینل',
-    steps: [
-      { label: 'مرحلہ 01', value: 'سائن اَپ' },
-      { label: 'مرحلہ 02', value: 'خودکار اجراء' },
-      { label: 'مرحلہ 03', value: 'QR کارڈ' },
-    ],
-    badges: {
-      secureReview: 'خودکار ممبرشپ',
-      qrVerified: 'QR تصدیق شدہ',
-    },
-    slides: [
+      'پی ٹی آئی کے لیے محفوظ ڈیجیٹل ممبرشپ، رضاکار رجسٹریشن، تنظیمی رابطہ، ٹیمیں، ذمہ داریاں اور شرکت کی نگرانی — پاکستان بھر کے استعمال کے لیے۔',
+    primary: 'پی ٹی آئی جوائن کریں',
+    secondary: 'ڈیش بورڈ کھولیں',
+    proof: ['مفت خودکار ممبرشپ', 'رول بیسڈ رسائی', 'آڈٹ شدہ آپریشنز'],
+    modulesKicker: 'ایک مربوط نظام',
+    modulesTitle: 'ممبر رجسٹریشن سے فیلڈ کوآرڈینیشن تک۔',
+    modulesText:
+      'تمام ماڈیولز ایک ہی شناخت، جغرافیہ اور اجازت کے نظام پر کام کرتے ہیں تاکہ قیادت اور کوآرڈینیٹرز ایک قابل اعتماد پلیٹ فارم استعمال کریں۔',
+    nationwideKicker: 'پاکستان بھر کا تنظیمی ڈھانچہ',
+    nationwideTitle: 'مرکزی نگرانی، مقامی اختیار۔',
+    nationwideText:
+      'پلیٹ فارم پاکستان کی انتظامی درجہ بندی کے مطابق ہے اور ہر کوآرڈینیٹر کو صرف اپنے مجاز تنظیمی دائرے تک رسائی دیتا ہے۔',
+    scope: ['مرکزی', 'صوبہ / علاقہ', 'ڈویژن', 'ضلع', 'تحصیل / تعلقہ'],
+    modules: [
       {
-        src: '/home-slides/pti-slide-01.jpg',
-        alt: 'ڈیجیٹل ممبرشپ پلیٹ فارم کے لیے پی ٹی آئی قیادت کی تصویر',
         title: 'ڈیجیٹل ممبرشپ',
-        text: 'تصدیق شدہ ممبر ریکارڈ، محفوظ پروفائل اور QR سے منسلک ڈیجیٹل کارڈ۔',
+        text: 'مفت رجسٹریشن، خودکار PTI ممبر نمبر، ڈیجیٹل کارڈ اور QR تصدیق۔',
       },
       {
-        src: '/home-slides/pti-slide-02.jpg',
-        alt: 'پی ٹی آئی عوامی اجتماع اور رابطہ مہم',
-        title: 'ممبر رجسٹریشن',
-        text: 'ممبرز اپنی مکمل معلومات ایک بار جمع کراتے ہیں اور ریویو اسٹیٹس آن لائن دیکھتے ہیں۔',
+        title: 'رضاکار نیٹ ورک',
+        text: 'مہارت، دستیابی، جغرافیہ اور منظم رضاکار تعیناتی کے لیے کوآرڈینیٹر ورک بینچ۔',
       },
       {
-        src: '/home-slides/pti-slide-03.jpg',
-        alt: 'پی ٹی آئی قیادت رسمی تقریب میں خطاب کرتے ہوئے',
-        title: 'ایڈمن منظوری',
-        text: 'ایڈمن افسران ممبر نمبر اور کارڈ ایکٹیویشن سے پہلے درخواستوں کا جائزہ لیتے ہیں۔',
+        title: 'آپریشنز اور ذمہ داریاں',
+        text: 'آپریشنز، ٹیمیں، شفٹس اور ذمہ داریاں مجاز کوآرڈینیٹرز کے ذریعے منظم کریں۔',
       },
       {
-        src: '/home-slides/pti-slide-04.jpg',
-        alt: 'پی ٹی آئی عوامی خطاب اور ممبر رابطہ',
-        title: 'QR ویریفکیشن',
-        text: 'منظور شدہ ممبرز کو پبلک ویریفکیشن لنک اور ڈاؤن لوڈ ایبل کارڈ ملتا ہے۔',
+        title: 'حاضری اور شرکت',
+        text: 'محفوظ QR چیک اِن، دستی حاضری اور رضاکار کی شرکت کی مکمل تاریخ۔',
       },
     ],
-    workflow: 'پی ٹی آئی ورک فلو',
-    slideButtonLabel: 'ہوم سلائیڈ دکھائیں',
-    features: [
-      {
-        title: 'ممبرشپ فارم',
-        text: 'ممبر کی شناخت، علاقہ اور رابطہ معلومات کو صاف موبائل فرسٹ فلو میں جمع کرتا ہے۔ سرکاری عہدے منظوری کے بعد ایڈمن تفویض کرتا ہے۔',
-      },
-      {
-        title: 'ایڈمن کنسول',
-        text: 'ایڈمنز اضافی ماڈیولز کے بغیر درخواستیں تلاش، فلٹر، منظور، مسترد اور ایکسپورٹ کر سکتے ہیں۔',
-      },
-      {
-        title: 'ڈیجیٹل کارڈ',
-        text: 'منظور شدہ ممبرز کو فرنٹ/بیک ڈیجیٹل کارڈ، QR کوڈ، ویریفکیشن پیج اور PNG ڈاؤن لوڈ ملتا ہے۔',
-      },
-    ],
-    scopeKicker: 'صرف ممبرشپ پورٹل',
-    scopeTitle:
-      'مفت خودکار PTI ممبرشپ، ڈیجیٹل کارڈز، QR ویریفکیشن اور ایڈمن ممبر مینجمنٹ۔',
-    scopeText:
-      'یہ ایپ ممبرشپ لائف سائیکل پر فوکس کرتی ہے: اکاؤنٹ، رجسٹریشن، ریویو، منظوری، کارڈ اور پبلک QR ویریفکیشن۔',
-    scopeItems: [
-      'موبائل فرسٹ ممبر ڈیش بورڈ',
-      'خودکار ممبرشپ اجراء',
-      'قابل تلاش ممبر ریکارڈز',
-      'QR پبلک ویریفکیشن',
-      'فرنٹ/بیک کارڈ ایکسپورٹ',
-      'English / Urdu / Sindhi سپورٹ',
-    ],
-  },
-  sd: {
-    kicker: 'پی ٹی آئی ميمبرشپ پورٽل',
-    titleLines: ['ڊجيٽل', 'ميمبرشپ', 'سسٽم'],
-    lede:
-      'پی ٹی آئی لاءِ مفت ميمبرشپ پورٽل: سائن اَپ، ميمبرشپ فارم، پاڻمرادو ميمبر نمبر، ڊجيٽل ڪارڊ، QR ويريفڪيشن ۽ ميمبر ڊيش بورڊ.',
-    ctaDashboard: 'ڊيش بورڊ کوليو',
-    ctaSignup: 'ميمبر بڻجو',
-    ctaCard: 'ڊجيٽل ڪارڊ',
-    ctaLogin: 'لاگ اِن',
-    ctaAdmin: 'ايڊمن پينل',
-    steps: [
-      { label: 'مرحلو 01', value: 'سائن اَپ' },
-      { label: 'مرحلو 02', value: 'پاڻمرادو جاري' },
-      { label: 'مرحلو 03', value: 'QR ڪارڊ' },
-    ],
-    badges: {
-      secureReview: 'پاڻمرادو ميمبرشپ',
-      qrVerified: 'QR تصديق ٿيل',
-    },
     slides: [
       {
         src: '/home-slides/pti-slide-01.jpg',
-        alt: 'ڊجيٽل ميمبرشپ پليٽ فارم لاءِ پی ٹی آئی قيادت جي تصوير',
-        title: 'ڊجيٽل ميمبرشپ',
-        text: 'تصديق ٿيل ميمبر رڪارڊ، محفوظ پروفائل ۽ QR سان ڳنڍيل ڊجيٽل ڪارڊ.',
+        title: 'ڈیجیٹل ممبرشپ',
+        text: 'خودکار اجراء اور QR کارڈ کے ساتھ تصدیق شدہ PTI ممبر شناخت۔',
       },
       {
         src: '/home-slides/pti-slide-02.jpg',
-        alt: 'پی ٹی آئی عوامي گڏجاڻي ۽ رابطا مهم',
-        title: 'ميمبر رجسٽريشن',
-        text: 'ميمبر مڪمل معلومات هڪ ڀيرو جمع ڪرائين ٿا ۽ ريويو اسٽيٽس آن لائن ڏسن ٿا.',
+        title: 'رضاکار رابطہ',
+        text: 'جغرافیہ، مہارت اور دستیابی کے مطابق رضاکاروں کو منظم کریں۔',
       },
       {
         src: '/home-slides/pti-slide-03.jpg',
-        alt: 'پی ٹی آئی قيادت رسمي تقريب ۾ خطاب ڪندي',
-        title: 'ايڊمن منظوري',
-        text: 'ايڊمن آفيسر ميمبر نمبر ۽ ڪارڊ ايڪٽيويشن کان اڳ درخواستن جو جائزو وٺن ٿا.',
+        title: 'فیلڈ آپریشنز',
+        text: 'مہمات، اجتماعات اور سرگرمیوں کے لیے ٹیمیں، شفٹس اور ذمہ داریاں بنائیں۔',
       },
       {
         src: '/home-slides/pti-slide-04.jpg',
-        alt: 'پی ٹی آئی عوامي خطاب ۽ ميمبر رابطي',
-        title: 'QR ويريفڪيشن',
-        text: 'منظور ٿيل ميمبرن کي پبلڪ ويريفڪيشن لنڪ ۽ ڊائون لوڊ ٿيندڙ ڪارڊ ملي ٿو.',
+        title: 'شرکت کی نگرانی',
+        text: 'چیک اِن، حاضری اور مکمل ذمہ داریوں کو واضح آڈٹ ٹریل کے ساتھ ٹریک کریں۔',
       },
-    ],
-    workflow: 'پی ٹی آئی ورڪ فلو',
-    slideButtonLabel: 'هوم سلائيڊ ڏيکاريو',
-    features: [
-      {
-        title: 'ميمبرشپ فارم',
-        text: 'ميمبر جي سڃاڻپ، علائقو ۽ رابطي جي معلومات صاف موبائل فرسٽ فلو ۾ جمع ڪري ٿو. سرڪاري عهدا منظوري کان پوءِ ايڊمن تفويض ڪري ٿو.',
-      },
-      {
-        title: 'ايڊمن ڪنسول',
-        text: 'ايڊمنز اضافي ماڊيولز کانسواءِ درخواستون ڳولي، فلٽر، منظور، رد ۽ ايڪسپورٽ ڪري سگهن ٿا.',
-      },
-      {
-        title: 'ڊجيٽل ڪارڊ',
-        text: 'منظور ٿيل ميمبرن کي فرنٽ/بئڪ ڊجيٽل ڪارڊ، QR ڪوڊ، ويريفڪيشن پيج ۽ PNG ڊائون لوڊ ملي ٿو.',
-      },
-    ],
-    scopeKicker: 'صرف ميمبرشپ پورٽل',
-    scopeTitle:
-      'مفت پاڻمرادو PTI ميمبرشپ، ڊجيٽل ڪارڊز، QR ويريفڪيشن ۽ ايڊمن ميمبر مينيجمينٽ.',
-    scopeText:
-      'هي ايپ ميمبرشپ لائيف سائيڪل تي فوڪس ڪري ٿي: اڪائونٽ، رجسٽريشن، ريويو، منظوري، ڪارڊ ۽ پبلڪ QR ويريفڪيشن.',
-    scopeItems: [
-      'موبائل فرسٽ ميمبر ڊيش بورڊ',
-      'پاڻمرادو ميمبرشپ جاري',
-      'ڳولڻ لائق ميمبر رڪارڊز',
-      'QR پبلڪ ويريفڪيشن',
-      'فرنٽ/بئڪ ڪارڊ ايڪسپورٽ',
-      'English / Urdu / Sindhi سپورٽ',
     ],
   },
 }
 
+const moduleIcons: ReactNode[] = [
+  <IdCard className="h-5 w-5" />,
+  <UsersRound className="h-5 w-5" />,
+  <ClipboardList className="h-5 w-5" />,
+  <CalendarCheck2 className="h-5 w-5" />,
+]
+
 function HomePage() {
-  const { isLoggedIn, isAdmin } = useAuthRole()
+  const { isLoggedIn } = useAuthRole()
   const { language, direction } = useI18n()
-  const copy = HOME_COPY[language]
+  const copy = HOME_COPY[language === 'ur' ? 'ur' : 'en']
+  const [slideIndex, setSlideIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setSlideIndex((current) => (current + 1) % copy.slides.length)
+    }, 6000)
+    return () => window.clearInterval(timer)
+  }, [copy.slides.length])
+
+  const slide = copy.slides[slideIndex]
   const isRtl = direction === 'rtl'
+  const moduleCards = useMemo(() => copy.modules.map((item, index) => ({ ...item, icon: moduleIcons[index] })), [copy.modules])
 
   return (
-    <main dir={direction} className="pti-home-page px-3 py-6 sm:px-4 md:py-12">
-      <div className="page-wrap pti-home-wrap space-y-7 md:space-y-8">
-        <section className="pti-home-hero relative isolate overflow-hidden rounded-[2rem] border border-white/70 bg-white/85 p-4 shadow-[0_28px_90px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-5 md:rounded-[2.5rem] md:p-8 lg:p-10">
-          <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-red-500/10 blur-3xl" />
-          <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-500/12 blur-3xl" />
-          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-700 via-slate-950 to-emerald-700" />
+    <main dir={direction} className="px-3 py-6 sm:px-4 lg:py-10">
+      <div className="page-wrap space-y-6 lg:space-y-8">
+        <section className="pti-panel overflow-hidden rounded-[2rem] lg:rounded-[2.5rem]">
+          <div className="grid min-h-[38rem] lg:grid-cols-[1.03fr_.97fr]">
+            <div className="relative flex flex-col justify-center p-6 sm:p-9 lg:p-12 xl:p-14">
+              <div className="absolute left-0 top-0 h-1.5 w-full bg-[linear-gradient(90deg,#0b5d36_0_48%,#ffffff_48%_52%,#c5242b_52%_100%)]" />
 
-          <div className="relative z-10 grid min-w-0 items-center gap-7 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-10">
-            <div className={`min-w-0 max-w-3xl text-start ${isRtl ? 'lg:order-1' : ''}`}>
-              <div className="pti-home-kicker inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-800 sm:gap-3 sm:px-4 sm:text-xs sm:tracking-[0.22em]">
-                <img src={PTI_ICON_PATH} alt="" className="h-6 w-6 rounded-full object-cover" />
-                <span>{copy.kicker}</span>
+              <div className="mb-7 flex items-center gap-3">
+                <img src={PTI_LOGO_PATH} alt="PTI" className="h-12 w-12 object-contain sm:h-14 sm:w-14" />
+                <div>
+                  <p className="pti-eyebrow">{copy.eyebrow}</p>
+                  <p className="mt-1 text-xs font-bold text-slate-500">Digital Operations Platform</p>
+                </div>
               </div>
 
-              <h1
-                className={`pti-home-title mt-5 max-w-none text-[clamp(2.85rem,8.2vw,5.15rem)] font-black leading-[0.94] text-slate-950 sm:mt-6 md:text-[4.95rem] lg:text-[5.2rem] xl:text-[5.55rem] ${
-                  isRtl ? 'tracking-normal' : 'tracking-[-0.055em]'
-                }`}
-              >
-                <span className="block whitespace-nowrap">{copy.titleLines[0]}</span>
-                <span className="block whitespace-nowrap text-emerald-700">{copy.titleLines[1]}</span>
-                <span className="block whitespace-nowrap">{copy.titleLines[2]}</span>
+              <h1 className="max-w-[15ch] text-[clamp(2.8rem,6.4vw,5.7rem)] font-black leading-[.95] tracking-[-.055em] text-slate-950">
+                {copy.title}{' '}
+                <span className="pti-gradient-text">{copy.highlight}</span>
               </h1>
 
-              <p className="pti-home-lede mt-5 max-w-2xl text-[0.98rem] font-semibold leading-7 text-slate-600 sm:text-lg sm:leading-8 md:text-xl">
+              <p className="mt-7 max-w-2xl text-base font-semibold leading-8 text-slate-600 sm:text-lg">
                 {copy.lede}
               </p>
 
-              <div className="pti-home-actions mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
+              <div className={`mt-8 flex flex-wrap gap-3 ${isRtl ? 'justify-end' : ''}`}>
                 <Link
                   to={isLoggedIn ? '/dashboard' : '/signup'}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-950/15 no-underline transition hover:-translate-y-0.5 hover:bg-black sm:w-auto sm:px-6"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-[0_15px_35px_rgba(15,23,42,.18)] transition hover:-translate-y-0.5 hover:bg-emerald-950"
                 >
-                  {isLoggedIn ? copy.ctaDashboard : copy.ctaSignup}
+                  {isLoggedIn ? copy.secondary : copy.primary}
                   <ArrowRight className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`} />
                 </Link>
-
-                <Link
-                  to={isLoggedIn ? '/card' : '/login'}
-                  className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 shadow-sm no-underline transition hover:-translate-y-0.5 hover:bg-slate-50 sm:w-auto sm:px-6"
-                >
-                  {isLoggedIn ? copy.ctaCard : copy.ctaLogin}
-                </Link>
-
-                {isLoggedIn && isAdmin ? (
+                {!isLoggedIn ? (
                   <Link
-                    to="/admin"
-                    className="inline-flex w-full items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-800 shadow-sm no-underline transition hover:-translate-y-0.5 hover:bg-emerald-100 sm:w-auto sm:px-6"
+                    to="/login"
+                    className="inline-flex min-h-12 items-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
                   >
-                    {copy.ctaAdmin}
+                    {copy.secondary}
                   </Link>
-                ) : null}
+                ) : (
+                  <Link
+                    to="/volunteer"
+                    className="inline-flex min-h-12 items-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
+                  >
+                    Volunteer
+                  </Link>
+                )}
               </div>
 
-              <div className="pti-home-steps mt-7 grid gap-3 sm:mt-8 sm:grid-cols-3">
-                <MiniMetric icon={<UsersRound className="h-5 w-5" />} label={copy.steps[0].label} value={copy.steps[0].value} />
-                <MiniMetric icon={<ClipboardCheck className="h-5 w-5" />} label={copy.steps[1].label} value={copy.steps[1].value} />
-                <MiniMetric icon={<IdCard className="h-5 w-5" />} label={copy.steps[2].label} value={copy.steps[2].value} />
+              <div className="mt-9 grid gap-2 sm:grid-cols-3">
+                {copy.proof.map((item, index) => (
+                  <div key={item} className="flex items-center gap-2 rounded-2xl border border-slate-200/70 bg-white/70 px-3 py-3 text-xs font-extrabold text-slate-700">
+                    {index === 0 ? <BadgeCheck className="h-4 w-4 text-emerald-700" /> : index === 1 ? <ShieldCheck className="h-4 w-4 text-emerald-700" /> : <Layers3 className="h-4 w-4 text-emerald-700" />}
+                    <span>{item}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className={`relative min-w-0 ${isRtl ? 'lg:order-2' : ''}`}>
-              <div className="absolute -inset-5 rounded-[2.5rem] bg-gradient-to-br from-red-500/12 via-white/0 to-emerald-500/14 blur-2xl" />
-              <HomePhotoSlider copy={copy} />
-              <FloatingBadge className="left-4 top-4" icon={<ShieldCheck className="h-4 w-4" />} label={copy.badges.secureReview} />
-              <FloatingBadge className="bottom-4 right-4" icon={<BadgeCheck className="h-4 w-4" />} label={copy.badges.qrVerified} />
+            <div className="relative min-h-[31rem] overflow-hidden bg-slate-950 lg:min-h-full">
+              <img
+                key={slide.src}
+                src={slide.src}
+                alt={slide.title}
+                className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-700"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,20,13,.05),rgba(3,12,9,.45)_48%,rgba(2,8,6,.94)_100%)]" />
+              <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full border border-white/25 bg-white/90 px-3 py-2 text-xs font-black text-emerald-900 shadow-lg backdrop-blur sm:left-8 sm:top-8">
+                <QrCode className="h-4 w-4" />
+                PTI Digital Platform
+              </div>
+
+              <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-9 lg:p-10">
+                <p className="text-xs font-black uppercase tracking-[.22em] text-emerald-200">PTI Workflow</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">{slide.title}</h2>
+                <p className="mt-3 max-w-xl text-sm font-semibold leading-7 text-slate-200 sm:text-base">{slide.text}</p>
+
+                <div className="mt-6 flex items-center gap-2">
+                  {copy.slides.map((item, index) => (
+                    <button
+                      key={item.src}
+                      type="button"
+                      onClick={() => setSlideIndex(index)}
+                      className={`h-2.5 rounded-full transition-all ${index === slideIndex ? 'w-10 bg-white' : 'w-2.5 bg-white/45 hover:bg-white/70'}`}
+                      aria-label={`Show slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <FeatureCard
-            icon={<ClipboardCheck className="h-6 w-6" />}
-            title={copy.features[0].title}
-            text={copy.features[0].text}
-          />
-          <FeatureCard
-            icon={<ShieldCheck className="h-6 w-6" />}
-            title={copy.features[1].title}
-            text={copy.features[1].text}
-          />
-          <FeatureCard
-            icon={<IdCard className="h-6 w-6" />}
-            title={copy.features[2].title}
-            text={copy.features[2].text}
-          />
-        </section>
-
-        <section className="grid gap-5 rounded-[2rem] border border-white/70 bg-slate-950 p-6 text-white shadow-[0_24px_80px_rgba(15,23,42,0.14)] md:grid-cols-[0.95fr_1.05fr] md:p-8">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
-              {copy.scopeKicker}
-            </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight md:text-4xl">
-              {copy.scopeTitle}
-            </h2>
-            <p className="mt-3 text-sm font-semibold leading-7 text-white/70">
-              {copy.scopeText}
-            </p>
+        <section className="rounded-[2rem] border border-white/80 bg-white/80 p-5 shadow-[0_18px_55px_rgba(15,23,42,.06)] backdrop-blur-xl sm:p-7 lg:p-9">
+          <div className="max-w-3xl">
+            <p className="pti-eyebrow">{copy.modulesKicker}</p>
+            <h2 className="mt-3 text-3xl font-black tracking-[-.035em] text-slate-950 sm:text-4xl">{copy.modulesTitle}</h2>
+            <p className="mt-4 text-sm font-semibold leading-7 text-slate-600 sm:text-base">{copy.modulesText}</p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            {copy.scopeItems.map((item) => (
-              <div key={item} className="rounded-2xl border border-white/10 bg-white/10 p-4 text-sm font-bold text-white/85">
-                {item}
-              </div>
+          <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {moduleCards.map((item, index) => (
+              <article key={item.title} className="group rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${index === 0 ? 'bg-emerald-50 text-emerald-800' : index === 1 ? 'bg-red-50 text-red-700' : index === 2 ? 'bg-slate-100 text-slate-800' : 'bg-amber-50 text-amber-800'}`}>
+                  {item.icon}
+                </div>
+                <h3 className="mt-5 text-lg font-black text-slate-950">{item.title}</h3>
+                <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{item.text}</p>
+                <div className="mt-5 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-emerald-800">
+                  Active module <ChevronRight className={`h-3.5 w-3.5 ${isRtl ? 'rotate-180' : ''}`} />
+                </div>
+              </article>
             ))}
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-[2rem] border border-emerald-950/10 bg-emerald-950 text-white shadow-[0_22px_60px_rgba(7,61,37,.2)]">
+          <div className="grid lg:grid-cols-[.86fr_1.14fr]">
+            <div className="p-7 sm:p-9 lg:p-11">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-emerald-100 ring-1 ring-white/15">
+                <Globe2 className="h-6 w-6" />
+              </div>
+              <p className="mt-6 text-xs font-black uppercase tracking-[.22em] text-emerald-200">{copy.nationwideKicker}</p>
+              <h2 className="mt-3 text-3xl font-black tracking-[-.035em] sm:text-4xl">{copy.nationwideTitle}</h2>
+              <p className="mt-4 max-w-xl text-sm font-semibold leading-7 text-emerald-50/80 sm:text-base">{copy.nationwideText}</p>
+            </div>
+
+            <div className="border-t border-white/10 bg-white/[.04] p-7 sm:p-9 lg:border-l lg:border-t-0 lg:p-11">
+              <div className="space-y-3">
+                {copy.scope.map((item, index) => (
+                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.06] px-4 py-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-xs font-black text-emerald-100">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="flex-1 text-sm font-black sm:text-base">{item}</span>
+                    {index === 0 ? <ShieldCheck className="h-4 w-4 text-emerald-200" /> : <MapPinned className="h-4 w-4 text-emerald-200" />}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       </div>
     </main>
-  )
-}
-
-function HomePhotoSlider({ copy }: { copy: HomeCopy }) {
-  const [activeSlide, setActiveSlide] = useState(0)
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % copy.slides.length)
-    }, 4500)
-
-    return () => window.clearInterval(timer)
-  }, [copy.slides.length])
-
-  const slide = copy.slides[activeSlide]
-
-  return (
-    <div className="pti-photo-slider relative overflow-hidden rounded-[1.7rem] border border-white/60 bg-slate-950 shadow-[0_30px_90px_rgba(15,23,42,0.30)] md:rounded-[2.2rem]">
-      <div className="relative aspect-[4/3] min-h-[280px] sm:min-h-[430px] lg:min-h-[560px]">
-        {copy.slides.map((item, index) => (
-          <img
-            key={item.src}
-            src={item.src}
-            alt={item.alt}
-            className={`absolute inset-0 h-full w-full object-cover transition duration-700 ease-out ${
-              index === activeSlide ? 'scale-100 opacity-100' : 'scale-105 opacity-0'
-            }`}
-          />
-        ))}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
-        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-700 via-white to-emerald-700" />
-
-        <div className="absolute bottom-0 left-0 right-0 p-5 text-white md:p-7">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-emerald-100">
-            {copy.workflow}
-          </p>
-          <h2 className="mt-2 text-3xl font-black leading-tight md:text-5xl">
-            {slide.title}
-          </h2>
-          <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-white/85 md:text-base">
-            {slide.text}
-          </p>
-
-          <div className="mt-5 flex items-center gap-2">
-            {copy.slides.map((item, index) => (
-              <button
-                key={item.src}
-                type="button"
-                aria-label={`${copy.slideButtonLabel} ${index + 1}`}
-                aria-pressed={index === activeSlide}
-                onClick={() => setActiveSlide(index)}
-                className={`h-3 rounded-full transition-all ${
-                  index === activeSlide ? 'w-12 bg-white' : 'w-3 bg-white/45 hover:bg-white/75'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MiniMetric({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode
-  label: string
-  value: string
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
-      <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
-          {icon}
-        </span>
-        <span>
-          <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-            {label}
-          </span>
-          <strong className="mt-0.5 block text-sm font-black text-slate-950">
-            {value}
-          </strong>
-        </span>
-      </div>
-    </div>
-  )
-}
-
-function FloatingBadge({
-  className,
-  icon,
-  label,
-}: {
-  className: string
-  icon: ReactNode
-  label: string
-}) {
-  return (
-    <div className={`absolute z-10 hidden items-center gap-2 rounded-full border border-white/60 bg-white/90 px-4 py-2 text-xs font-black text-slate-900 shadow-xl backdrop-blur md:flex ${className}`}>
-      <span className="text-emerald-700">{icon}</span>
-      {label}
-    </div>
-  )
-}
-
-function FeatureCard({
-  icon,
-  title,
-  text,
-}: {
-  icon: ReactNode
-  title: string
-  text: string
-}) {
-  return (
-    <article className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_18px_55px_rgba(15,23,42,0.08)] backdrop-blur-xl transition hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(15,23,42,0.12)]">
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg">
-        {icon}
-      </span>
-      <h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2>
-      <p className="mt-3 text-sm font-semibold leading-7 text-slate-600">{text}</p>
-    </article>
   )
 }

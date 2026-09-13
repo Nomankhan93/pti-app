@@ -17,7 +17,7 @@ export function AccountMenuButton({
     <button
       type="button"
       onClick={onClick}
-      className={`relative inline-flex h-11 min-w-11 items-center justify-center rounded-2xl border px-2 text-xs font-black tracking-wide shadow-sm transition ${
+      className={`relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-black shadow-sm transition ${
         isOpen
           ? 'border-slate-950 bg-slate-950 text-white'
           : 'border-slate-200 bg-white text-slate-900 hover:border-emerald-200 hover:bg-emerald-50'
@@ -50,10 +50,10 @@ export function AccountMenuPanel({
     <div className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-slate-200 bg-white p-2 text-left shadow-2xl">
       <div className="border-b border-slate-100 px-4 py-3">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700">
-          PTI Platform Access
+          PTI Member Access
         </p>
         <p className="mt-1 text-sm font-semibold text-slate-500">
-          Membership and operations shortcuts
+          Membership portal shortcuts
         </p>
       </div>
 

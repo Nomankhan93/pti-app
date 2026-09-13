@@ -1,39 +1,43 @@
-# PTI Membership Portal
+# PTI Digital Operations Platform
 
-Pakistan Tehreek-e-Insaf (PTI) digital membership portal built with TanStack Start, React, TypeScript, Tailwind CSS, and Supabase.
+Pakistan Tehreek-e-Insaf (PTI) digital platform built with TanStack Start, React, TypeScript, Tailwind CSS, and Supabase.
 
-## Scope
+## Current Scope
 
-This app is a membership portal only. It includes:
+The platform currently includes:
 
-- Member signup and login
-- Membership registration form
-- Free self-registration with automatic PTI member number issuance
-- Member dashboard
-- Digital membership card with QR verification
-- Public verification page
-- Admin member management
+- Free self-issued PTI membership
+- Digital membership card + public QR verification
+- Pakistan-wide organization hierarchy and scoped RBAC
+- Volunteer registration and coordinator workbench
+- Operations, teams, shifts and duties
+- Attendance, QR check-in and participation history
+- Admin organization, roles and audit views
 
-Membership is free and self-issued. There is no membership payment table, receipt workflow, or admin approval/rejection gate. Admins manage member profiles, designations, and active/inactive status.
+Membership remains free and self-issued. There is no membership payment workflow or admin approval/rejection gate.
+
+## Product Architecture
+
+Operational authority is separate from ordinary membership. Any eligible user can register as a member/volunteer, while coordinator and leadership roles are explicitly assigned and scoped to PTI organization units.
+
+Geographic hierarchy:
+
+```txt
+Central → Province / Territory → Division → District → Tehsil / Taluka
+```
 
 ## Tech Stack
 
 - TanStack Start / TanStack Router
 - React 19 + TypeScript
 - Tailwind CSS
-- Supabase Auth, Database, Storage, and RLS
+- Supabase Auth, Database, Storage and RLS
 - `html-to-image` for card export
 - `qrcode` for QR generation
 
 ## Environment Variables
 
-Create `.env.local` locally from `.env.example`:
-
-```bash
-cp .env.example .env.local
-```
-
-Required values:
+Create `.env.local` locally and keep it out of Git/ZIP exports.
 
 ```bash
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
@@ -41,12 +45,11 @@ VITE_SUPABASE_ANON_KEY=your-public-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-server-only-service-role-key
 ```
 
-Never commit or share `.env.local`. If a ZIP containing `.env.local` was shared, rotate the Supabase service role key.
-
 ## Local Development
 
 ```bash
-npm install
+nvm use
+npm ci
 npm run dev
 ```
 
@@ -54,64 +57,37 @@ npm run dev
 
 ```bash
 npm run check
+npm test
 npm run build
-npm run test
+npm audit
 ```
 
-Full verification:
-
-```bash
-npm run verify:project
-```
-
-## Supabase Migrations
-
-Run migrations locally with Supabase CLI, or apply them in Supabase Cloud SQL editor in order.
-
-Important latest migration:
+## Latest Migration Sequence
 
 ```txt
-supabase/migrations/20260913193000_pti_free_membership_self_issuance.sql
-```
-
-It removes the runtime payment/review workflow, adds `issued_at` and `is_active`, self-issues PTI member numbers atomically at registration, removes approval/rejection RPCs, drops `membership_payments`, and removes the private membership receipt bucket. Earlier migrations remain part of immutable migration history.
-
-## Admin Setup
-
-Create a user through Supabase Auth, then grant the admin role:
-
-```sql
-insert into public.user_roles (user_id, role)
-values ('AUTH_USER_UUID_HERE'::uuid, 'admin')
-on conflict do nothing;
-```
-
-## Safe ZIP Export
-
-Use this command when sharing the project:
-
-```bash
-npm run safe-export
-```
-
-It excludes secrets, local Supabase state, dependencies, build output, logs, and previous ZIP files.
-
-To verify an exported ZIP:
-
-```bash
-bash scripts/check-safe-archive.sh exports/pti-app-safe-YYYYMMDD-HHMMSS.zip
+20260913193000  Free Membership / Self-Issuance
+20260913210000  Organization / RBAC / Audit
+20260913223000  Volunteer Registry
+20260913233000  Operations / Teams / Duties
+20260914000000  Attendance / Participation
 ```
 
 ## Key Routes
 
 ```txt
-/                  Public home
-/signup            Account registration
-/login             Login
-/register          Membership form
-/dashboard         Member dashboard
-/card              Digital card
-/verify/$memberNo  Public QR verification
-/admin             Admin members panel
-/admin/members/$id Admin member detail
+/                         Public home
+/signup                   Account registration
+/login                    Login
+/register                 Membership registration
+/dashboard                Member dashboard
+/card                     Digital membership card
+/volunteer                Volunteer profile and participation
+/operations/volunteers    Volunteer coordinator workbench
+/operations/workbench     Operations, teams and duties
+/operations/attendance    Attendance coordinator workbench
+/admin                    Admin console
+/admin/organization       Organization hierarchy
+/admin/roles              Scoped roles
+/admin/audit              Audit log
+/verify/$memberNo         Public membership verification
 ```

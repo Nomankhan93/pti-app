@@ -4,9 +4,10 @@ import { useI18n } from '../lib/i18n'
 export const APP_NAME = 'Pakistan Tehreek-e-Insaf'
 export const APP_SHORT_NAME = 'PTI'
 export const PTI_ICON_PATH = '/pti-icon-512.png'
-export const PTI_LEADER_IMAGE_PATH = '/card-assets/Imran-khan-card-leader.jpg'
-export const PTI_AUTHORIZED_SIGNATORY_NAME = 'Pakistan Tehreek-e-Insaf'
-export const PTI_AUTHORIZED_SIGNATORY_TITLE = 'Digital Membership Authority'
+export const PTI_LEADER_IMAGE_PATH = '/card-assets/pti-leader.png'
+export const PTI_AUTHORIZED_SIGNATURE_IMAGE_PATH = '/pti/authorized-signature.png'
+export const PTI_AUTHORIZED_SIGNATORY_NAME = 'PTI Leadership'
+export const PTI_AUTHORIZED_SIGNATORY_TITLE = 'Party Representative'
 export const CARD_EXPORT_WIDTH = 1016
 export const CARD_EXPORT_HEIGHT = 638
 
@@ -348,11 +349,13 @@ const CardBack = forwardRef<HTMLElement, {
               tone="dark"
               contentClassName="flex flex-1 flex-col justify-end"
             >
-              <div className="relative flex h-[70px] items-end justify-center overflow-visible">
-                <div className="pb-2 text-center">
-                  <div className="text-[28px] font-black italic tracking-[-0.06em] text-emerald-800">PTI</div>
-                  <div className="text-[8px] font-black uppercase tracking-[0.28em] text-slate-500">Digitally Issued</div>
-                </div>
+              <div className="relative h-[70px] overflow-visible">
+                <img
+                  src={PTI_AUTHORIZED_SIGNATURE_IMAGE_PATH}
+                  alt={`${PTI_AUTHORIZED_SIGNATORY_NAME} authorized signature`}
+                  className="pointer-events-none absolute left-[60%] top-[-18px] h-[98px] w-[300px] -translate-x-1/2 object-contain object-center mix-blend-multiply"
+                  draggable={false}
+                />
               </div>
 
               <div className="-mt-1.5 h-px w-full bg-slate-500" />

@@ -15,8 +15,8 @@ import styles from '../styles.css?url'
 
 const APP_NAME = 'Pakistan Tehreek-e-Insaf'
 const APP_SHORT_NAME = 'PTI'
-const APP_FULL_TITLE = `${APP_NAME} | Digital Operations Platform`
-const PTI_ICON_PATH = '/icon-512.png'
+const APP_FULL_TITLE = `${APP_NAME} | Digital Membership Portal`
+const PTI_ICON_PATH = '/pti-icon-512.png'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -27,7 +27,7 @@ export const Route = createRootRoute({
       {
         name: 'description',
         content:
-          'Pakistan Tehreek-e-Insaf digital operations platform for membership, volunteer coordination, field operations, duties and participation tracking.',
+          'Pakistan Tehreek-e-Insaf digital membership portal for free self-registration, automatic member issuance, digital cards and QR verification.',
       },
       { name: 'theme-color', content: '#0f172a' },
       { name: 'application-name', content: APP_SHORT_NAME },
@@ -41,7 +41,7 @@ export const Route = createRootRoute({
       {
         property: 'og:description',
         content:
-          'A unified PTI platform for digital membership, volunteers, operations, duties and participation.',
+          'Register, manage and verify PTI digital membership with QR-enabled cards.',
       },
       { property: 'og:type', content: 'website' },
       { property: 'og:image', content: PTI_ICON_PATH },
@@ -62,7 +62,7 @@ export const Route = createRootRoute({
       },
       {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@500;600;700;800;900&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@500;600;700;800;900&display=swap',
       },
     ],
   }),
@@ -85,9 +85,11 @@ function RootComponent() {
     <RootDocument>
       <I18nProvider>
         <I18nShell>
-          <div className="pti-app-frame min-h-screen text-slate-950">
-            <div className="pti-theme-watermark" aria-hidden="true" />
-            <div className="pti-theme-glow" aria-hidden="true" />
+          <div className="min-h-screen bg-[linear-gradient(180deg,#fbf9f4_0%,#f6f2e9_55%,#f8f5ef_100%)] text-slate-950">
+            <div
+              className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[28rem] bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.10),transparent_40%),radial-gradient(circle_at_top_right,rgba(5,150,105,0.12),transparent_35%)]"
+              aria-hidden="true"
+            />
 
             <PwaBootstrap />
             {!isPublicVerifyPage ? <Header compact={isCardPreviewPage} /> : null}
@@ -149,7 +151,7 @@ function SiteFooter() {
       <div className="page-wrap flex flex-col gap-2 text-sm font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
         <p>© {new Date().getFullYear()} {t('brand.name')}. All rights reserved.</p>
         <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
-          Digital Operations Platform
+          Digital Membership Portal
         </p>
       </div>
     </footer>

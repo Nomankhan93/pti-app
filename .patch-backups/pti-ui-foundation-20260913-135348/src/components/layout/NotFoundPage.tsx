@@ -11,7 +11,7 @@ export function NotFoundPage() {
           Page not found
         </h1>
         <p className="mt-2 max-w-xl text-sm font-semibold leading-6 text-slate-600">
-          This page does not exist in the PTI digital operations platform. Please return to the home page or open your member dashboard.
+          This page does not exist in the PTI membership portal. Please return to the home page or open your member dashboard.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link

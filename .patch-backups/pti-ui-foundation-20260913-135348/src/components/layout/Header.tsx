@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
-import { Menu, X } from 'lucide-react'
+import { Menu, ShieldCheck, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   getAccountItems,
@@ -10,7 +10,7 @@ import {
 } from '../../config/navigation'
 import { useAuthRole } from '../../hooks/useAuthRole'
 import { LanguageSwitcher } from '../../lib/i18n'
-import { BrandMark } from './BrandMark'
+import { PTI_ICON_PATH } from '../MembershipCard'
 import { AccountMenuButton, AccountMenuPanel } from './AccountMenu'
 import { NavLink } from './NavLink'
 
@@ -104,12 +104,31 @@ export function Header({ compact }: { compact: boolean }) {
   return (
     <header
       ref={headerRef}
-      className={`site-header sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 backdrop-blur-2xl ${
+      className={`site-header sticky top-0 z-40 border-b border-white/70 bg-[#f8f4ee]/90 backdrop-blur-xl ${
         compact ? 'shadow-sm' : ''
       }`}
     >
       <div className="page-wrap flex min-h-[4.75rem] items-center justify-between gap-3 py-3">
-        <BrandMark compact={compact} />
+        <Link to="/" className="group flex min-w-0 items-center gap-3 no-underline">
+          <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-950 p-1.5 shadow-lg ring-1 ring-black/5">
+            <img
+              src={PTI_ICON_PATH}
+              alt="PTI logo"
+              className="h-full w-full rounded-xl object-cover"
+            />
+            <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white ring-2 ring-white">
+              <ShieldCheck className="h-3 w-3" />
+            </span>
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-[15px] font-black leading-5 text-slate-950 sm:text-base">
+              Pakistan Tehreek-e-Insaf
+            </span>
+            <span className="block text-xs font-extrabold uppercase tracking-[0.22em] text-emerald-700">
+              PTI Membership Portal
+            </span>
+          </span>
+        </Link>
 
         <nav className="hidden items-center gap-1 rounded-full border border-white/75 bg-white/70 p-1 shadow-sm lg:flex">
           {publicNavigationItems.map((item) => (
@@ -146,7 +165,7 @@ export function Header({ compact }: { compact: boolean }) {
 
           <div className="hidden lg:block">
             <AccountMenuButton
-              accountInitial={isLoggedIn ? accountInitial : 'PTI'}
+              accountInitial={isLoggedIn ? accountInitial : 'BB'}
               isOpen={accountOpen}
               onClick={() => setOpenMenu(accountOpen ? null : 'account')}
             />
@@ -186,7 +205,7 @@ export function Header({ compact }: { compact: boolean }) {
                   PTI
                 </p>
                 <h2 className="truncate text-lg font-black text-slate-950">
-                  Digital Operations
+                  Membership Menu
                 </h2>
               </div>
               <button

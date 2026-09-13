@@ -14,12 +14,12 @@ export function NavLink({
   return (
     <Link
       to={to}
-      className={`inline-flex items-center rounded-full px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-sm ${
+      className={`inline-flex items-center rounded-full px-3 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-white hover:text-slate-950 hover:shadow-sm ${
         compact ? 'lg:px-2.5' : ''
       }`}
       activeProps={{
         className:
-          'inline-flex items-center rounded-full bg-emerald-950 px-3 py-2 text-sm font-extrabold text-white shadow-sm',
+          'inline-flex items-center rounded-full bg-slate-950 px-3 py-2 text-sm font-extrabold text-white shadow-sm',
       }}
     >
       {children}

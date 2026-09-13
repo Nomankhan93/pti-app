@@ -1,40 +1,32 @@
 @import "tailwindcss";
 
-
 :root {
-  --bg: #f3f6f2;
-  --bg-soft: #f8faf7;
-  --surface: rgba(255, 255, 255, 0.86);
+  --bg: #eef5f1;
+  --bg-soft: #f7faf8;
+  --surface: rgba(255, 255, 255, 0.82);
   --surface-solid: #ffffff;
-  --header-bg: rgba(255, 255, 255, 0.92);
+  --header-bg: rgba(250, 252, 250, 0.88);
   --line: rgba(15, 23, 42, 0.08);
   --line-strong: rgba(15, 23, 42, 0.14);
 
-  --accent: #117443;
-  --accent-strong: #0b5d36;
-  --accent-deep: #073d25;
-  --accent-soft: #e7f5ec;
-  --pti-red: #c5242b;
-  --pti-red-soft: #fcebec;
-  --pti-charcoal: #111827;
-  --pti-gold: #c6a15b;
+  --accent: #18794e;
+  --accent-strong: #0f6a42;
+  --accent-soft: #dff3e8;
+  --lagoon: #63b3a3;
 
-  --sea-ink: #263442;
-  --sea-ink-soft: #607083;
-  --title: #0f172a;
+  --sea-ink: #213640;
+  --sea-ink-soft: #5f7380;
+  --title: #1e3139;
 
-  --chip-bg: rgba(255, 255, 255, 0.82);
-  --chip-line: rgba(17, 116, 67, 0.16);
+  --chip-bg: rgba(255, 255, 255, 0.72);
+  --chip-line: rgba(24, 121, 78, 0.15);
 
-  --shadow-soft: 0 12px 34px rgba(15, 23, 42, 0.07);
-  --shadow-lg: 0 28px 80px rgba(15, 23, 42, 0.11);
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 24px 70px rgba(15, 23, 42, 0.08);
 
-  --font-sans: 'Manrope', 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-body: var(--font-sans);
-  --font-display: 'Manrope', 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-urdu: 'Noto Nastaliq Urdu', serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
 }
-
 
 * {
   box-sizing: border-box;
@@ -1459,160 +1451,5 @@ body [dir] {
 
   .pti-home-title {
     font-size: clamp(2.15rem, 10.8vw, 2.75rem) !important;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* PTI UI Foundation & Brand Realignment                                     */
-/* -------------------------------------------------------------------------- */
-.pti-app-frame {
-  position: relative;
-  isolation: isolate;
-  background:
-    linear-gradient(180deg, rgba(248, 250, 247, 0.98) 0%, rgba(241, 246, 241, 0.97) 46%, rgba(248, 248, 244, 0.98) 100%);
-}
-
-.pti-theme-watermark {
-  position: fixed;
-  inset: 4.75rem 0 0;
-  z-index: -2;
-  pointer-events: none;
-  background-image: url('/brand/pti-theme-watermark.jpg');
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: min(1220px, 100vw) auto;
-  opacity: 0.045;
-  filter: saturate(0.8) contrast(0.9);
-  mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,.8) 42%, transparent 92%);
-}
-
-.pti-theme-glow {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 9% 12%, rgba(197, 36, 43, 0.08), transparent 26rem),
-    radial-gradient(circle at 92% 10%, rgba(17, 116, 67, 0.11), transparent 28rem),
-    linear-gradient(115deg, rgba(255,255,255,.58), transparent 48%, rgba(255,255,255,.35));
-}
-
-.site-header::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 4px;
-  background: linear-gradient(90deg, #0b5d36 0 47%, #ffffff 47% 53%, #c5242b 53% 100%);
-}
-
-.pti-brand-mark {
-  display: inline-flex;
-  min-width: 0;
-  align-items: center;
-  gap: .75rem;
-}
-
-.pti-brand-logo {
-  display: inline-flex;
-  width: 3.15rem;
-  height: 3.15rem;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1rem;
-  padding: .22rem;
-  background: rgba(255,255,255,.96);
-  box-shadow: 0 10px 28px rgba(7,61,37,.14);
-  border: 1px solid rgba(17,116,67,.12);
-}
-
-.pti-brand-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.pti-brand-name {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #0f172a;
-  font-size: .98rem;
-  line-height: 1.2rem;
-  font-weight: 900;
-  letter-spacing: -.02em;
-}
-
-.pti-brand-platform {
-  display: block;
-  margin-top: .15rem;
-  color: #0b5d36;
-  font-size: .66rem;
-  line-height: 1rem;
-  font-weight: 900;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-}
-
-[data-language='ur'] body,
-[data-language='ur'] input,
-[data-language='ur'] textarea,
-[data-language='ur'] select,
-[data-language='ur'] button {
-  font-family: var(--font-urdu), var(--font-sans);
-}
-
-[data-language='ur'] .pti-brand-name,
-[data-language='ur'] .pti-brand-platform {
-  font-family: var(--font-sans);
-}
-
-.page-wrap {
-  max-width: 1280px;
-}
-
-.pti-panel {
-  border: 1px solid rgba(255,255,255,.78);
-  background: rgba(255,255,255,.84);
-  box-shadow: 0 24px 70px rgba(15,23,42,.09);
-  backdrop-filter: blur(18px);
-}
-
-.pti-eyebrow {
-  color: var(--accent-strong);
-  font-size: .72rem;
-  font-weight: 900;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-}
-
-.pti-gradient-text {
-  background: linear-gradient(100deg, #0b5d36 0%, #179254 46%, #c5242b 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-@media (max-width: 640px) {
-  .pti-brand-logo {
-    width: 2.65rem;
-    height: 2.65rem;
-    border-radius: .85rem;
-  }
-
-  .pti-brand-name {
-    font-size: .83rem;
-  }
-
-  .pti-brand-platform {
-    font-size: .55rem;
-    letter-spacing: .11em;
-  }
-
-  .pti-theme-watermark {
-    background-size: 52rem auto;
-    background-position: 58% 3rem;
-    opacity: .035;
   }
 }

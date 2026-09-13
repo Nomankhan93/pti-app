@@ -4,8 +4,8 @@ import { AdminSidebar } from './AdminSidebar'
 
 export function AdminShell({
   children,
-  title = 'Operations Console',
-  subtitle = 'Manage members, organization, roles, volunteers and operational controls.',
+  title = 'Admin Panel',
+  subtitle = 'Manage members, designations, activation and digital cards.',
 }: {
   children: ReactNode
   title?: string
@@ -21,7 +21,7 @@ export function AdminShell({
         <section className="admin-shell-content">
           <div className="admin-mobile-bar">
             <div>
-              <p className="admin-mobile-eyebrow">PTI Operations</p>
+              <p className="admin-mobile-eyebrow">PTI Admin</p>
               <h1>{title}</h1>
               <p>{subtitle}</p>
             </div>
@@ -52,7 +52,7 @@ export function AdminShell({
           <div className="admin-mobile-drawer-panel">
             <div className="admin-mobile-drawer-header">
               <div>
-                <p>PTI Operations</p>
+                <p>PTI Admin</p>
                 <h2>Navigation</h2>
               </div>
 

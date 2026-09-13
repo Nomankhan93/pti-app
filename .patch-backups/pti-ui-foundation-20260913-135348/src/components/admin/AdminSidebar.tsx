@@ -42,7 +42,7 @@ export function AdminSidebar({
         <span className="admin-sidebar-brand-icon">PTI</span>
         <span>
           <strong>Admin Panel</strong>
-          <small>Digital Operations Console</small>
+          <small>Membership Console</small>
         </span>
       </div>
 

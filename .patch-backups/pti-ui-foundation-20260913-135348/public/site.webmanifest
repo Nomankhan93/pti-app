@@ -1,12 +1,12 @@
 {
-  "name": "Pakistan Tehreek-e-Insaf Digital Operations Platform",
+  "name": "Pakistan Tehreek-e-Insaf",
   "short_name": "PTI",
-  "description": "PTI digital platform for membership, volunteers, operations, duties and participation tracking.",
+  "description": "Pakistan Tehreek-e-Insaf digital membership platform.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f6f8f5",
-  "theme_color": "#0b5d36",
+  "background_color": "#f7faf8",
+  "theme_color": "#000000",
   "orientation": "portrait-primary",
   "icons": [
     {

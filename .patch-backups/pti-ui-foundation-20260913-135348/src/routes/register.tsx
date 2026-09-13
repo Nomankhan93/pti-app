@@ -2,13 +2,6 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useI18n, type TranslationKey } from '../lib/i18n'
-import {
-  emptyGeographySelection,
-  geographyChildren,
-  geographySelectionForTehsil,
-  type GeographyRow,
-  type GeographySelection,
-} from '../lib/volunteers'
 import { supabase } from '../lib/supabase/client'
 import {
   formatCnicInput,
@@ -28,31 +21,145 @@ const MAX_PHOTO_SIZE_BYTES = 2 * 1024 * 1024
 const ALLOWED_PHOTO_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const REGISTER_DRAFT_VERSION = 1
 
+const sindhDistricts = [
+  'Badin',
+  'Dadu',
+  'Ghotki',
+  'Hyderabad',
+  'Jacobabad',
+  'Jamshoro',
+  'Karachi Central',
+  'Karachi East',
+  'Karachi South',
+  'Karachi West',
+  'Kashmore',
+  'Keamari',
+  'Khairpur',
+  'Korangi',
+  'Larkana',
+  'Malir',
+  'Matiari',
+  'Mirpur Khas',
+  'Naushahro Firoze',
+  'Qambar Shahdadkot',
+  'Sanghar',
+  'Shaheed Benazirabad',
+  'Shikarpur',
+  'Sujawal',
+  'Sukkur',
+  'Tando Allahyar',
+  'Tando Muhammad Khan',
+  'Tharparkar',
+  'Thatta',
+  'Umerkot',
+]
 
-function geographySelectionFromNames(rows: GeographyRow[], districtName: string, tehsilName: string | null) {
-  if (!districtName) return emptyGeographySelection()
-
-  const districts = rows.filter((row) => row.kind === 'district' && row.is_active && row.name === districtName)
-  for (const district of districts) {
-    const tehsil = rows.find((row) => row.kind === 'tehsil' && row.is_active && row.parent_id === district.id && row.name === tehsilName)
-    if (tehsil) return geographySelectionForTehsil(rows, tehsil.id)
-  }
-
-  const district = districts[0]
-  if (!district) return emptyGeographySelection()
-
-  const byId = new Map(rows.map((row) => [row.id, row]))
-  const selection = emptyGeographySelection()
-  selection.districtId = district.id
-  let current = district.parent_id ? byId.get(district.parent_id) : undefined
-  while (current) {
-    if (current.kind === 'division') selection.divisionId = current.id
-    if (current.kind === 'province') selection.provinceId = current.id
-    current = current.parent_id ? byId.get(current.parent_id) : undefined
-  }
-  return selection
+const talukasByDistrict: Record<string, string[]> = {
+  Badin: [
+    'Badin',
+    'Matli',
+    'Shaheed Fazil Rahu (Golarchi)',
+    'Talhar',
+    'Tando Bago',
+  ],
+  Sujawal: ['Jati', 'Kharo Chan', 'Mirpur Bathoro', 'Shah Bunder', 'Sujawal'],
+  Thatta: ['Ghorabari', 'Keti Bunder', 'Mirpur Sakro', 'Thatta'],
+  Dadu: ['Dadu', 'Johi', 'Khairpur Nathan Shah', 'Mehar'],
+  Hyderabad: ['Hyderabad City', 'Hyderabad Rural', 'Latifabad', 'Qasimabad'],
+  Jamshoro: ['Kotri', 'Manjhand', 'Sehwan Sharif', 'Thano Bula Khan'],
+  Matiari: ['Hala', 'Matiari', 'Saeedabad'],
+  'Tando Allahyar': ['Chamber', 'Jhando Mari', 'Tando Allahyar'],
+  'Tando Muhammad Khan': [
+    'Bulri Shah Karim',
+    'Tando Ghulam Hyder',
+    'Tando Muhammad Khan',
+  ],
+  'Karachi Central': [
+    'Gulberg',
+    'Liaquatabad',
+    'Nazimabad',
+    'New Karachi',
+    'North Nazimabad',
+  ],
+  'Karachi East': [
+    'Ferozabad',
+    'Gulshan-e-Iqbal',
+    'Gulzar-e-Hijri',
+    'Jamshed Quarters',
+  ],
+  'Karachi South': ['Aram Bagh', 'Civil Line', 'Garden', 'Lyari', 'Saddar'],
+  'Karachi West': ['Mango Pir', 'Mominabad', 'Orangi'],
+  Keamari: ['Baldia', 'Harbour', 'Mauripur', 'SITE'],
+  Korangi: ['Korangi', 'Landhi', 'Model Colony', 'Shah Faisal'],
+  Malir: [
+    'Airport',
+    'Bin Qasim',
+    'Gadap',
+    'Ibrahim Hyderi',
+    'Murad Memon',
+    'Shah Murad',
+  ],
+  Jacobabad: ['Garhi Khairo', 'Jacobabad', 'Thul'],
+  Kashmore: ['Kandhkot', 'Kashmore', 'Tangwani'],
+  Larkana: ['Bakrani', 'Dokri', 'Larkana', 'Ratodero'],
+  'Qambar Shahdadkot': [
+    'Mirokhan',
+    'Nasirabad',
+    'Qambar',
+    'Qubo Saeed Khan',
+    'Shahdadkot',
+    'Sijawal Junejo',
+    'Warah',
+  ],
+  Shikarpur: ['Garhi Yasin', 'Khanpur', 'Lakhi Ghulam Shah', 'Shikarpur'],
+  'Mirpur Khas': [
+    'Digri',
+    'Hussain Bux Mari',
+    'Jhuddo',
+    'Kot Ghulam Muhammad',
+    'Mirpur Khas',
+    'Shujabad',
+    'Sindhri',
+  ],
+  Tharparkar: [
+    'Chachro',
+    'Dahli',
+    'Diplo',
+    'Islamkot',
+    'Kaloi',
+    'Mithi',
+    'Nagarparkar',
+  ],
+  Umerkot: ['Kunri', 'Pithoro', 'Samaro', 'Umerkot'],
+  'Naushahro Firoze': [
+    'Bhiria',
+    'Kandiaro',
+    'Mehrabpur',
+    'Moro',
+    'Naushahro Firoze',
+  ],
+  Sanghar: [
+    'Jam Nawaz Ali',
+    'Khipro',
+    'Sanghar',
+    'Shahdadpur',
+    'Sinjhoro',
+    'Tando Adam',
+  ],
+  'Shaheed Benazirabad': ['Daur', 'Nawabshah', 'Qazi Ahmed', 'Sakrand'],
+  Ghotki: ['Daharki', 'Ghotki', 'Khangarh', 'Mirpur Mathelo', 'Ubauro'],
+  Khairpur: [
+    'Faiz Ganj',
+    'Gambat',
+    'Khairpur',
+    'Kingri',
+    'Kot Diji',
+    'Mirwah',
+    'Nara',
+    'Sobhodero',
+  ],
+  Sukkur: ['New Sukkur', 'Pano Aqil', 'Rohri', 'Salehpat', 'Sukkur City'],
 }
-
 
 const genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say']
 const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
@@ -166,7 +273,7 @@ const formSteps: Array<{
 
 function RegisterPage() {
   const navigate = useNavigate()
-  const { t, direction, language } = useI18n()
+  const { t, direction } = useI18n()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -174,8 +281,6 @@ function RegisterPage() {
   const [existingMember, setExistingMember] = useState<ExistingMember | null>(null)
 
   const [form, setForm] = useState<RegisterFormState>(initialForm)
-  const [geographies, setGeographies] = useState<GeographyRow[]>([])
-  const [geographySelection, setGeographySelection] = useState<GeographySelection>(emptyGeographySelection())
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [currentStep, setCurrentStep] = useState(0)
 
@@ -201,23 +306,9 @@ function RegisterPage() {
   const currentStepData = localizedSteps[currentStep]
   const progressPercent = Math.round(((currentStep + 1) / formSteps.length) * 100)
 
-  const provinces = useMemo(() => geographyChildren(geographies, null, 'province'), [geographies])
-  const divisions = useMemo(
-    () => (geographySelection.provinceId ? geographyChildren(geographies, geographySelection.provinceId, 'division') : []),
-    [geographies, geographySelection.provinceId],
-  )
-  const districtParent = divisions.length > 0 ? geographySelection.divisionId : geographySelection.provinceId
-  const districts = useMemo(
-    () => (districtParent ? geographyChildren(geographies, districtParent, 'district') : []),
-    [districtParent, geographies],
-  )
-  const tehsils = useMemo(
-    () => (geographySelection.districtId ? geographyChildren(geographies, geographySelection.districtId, 'tehsil') : []),
-    [geographies, geographySelection.districtId],
-  )
-  const locationCopy = language === 'ur'
-    ? { province: 'صوبہ / علاقہ منتخب کریں', division: 'ڈویژن منتخب کریں', noDivision: 'ڈویژن درکار نہیں', district: 'ضلع منتخب کریں', tehsil: 'تحصیل / تعلقہ منتخب کریں', districtFirst: 'پہلے ضلع منتخب کریں' }
-    : { province: 'Select province / territory', division: 'Select division', noDivision: 'No division required', district: 'Select district', tehsil: 'Select tehsil / taluka', districtFirst: 'Select district first' }
+  const talukaOptions = useMemo(() => {
+    return form.district ? talukasByDistrict[form.district] || [] : []
+  }, [form.district])
 
   const photoSrc = photoPreview || existingPhotoSignedUrl
 
@@ -248,21 +339,6 @@ function RegisterPage() {
     }
 
     setUserId(user.id)
-
-    const { data: geographyData, error: geographyError } = await supabase
-      .from('geographies')
-      .select('*')
-      .eq('is_active', true)
-      .order('name')
-
-    if (geographyError) {
-      setError(geographyError.message)
-      setLoading(false)
-      return
-    }
-
-    const activeGeographies = (geographyData ?? []) as GeographyRow[]
-    setGeographies(activeGeographies)
 
     const { data: rawData, error: memberError } = await (supabase as any)
       .from('members')
@@ -306,7 +382,6 @@ function RegisterPage() {
     if (data) {
       setExistingMember(data)
       setForm(memberToForm(data))
-      setGeographySelection(geographySelectionFromNames(activeGeographies, data.district, data.taluka))
 
       if (data.photo_url) {
         const { data: signed } = await supabase.storage
@@ -319,9 +394,7 @@ function RegisterPage() {
       const draft = readDraft(user.id)
 
       if (draft) {
-        const draftForm = { ...initialForm, ...draft.form }
-        setForm(draftForm)
-        setGeographySelection(geographySelectionFromNames(activeGeographies, draftForm.district, draftForm.taluka))
+        setForm({ ...initialForm, ...draft.form })
         setDraftSavedAt(draft.savedAt)
       }
     }
@@ -350,60 +423,23 @@ function RegisterPage() {
     setSuccess('')
   }
 
-  function resetLocationFields() {
-    setForm((current) => ({ ...current, district: '', taluka: '' }))
-    setFieldErrors((current) => {
-      const next = { ...current }
-      delete next.district
-      delete next.taluka
-      return next
-    })
-    setError('')
-    setSuccess('')
-  }
-
-  function handleProvinceChange(provinceId: string) {
-    setGeographySelection({ provinceId, divisionId: '', districtId: '', tehsilId: '' })
-    resetLocationFields()
-  }
-
-  function handleDivisionChange(divisionId: string) {
-    setGeographySelection((current) => ({ ...current, divisionId, districtId: '', tehsilId: '' }))
-    resetLocationFields()
-  }
-
-  function handleDistrictChange(districtId: string) {
-    const district = geographies.find((row) => row.id === districtId)
-    setGeographySelection((current) => ({ ...current, districtId, tehsilId: '' }))
-    setForm((current) => ({ ...current, district: district?.name ?? '', taluka: '' }))
-    setFieldErrors((current) => {
-      const next = { ...current }
-      delete next.district
-      delete next.taluka
-      return next
-    })
-    setError('')
-    setSuccess('')
-  }
-
-  function handleTehsilChange(tehsilId: string) {
-    const tehsil = geographies.find((row) => row.id === tehsilId)
-    const district = geographies.find((row) => row.id === geographySelection.districtId)
-    setGeographySelection((current) => ({ ...current, tehsilId }))
+  function handleDistrictChange(value: string) {
     setForm((current) => ({
       ...current,
-      district: district?.name ?? current.district,
-      taluka: tehsil?.name ?? '',
+      district: value,
+      taluka: '',
     }))
+
     setFieldErrors((current) => {
       const next = { ...current }
+      delete next.district
       delete next.taluka
       return next
     })
+
     setError('')
     setSuccess('')
   }
-
 
   function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
     setError('')
@@ -835,34 +871,6 @@ function RegisterPage() {
           description={currentStepData.description}
         >
           <div className="reg-grid">
-            <Field name="province" label={t('register.field.province')} required>
-              <select
-                value={geographySelection.provinceId}
-                onChange={(event) => handleProvinceChange(event.target.value)}
-                disabled={locked}
-                className="reg-input reg-select"
-              >
-                <option value="">{locationCopy.province}</option>
-                {provinces.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-            </Field>
-
-            <Field name="division" label={t('register.field.division')}>
-              <select
-                value={geographySelection.divisionId}
-                onChange={(event) => handleDivisionChange(event.target.value)}
-                disabled={locked || !geographySelection.provinceId || divisions.length === 0}
-                className="reg-input reg-select"
-              >
-                <option value="">{divisions.length === 0 && geographySelection.provinceId ? locationCopy.noDivision : locationCopy.division}</option>
-                {divisions.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-            </Field>
-
             <Field
               name="district"
               label={t('register.field.district')}
@@ -871,16 +879,18 @@ function RegisterPage() {
             >
               <select
                 id="district"
-                value={geographySelection.districtId}
+                value={form.district}
                 onChange={(event) => handleDistrictChange(event.target.value)}
-                disabled={locked || !districtParent}
+                disabled={locked}
                 className="reg-input reg-select"
                 aria-invalid={Boolean(fieldErrors.district)}
                 aria-describedby={getDescriptionIds('district')}
               >
-                <option value="">{locationCopy.district}</option>
-                {districts.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
+                <option value="">Select district</option>
+                {sindhDistricts.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
                 ))}
               </select>
             </Field>
@@ -893,16 +903,20 @@ function RegisterPage() {
             >
               <select
                 id="taluka"
-                value={geographySelection.tehsilId}
-                onChange={(event) => handleTehsilChange(event.target.value)}
-                disabled={locked || !geographySelection.districtId}
+                value={form.taluka}
+                onChange={(event) => updateField('taluka', event.target.value)}
+                disabled={locked || !form.district}
                 className="reg-input reg-select"
                 aria-invalid={Boolean(fieldErrors.taluka)}
                 aria-describedby={getDescriptionIds('taluka')}
               >
-                <option value="">{geographySelection.districtId ? locationCopy.tehsil : locationCopy.districtFirst}</option>
-                {tehsils.map((item) => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
+                <option value="">
+                  {form.district ? 'Select taluka' : 'Select district first'}
+                </option>
+                {talukaOptions.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
                 ))}
               </select>
             </Field>
@@ -1266,7 +1280,19 @@ function RegisterPage() {
         <div className="reg-card">
           <div className="reg-header">
             <div className="reg-header-badge">
-              <img src="/brand/pti-logo.svg" alt="" className="h-5 w-5 object-contain" />
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
               {t('register.brand')}
             </div>
 
@@ -1454,7 +1480,7 @@ function Field({
   error,
   className = '',
 }: {
-  name: FormField | 'province' | 'division'
+  name: FormField
   label: string
   children: ReactNode
   required?: boolean
