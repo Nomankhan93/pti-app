@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
@@ -17,9 +18,18 @@ import { Route as CardRouteImport } from './routes/card'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyMemberNoRouteImport } from './routes/verify/$memberNo'
+import { Route as OperationsVolunteersRouteImport } from './routes/operations/volunteers'
+import { Route as AdminRolesRouteImport } from './routes/admin/roles'
+import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
+import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as AdminMembersIdRouteImport } from './routes/admin/members/$id'
 import { Route as AdminMembersIdCardRouteImport } from './routes/admin/members/$id/card'
 
+const VolunteerRoute = VolunteerRouteImport.update({
+  id: '/volunteer',
+  path: '/volunteer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -60,6 +70,26 @@ const VerifyMemberNoRoute = VerifyMemberNoRouteImport.update({
   path: '/verify/$memberNo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OperationsVolunteersRoute = OperationsVolunteersRouteImport.update({
+  id: '/operations/volunteers',
+  path: '/operations/volunteers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMembersIdRoute = AdminMembersIdRouteImport.update({
   id: '/members/$id',
   path: '/members/$id',
@@ -79,6 +109,11 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
+  '/volunteer': typeof VolunteerRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/operations/volunteers': typeof OperationsVolunteersRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
@@ -91,6 +126,11 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
+  '/volunteer': typeof VolunteerRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/operations/volunteers': typeof OperationsVolunteersRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
@@ -104,6 +144,11 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
+  '/volunteer': typeof VolunteerRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/operations/volunteers': typeof OperationsVolunteersRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
@@ -118,6 +163,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/signup'
+    | '/volunteer'
+    | '/admin/audit'
+    | '/admin/organization'
+    | '/admin/roles'
+    | '/operations/volunteers'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/admin/members/$id/card'
@@ -130,6 +180,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/signup'
+    | '/volunteer'
+    | '/admin/audit'
+    | '/admin/organization'
+    | '/admin/roles'
+    | '/operations/volunteers'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/admin/members/$id/card'
@@ -142,6 +197,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/signup'
+    | '/volunteer'
+    | '/admin/audit'
+    | '/admin/organization'
+    | '/admin/roles'
+    | '/operations/volunteers'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/admin/members/$id/card'
@@ -155,11 +215,20 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
+  VolunteerRoute: typeof VolunteerRoute
+  OperationsVolunteersRoute: typeof OperationsVolunteersRoute
   VerifyMemberNoRoute: typeof VerifyMemberNoRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/volunteer': {
+      id: '/volunteer'
+      path: '/volunteer'
+      fullPath: '/volunteer'
+      preLoaderRoute: typeof VolunteerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -216,6 +285,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyMemberNoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/operations/volunteers': {
+      id: '/operations/volunteers'
+      path: '/operations/volunteers'
+      fullPath: '/operations/volunteers'
+      preLoaderRoute: typeof OperationsVolunteersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/organization': {
+      id: '/admin/organization'
+      path: '/organization'
+      fullPath: '/admin/organization'
+      preLoaderRoute: typeof AdminOrganizationRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/members/$id': {
       id: '/admin/members/$id'
       path: '/members/$id'
@@ -246,10 +343,16 @@ const AdminMembersIdRouteWithChildren = AdminMembersIdRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminOrganizationRoute: typeof AdminOrganizationRoute
+  AdminRolesRoute: typeof AdminRolesRoute
   AdminMembersIdRoute: typeof AdminMembersIdRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditRoute: AdminAuditRoute,
+  AdminOrganizationRoute: AdminOrganizationRoute,
+  AdminRolesRoute: AdminRolesRoute,
   AdminMembersIdRoute: AdminMembersIdRouteWithChildren,
 }
 
@@ -263,6 +366,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
+  VolunteerRoute: VolunteerRoute,
+  OperationsVolunteersRoute: OperationsVolunteersRoute,
   VerifyMemberNoRoute: VerifyMemberNoRoute,
 }
 export const routeTree = rootRouteImport

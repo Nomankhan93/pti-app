@@ -6,6 +6,7 @@ import {
   Eye,
   EyeOff,
   IdCard,
+  HeartHandshake,
   RefreshCw,
   ShieldCheck,
   UserRound,
@@ -186,12 +187,21 @@ function DashboardPage() {
             <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-slate-600">
               Registration is free. Your PTI member number and digital membership are issued automatically when you submit the form.
             </p>
-            <Link
-              to="/register"
-              className="mt-6 inline-flex rounded-xl bg-emerald-800 px-5 py-3 text-sm font-black text-white no-underline hover:bg-emerald-900"
-            >
-              {t('dashboard.fillMembershipForm')}
-            </Link>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                to="/register"
+                className="inline-flex rounded-xl bg-emerald-800 px-5 py-3 text-sm font-black text-white no-underline hover:bg-emerald-900"
+              >
+                {t('dashboard.fillMembershipForm')}
+              </Link>
+              <Link
+                to="/volunteer"
+                className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-800 no-underline hover:bg-emerald-100"
+              >
+                <HeartHandshake className="h-4 w-4" />
+                Register as Volunteer
+              </Link>
+            </div>
           </section>
         ) : (
           <>
@@ -287,6 +297,19 @@ function DashboardPage() {
                     </button>
                   ) : null}
                 </div>
+              </div>
+            </section>
+
+            <section className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 p-5 sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">Volunteer Registry</p>
+                  <h2 className="mt-1 text-xl font-black text-slate-950">Contribute your skills to PTI operations</h2>
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-600">Register availability, skills and preferred duties. Volunteer registration is separate from membership and becomes active without an approval queue.</p>
+                </div>
+                <Link to="/volunteer" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-black text-white no-underline hover:bg-emerald-900">
+                  <HeartHandshake className="h-4 w-4" /> Open Volunteer Profile
+                </Link>
               </div>
             </section>
 

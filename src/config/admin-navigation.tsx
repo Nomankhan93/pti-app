@@ -1,16 +1,25 @@
 import type { ReactNode } from 'react'
 import {
+  Activity,
   BriefcaseBusiness,
+  Building2,
   ClipboardList,
   Download,
   IdCard,
   LayoutDashboard,
   SearchCheck,
   ShieldCheck,
+  UserCog,
   Users,
+  UsersRound,
 } from 'lucide-react'
 
-export type AdminNavigationRoute = '/admin'
+export type AdminNavigationRoute =
+  | '/admin'
+  | '/admin/organization'
+  | '/admin/roles'
+  | '/admin/audit'
+  | '/operations/volunteers'
 
 export type AdminNavigationItem = {
   label: string
@@ -80,14 +89,49 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
     ],
   },
   {
+    title: 'Organization & Access',
+    items: [
+      {
+        label: 'Organization',
+        description: 'Central to province, division, district and tehsil hierarchy',
+        to: '/admin/organization',
+        icon: <Building2 size={17} />,
+      },
+      {
+        label: 'Roles & Permissions',
+        description: 'Assign controlled office-bearer and coordinator access',
+        to: '/admin/roles',
+        icon: <UserCog size={17} />,
+      },
+      {
+        label: 'Audit Log',
+        description: 'Review organization and access-control activity',
+        to: '/admin/audit',
+        icon: <Activity size={17} />,
+      },
+    ],
+  },
+  {
+    title: 'Operations',
+    items: [
+      {
+        label: 'Volunteer Workbench',
+        description: 'Search and manage volunteers within authorized scope',
+        to: '/operations/volunteers',
+        icon: <UsersRound size={17} />,
+        badge: 'PHASE 2',
+      },
+    ],
+  },
+  {
     title: 'Security',
     items: [
       {
-        label: 'Roles & Permissions',
-        description: 'Controlled through Supabase user_roles table',
+        label: 'Scoped RBAC',
+        description: 'Database-enforced organization access foundation',
+        to: '/admin/roles',
         icon: <ShieldCheck size={17} />,
-        badge: 'DB',
-        disabled: true,
+        badge: 'LIVE',
       },
     ],
   },

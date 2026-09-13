@@ -1,14 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-
-type HeaderRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/admin'
+import type { KnownRoute } from '../../config/navigation'
 
 export function NavLink({
   to,
   children,
   compact = false,
 }: {
-  to: HeaderRoute
+  to: KnownRoute
   children: ReactNode
   compact?: boolean
 }) {

@@ -95,8 +95,10 @@ drop policy if exists "membership_receipts_update_own_or_membership_admin" on st
 drop policy if exists membership_receipts_delete_own_or_admin on storage.objects;
 drop policy if exists "membership_receipts_delete_own_or_membership_admin" on storage.objects;
 
-delete from storage.objects where bucket_id = 'membership-receipts';
-delete from storage.buckets where id = 'membership-receipts';
+-- Supabase Storage is API-managed.
+-- Direct deletion from storage.objects is blocked on hosted Supabase.
+-- Receipt policies are removed above; physical bucket cleanup is handled
+-- separately through the Supabase Storage API or Dashboard.
 
 drop type if exists public.membership_payment_status;
 drop type if exists public.membership_payment_method;

@@ -12,6 +12,7 @@ export function useAuthRole() {
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [hasVolunteerWorkbenchAccess, setHasVolunteerWorkbenchAccess] = useState(false)
   const [accountEmail, setAccountEmail] = useState('')
 
   const checkAdmin = useCallback(async (userId: string) => {
@@ -30,6 +31,12 @@ export function useAuthRole() {
     return Boolean(data?.length)
   }, [])
 
+  const checkVolunteerWorkbench = useCallback(async () => {
+    const { data, error } = await supabase.rpc('my_volunteer_workbench_access')
+    if (error) return false
+    return Boolean(data?.[0]?.can_view)
+  }, [])
+
   const syncAuthState = useCallback(
     async (user?: AuthUser | null) => {
       const userId = user?.id ?? null
@@ -37,12 +44,21 @@ export function useAuthRole() {
       setIsLoggedIn(Boolean(userId))
       setAccountEmail(user?.email ?? '')
 
-      if (userId) setIsAdmin(await checkAdmin(userId))
-      else setIsAdmin(false)
+      if (userId) {
+        const [adminAccess, volunteerAccess] = await Promise.all([
+          checkAdmin(userId),
+          checkVolunteerWorkbench(),
+        ])
+        setIsAdmin(adminAccess)
+        setHasVolunteerWorkbenchAccess(volunteerAccess)
+      } else {
+        setIsAdmin(false)
+        setHasVolunteerWorkbenchAccess(false)
+      }
 
       setAuthLoading(false)
     },
-    [checkAdmin],
+    [checkAdmin, checkVolunteerWorkbench],
   )
 
   useEffect(() => {
@@ -57,6 +73,7 @@ export function useAuthRole() {
         console.error('Session load failed:', error.message)
         setIsLoggedIn(false)
         setIsAdmin(false)
+        setHasVolunteerWorkbenchAccess(false)
         setAccountEmail('')
         setAuthLoading(false)
         return
@@ -97,6 +114,7 @@ export function useAuthRole() {
 
     setIsLoggedIn(false)
     setIsAdmin(false)
+    setHasVolunteerWorkbenchAccess(false)
     setAccountEmail('')
     setLogoutLoading(false)
     return true
@@ -107,6 +125,7 @@ export function useAuthRole() {
     logoutLoading,
     isLoggedIn,
     isAdmin,
+    hasVolunteerWorkbenchAccess,
     accountEmail,
     accountInitial,
     logout,

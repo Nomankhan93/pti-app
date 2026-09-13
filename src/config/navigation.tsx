@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import {
   ClipboardList,
+  HeartHandshake,
   Home,
   IdCard,
   LayoutDashboard,
@@ -8,13 +9,14 @@ import {
   LogOut,
   ShieldCheck,
   UserPlus,
+  UsersRound,
 } from 'lucide-react'
 
 export const adminRoleNames = ['admin'] as const
 
 export type HeaderMenuKey = 'account' | null
 
-type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/admin'
+export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/admin'
 
 export type NavigationItem = {
   label: string
@@ -53,6 +55,12 @@ export const memberNavigationItems: NavigationItem[] = [
     to: '/card',
     icon: <IdCard className="h-4 w-4" />,
   },
+  {
+    label: 'Volunteer',
+    description: 'Register skills and availability',
+    to: '/volunteer',
+    icon: <HeartHandshake className="h-4 w-4" />,
+  },
 ]
 
 export const loggedOutAccountItems: NavigationItem[] = [
@@ -70,9 +78,20 @@ export const loggedOutAccountItems: NavigationItem[] = [
   },
 ]
 
-export function getAccountItems(isAdmin: boolean): NavigationItem[] {
+export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false): NavigationItem[] {
   return [
     ...memberNavigationItems,
+    ...(hasVolunteerWorkbenchAccess
+      ? [
+          {
+            label: 'Volunteer Workbench',
+            description: 'Search volunteers inside your authorized area',
+            to: '/operations/volunteers' as const,
+            icon: <UsersRound className="h-4 w-4" />,
+            badge: 'Operations',
+          },
+        ]
+      : []),
     ...(isAdmin
       ? [
           {

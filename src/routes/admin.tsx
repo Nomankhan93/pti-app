@@ -35,7 +35,7 @@ function AdminPage() {
   const navigate = useNavigate()
   const { t, direction, language } = useI18n()
   const pathname = useRouterState({ select: (state) => state.location.pathname })
-  const isMemberDetailPage = pathname.startsWith('/admin/members/')
+  const isChildAdminPage = pathname !== '/admin'
 
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -65,10 +65,10 @@ function AdminPage() {
   }, [search])
 
   useEffect(() => {
-    if (!isMemberDetailPage) void loadAdmin()
-  }, [activeFilter, debouncedSearch, isMemberDetailPage, page, pageSize])
+    if (!isChildAdminPage) void loadAdmin()
+  }, [activeFilter, debouncedSearch, isChildAdminPage, page, pageSize])
 
-  if (isMemberDetailPage) return <Outlet />
+  if (isChildAdminPage) return <Outlet />
 
   async function requireAdmin() {
     const {
