@@ -1,0 +1,1633 @@
+-- PTI Phase 5 — Fundraising & Finance Ledger
+-- Campaigns, immutable donation ledger, versioned receipts, append-only verification /
+-- reconciliation events, adjustments, scoped finance roles, RLS and audited RPC-only writes.
+
+begin;
+
+-- -----------------------------------------------------------------------------
+-- Canonical finance types
+-- -----------------------------------------------------------------------------
+
+create type public.fundraising_campaign_status as enum (
+  'draft',
+  'active',
+  'paused',
+  'completed',
+  'cancelled'
+);
+
+create type public.finance_payment_method as enum (
+  'cash',
+  'bank_transfer',
+  'card',
+  'online_wallet',
+  'cheque',
+  'other'
+);
+
+create type public.finance_role as enum (
+  'finance_admin',
+  'finance_officer',
+  'collector',
+  'auditor'
+);
+
+create type public.donation_verification_state as enum (
+  'pending',
+  'verified',
+  'rejected'
+);
+
+create type public.donation_reconciliation_state as enum (
+  'pending',
+  'reconciled',
+  'exception'
+);
+
+create type public.donation_adjustment_kind as enum (
+  'correction',
+  'reversal',
+  'refund',
+  'chargeback'
+);
+
+-- -----------------------------------------------------------------------------
+-- Finance tables
+-- -----------------------------------------------------------------------------
+
+create sequence public.fundraising_campaign_number_seq;
+create sequence public.donation_number_seq;
+create sequence public.donation_receipt_number_seq;
+
+create table public.finance_role_assignments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role public.finance_role not null,
+  org_unit_id uuid not null references public.organization_units(id) on delete restrict,
+  assigned_by uuid references auth.users(id) on delete set null,
+  assigned_at timestamptz not null default now(),
+  is_active boolean not null default true,
+  revoked_by uuid references auth.users(id) on delete set null,
+  revoked_at timestamptz,
+  note text,
+  unique (user_id, role, org_unit_id),
+  constraint finance_role_note_check check (note is null or length(note) <= 1000),
+  constraint finance_role_revoke_state_check check (
+    (is_active and revoked_at is null)
+    or ((not is_active) and revoked_at is not null)
+  )
+);
+
+create table public.fundraising_campaigns (
+  id uuid primary key default gen_random_uuid(),
+  campaign_no text not null unique,
+  org_unit_id uuid not null references public.organization_units(id) on delete restrict,
+  title text not null,
+  description text,
+  currency text not null default 'PKR',
+  target_amount numeric(18,2),
+  starts_at timestamptz,
+  ends_at timestamptz,
+  status public.fundraising_campaign_status not null default 'draft',
+  created_by uuid not null references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint fundraising_campaign_title_check check (length(trim(title)) between 3 and 180),
+  constraint fundraising_campaign_description_check check (description is null or length(description) <= 5000),
+  constraint fundraising_campaign_currency_check check (currency ~ '^[A-Z]{3}$'),
+  constraint fundraising_campaign_target_check check (target_amount is null or target_amount > 0),
+  constraint fundraising_campaign_dates_check check (starts_at is null or ends_at is null or ends_at > starts_at)
+);
+
+create table public.donations (
+  id uuid primary key default gen_random_uuid(),
+  donation_no text not null unique,
+  campaign_id uuid references public.fundraising_campaigns(id) on delete restrict,
+  org_unit_id uuid not null references public.organization_units(id) on delete restrict,
+  donor_name text,
+  donor_mobile text,
+  donor_email text,
+  is_anonymous boolean not null default false,
+  amount numeric(18,2) not null,
+  currency text not null,
+  payment_method public.finance_payment_method not null,
+  payment_reference text,
+  received_at timestamptz not null,
+  collector_user_id uuid references auth.users(id) on delete set null,
+  recorded_by uuid not null references auth.users(id) on delete restrict,
+  note text,
+  created_at timestamptz not null default now(),
+  constraint donations_amount_check check (amount > 0),
+  constraint donations_currency_check check (currency ~ '^[A-Z]{3}$'),
+  constraint donations_donor_name_check check (donor_name is null or length(donor_name) <= 180),
+  constraint donations_donor_mobile_check check (donor_mobile is null or length(donor_mobile) <= 40),
+  constraint donations_donor_email_check check (donor_email is null or length(donor_email) <= 320),
+  constraint donations_payment_reference_check check (payment_reference is null or length(payment_reference) <= 240),
+  constraint donations_note_check check (note is null or length(note) <= 2000)
+);
+
+create table public.donation_verification_events (
+  id bigint generated by default as identity primary key,
+  donation_id uuid not null references public.donations(id) on delete restrict,
+  state public.donation_verification_state not null,
+  note text,
+  actor_id uuid not null references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  constraint donation_verification_note_check check (note is null or length(note) <= 2000)
+);
+
+create table public.donation_reconciliation_events (
+  id bigint generated by default as identity primary key,
+  donation_id uuid not null references public.donations(id) on delete restrict,
+  state public.donation_reconciliation_state not null,
+  reconciliation_reference text,
+  note text,
+  actor_id uuid not null references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  constraint donation_reconciliation_reference_check check (reconciliation_reference is null or length(reconciliation_reference) <= 240),
+  constraint donation_reconciliation_note_check check (note is null or length(note) <= 2000)
+);
+
+create table public.donation_adjustments (
+  id uuid primary key default gen_random_uuid(),
+  donation_id uuid not null references public.donations(id) on delete restrict,
+  kind public.donation_adjustment_kind not null,
+  amount_delta numeric(18,2) not null,
+  reason text not null,
+  reference text,
+  created_by uuid not null references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  constraint donation_adjustment_delta_check check (amount_delta <> 0),
+  constraint donation_adjustment_reason_check check (length(trim(reason)) between 3 and 2000),
+  constraint donation_adjustment_reference_check check (reference is null or length(reference) <= 240)
+);
+
+create table public.donation_receipts (
+  id uuid primary key default gen_random_uuid(),
+  donation_id uuid not null references public.donations(id) on delete restrict,
+  receipt_no text not null unique,
+  version integer not null,
+  amount_snapshot numeric(18,2) not null,
+  currency text not null,
+  donor_name_snapshot text,
+  payment_method public.finance_payment_method not null,
+  payment_reference_snapshot text,
+  issued_by uuid not null references auth.users(id) on delete restrict,
+  issued_at timestamptz not null default now(),
+  unique (donation_id, version),
+  constraint donation_receipt_version_check check (version > 0),
+  constraint donation_receipt_amount_check check (amount_snapshot > 0),
+  constraint donation_receipt_currency_check check (currency ~ '^[A-Z]{3}$')
+);
+
+create trigger fundraising_campaigns_set_updated_at
+before update on public.fundraising_campaigns
+for each row execute function app_private.set_updated_at();
+
+-- FK/search coverage. Keep left-most FK coverage explicit so the database advisor
+-- does not depend on accidental composite-index ordering.
+create index finance_role_assignments_user_idx on public.finance_role_assignments(user_id, is_active);
+create index finance_role_assignments_scope_idx on public.finance_role_assignments(org_unit_id, is_active);
+create index finance_role_assignments_assigned_by_idx on public.finance_role_assignments(assigned_by);
+create index finance_role_assignments_revoked_by_idx on public.finance_role_assignments(revoked_by);
+create index fundraising_campaigns_scope_status_idx on public.fundraising_campaigns(org_unit_id, status, created_at desc);
+create index fundraising_campaigns_created_by_idx on public.fundraising_campaigns(created_by);
+create index donations_campaign_idx on public.donations(campaign_id, received_at desc);
+create index donations_scope_idx on public.donations(org_unit_id, received_at desc);
+create index donations_recorded_by_idx on public.donations(recorded_by);
+create index donations_collector_idx on public.donations(collector_user_id);
+create index donations_reference_idx on public.donations(payment_reference) where payment_reference is not null;
+create index donation_verification_donation_idx on public.donation_verification_events(donation_id, created_at desc, id desc);
+create index donation_verification_actor_idx on public.donation_verification_events(actor_id);
+create index donation_reconciliation_donation_idx on public.donation_reconciliation_events(donation_id, created_at desc, id desc);
+create index donation_reconciliation_actor_idx on public.donation_reconciliation_events(actor_id);
+create index donation_adjustments_donation_idx on public.donation_adjustments(donation_id, created_at desc);
+create index donation_adjustments_created_by_idx on public.donation_adjustments(created_by);
+create index donation_receipts_donation_idx on public.donation_receipts(donation_id, version desc);
+create index donation_receipts_issued_by_idx on public.donation_receipts(issued_by);
+
+-- -----------------------------------------------------------------------------
+-- Finance authorization helpers
+-- -----------------------------------------------------------------------------
+
+create or replace function app_private.can_view_finance(
+  p_user_id uuid,
+  p_target_org_unit uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    p_user_id is not null
+    and p_target_org_unit is not null
+    and (
+      app_private.is_legacy_admin(p_user_id)
+      or exists (
+        select 1
+        from public.organization_role_assignments ra
+        join public.organization_units ou on ou.id = ra.org_unit_id
+        where ra.user_id = p_user_id
+          and ra.is_active
+          and ou.is_active
+          and ra.role in (
+            'super_admin'::public.organization_role,
+            'central_leadership'::public.organization_role,
+            'national_finance_admin'::public.organization_role,
+            'auditor'::public.organization_role
+          )
+          and app_private.is_org_descendant(p_target_org_unit, ra.org_unit_id)
+      )
+      or exists (
+        select 1
+        from public.finance_role_assignments fra
+        join public.organization_units ou on ou.id = fra.org_unit_id
+        where fra.user_id = p_user_id
+          and fra.is_active
+          and ou.is_active
+          and app_private.is_org_descendant(p_target_org_unit, fra.org_unit_id)
+      )
+    );
+$$;
+
+create or replace function app_private.can_admin_finance(
+  p_user_id uuid,
+  p_target_org_unit uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    p_user_id is not null
+    and p_target_org_unit is not null
+    and (
+      app_private.is_legacy_admin(p_user_id)
+      or exists (
+        select 1
+        from public.organization_role_assignments ra
+        join public.organization_units ou on ou.id = ra.org_unit_id
+        where ra.user_id = p_user_id
+          and ra.is_active
+          and ou.is_active
+          and ra.role in (
+            'super_admin'::public.organization_role,
+            'national_finance_admin'::public.organization_role
+          )
+          and app_private.is_org_descendant(p_target_org_unit, ra.org_unit_id)
+      )
+      or exists (
+        select 1
+        from public.finance_role_assignments fra
+        join public.organization_units ou on ou.id = fra.org_unit_id
+        where fra.user_id = p_user_id
+          and fra.is_active
+          and fra.role = 'finance_admin'::public.finance_role
+          and ou.is_active
+          and app_private.is_org_descendant(p_target_org_unit, fra.org_unit_id)
+      )
+    );
+$$;
+
+create or replace function app_private.can_manage_finance(
+  p_user_id uuid,
+  p_target_org_unit uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    app_private.can_admin_finance(p_user_id, p_target_org_unit)
+    or exists (
+      select 1
+      from public.finance_role_assignments fra
+      join public.organization_units ou on ou.id = fra.org_unit_id
+      where fra.user_id = p_user_id
+        and fra.is_active
+        and fra.role = 'finance_officer'::public.finance_role
+        and ou.is_active
+        and app_private.is_org_descendant(p_target_org_unit, fra.org_unit_id)
+    );
+$$;
+
+create or replace function app_private.can_record_finance(
+  p_user_id uuid,
+  p_target_org_unit uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    app_private.can_manage_finance(p_user_id, p_target_org_unit)
+    or exists (
+      select 1
+      from public.finance_role_assignments fra
+      join public.organization_units ou on ou.id = fra.org_unit_id
+      where fra.user_id = p_user_id
+        and fra.is_active
+        and fra.role = 'collector'::public.finance_role
+        and ou.is_active
+        and app_private.is_org_descendant(p_target_org_unit, fra.org_unit_id)
+    );
+$$;
+
+create or replace function app_private.can_verify_finance(
+  p_user_id uuid,
+  p_target_org_unit uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select app_private.can_manage_finance(p_user_id, p_target_org_unit);
+$$;
+
+create or replace function app_private.can_reconcile_finance(
+  p_user_id uuid,
+  p_target_org_unit uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select app_private.can_manage_finance(p_user_id, p_target_org_unit);
+$$;
+
+create or replace function app_private.latest_donation_verification_state(p_donation_id uuid)
+returns public.donation_verification_state
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select coalesce(
+    (
+      select e.state
+      from public.donation_verification_events e
+      where e.donation_id = p_donation_id
+      order by e.created_at desc, e.id desc
+      limit 1
+    ),
+    'pending'::public.donation_verification_state
+  );
+$$;
+
+create or replace function app_private.latest_donation_reconciliation_state(p_donation_id uuid)
+returns public.donation_reconciliation_state
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select coalesce(
+    (
+      select e.state
+      from public.donation_reconciliation_events e
+      where e.donation_id = p_donation_id
+      order by e.created_at desc, e.id desc
+      limit 1
+    ),
+    'pending'::public.donation_reconciliation_state
+  );
+$$;
+
+create or replace function app_private.effective_donation_amount(p_donation_id uuid)
+returns numeric
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select d.amount + coalesce((select sum(a.amount_delta) from public.donation_adjustments a where a.donation_id = d.id), 0)
+  from public.donations d
+  where d.id = p_donation_id;
+$$;
+
+revoke all on function app_private.can_view_finance(uuid,uuid) from public, anon, authenticated;
+revoke all on function app_private.can_admin_finance(uuid,uuid) from public, anon, authenticated;
+revoke all on function app_private.can_manage_finance(uuid,uuid) from public, anon, authenticated;
+revoke all on function app_private.can_record_finance(uuid,uuid) from public, anon, authenticated;
+revoke all on function app_private.can_verify_finance(uuid,uuid) from public, anon, authenticated;
+revoke all on function app_private.can_reconcile_finance(uuid,uuid) from public, anon, authenticated;
+revoke all on function app_private.latest_donation_verification_state(uuid) from public, anon, authenticated;
+revoke all on function app_private.latest_donation_reconciliation_state(uuid) from public, anon, authenticated;
+revoke all on function app_private.effective_donation_amount(uuid) from public, anon, authenticated;
+
+-- RLS evaluates these two helpers directly, so authenticated needs EXECUTE.
+grant execute on function app_private.can_view_finance(uuid,uuid) to authenticated;
+grant execute on function app_private.can_admin_finance(uuid,uuid) to authenticated;
+
+-- -----------------------------------------------------------------------------
+-- Immutable-ledger trigger
+-- -----------------------------------------------------------------------------
+
+create or replace function app_private.reject_finance_ledger_mutation()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  raise exception 'Financial ledger rows are append-only. Use a finance adjustment or event RPC.';
+end;
+$$;
+
+revoke all on function app_private.reject_finance_ledger_mutation() from public, anon, authenticated;
+
+create trigger donations_append_only_guard
+before update or delete on public.donations
+for each row execute function app_private.reject_finance_ledger_mutation();
+
+create trigger donation_verification_events_append_only_guard
+before update or delete on public.donation_verification_events
+for each row execute function app_private.reject_finance_ledger_mutation();
+
+create trigger donation_reconciliation_events_append_only_guard
+before update or delete on public.donation_reconciliation_events
+for each row execute function app_private.reject_finance_ledger_mutation();
+
+create trigger donation_adjustments_append_only_guard
+before update or delete on public.donation_adjustments
+for each row execute function app_private.reject_finance_ledger_mutation();
+
+create trigger donation_receipts_append_only_guard
+before update or delete on public.donation_receipts
+for each row execute function app_private.reject_finance_ledger_mutation();
+
+-- -----------------------------------------------------------------------------
+-- Workbench access / read RPCs
+-- -----------------------------------------------------------------------------
+
+create or replace function app_private.my_finance_workbench_access_impl()
+returns table(
+  can_view boolean,
+  can_record boolean,
+  can_verify boolean,
+  can_reconcile boolean,
+  can_admin boolean
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    (
+      app_private.is_legacy_admin(auth.uid())
+      or exists (
+        select 1 from public.organization_role_assignments ra
+        where ra.user_id = auth.uid() and ra.is_active
+          and ra.role in (
+            'super_admin'::public.organization_role,
+            'central_leadership'::public.organization_role,
+            'national_finance_admin'::public.organization_role,
+            'auditor'::public.organization_role
+          )
+      )
+      or exists (select 1 from public.finance_role_assignments fra where fra.user_id = auth.uid() and fra.is_active)
+    ) as can_view,
+    (
+      app_private.is_legacy_admin(auth.uid())
+      or exists (
+        select 1 from public.organization_role_assignments ra
+        where ra.user_id = auth.uid() and ra.is_active
+          and ra.role in ('super_admin'::public.organization_role,'national_finance_admin'::public.organization_role)
+      )
+      or exists (
+        select 1 from public.finance_role_assignments fra
+        where fra.user_id = auth.uid() and fra.is_active
+          and fra.role in ('finance_admin'::public.finance_role,'finance_officer'::public.finance_role,'collector'::public.finance_role)
+      )
+    ) as can_record,
+    (
+      app_private.is_legacy_admin(auth.uid())
+      or exists (
+        select 1 from public.organization_role_assignments ra
+        where ra.user_id = auth.uid() and ra.is_active
+          and ra.role in ('super_admin'::public.organization_role,'national_finance_admin'::public.organization_role)
+      )
+      or exists (
+        select 1 from public.finance_role_assignments fra
+        where fra.user_id = auth.uid() and fra.is_active
+          and fra.role in ('finance_admin'::public.finance_role,'finance_officer'::public.finance_role)
+      )
+    ) as can_verify,
+    (
+      app_private.is_legacy_admin(auth.uid())
+      or exists (
+        select 1 from public.organization_role_assignments ra
+        where ra.user_id = auth.uid() and ra.is_active
+          and ra.role in ('super_admin'::public.organization_role,'national_finance_admin'::public.organization_role)
+      )
+      or exists (
+        select 1 from public.finance_role_assignments fra
+        where fra.user_id = auth.uid() and fra.is_active
+          and fra.role in ('finance_admin'::public.finance_role,'finance_officer'::public.finance_role)
+      )
+    ) as can_reconcile,
+    (
+      app_private.is_legacy_admin(auth.uid())
+      or exists (
+        select 1 from public.organization_role_assignments ra
+        where ra.user_id = auth.uid() and ra.is_active
+          and ra.role in ('super_admin'::public.organization_role,'national_finance_admin'::public.organization_role)
+      )
+      or exists (
+        select 1 from public.finance_role_assignments fra
+        where fra.user_id = auth.uid() and fra.is_active and fra.role = 'finance_admin'::public.finance_role
+      )
+    ) as can_admin;
+$$;
+
+create or replace function app_private.list_fundraising_campaigns_for_my_scope_impl()
+returns table(
+  id uuid,
+  campaign_no text,
+  org_unit_id uuid,
+  org_unit_name text,
+  title text,
+  description text,
+  currency text,
+  target_amount numeric,
+  starts_at timestamptz,
+  ends_at timestamptz,
+  status public.fundraising_campaign_status,
+  donation_count bigint,
+  recorded_total numeric,
+  verified_total numeric,
+  reconciled_total numeric,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    c.id,
+    c.campaign_no,
+    c.org_unit_id,
+    ou.name,
+    c.title,
+    c.description,
+    c.currency,
+    c.target_amount,
+    c.starts_at,
+    c.ends_at,
+    c.status,
+    count(d.id)::bigint as donation_count,
+    coalesce(sum(app_private.effective_donation_amount(d.id)),0)::numeric as recorded_total,
+    coalesce(sum(case when app_private.latest_donation_verification_state(d.id)='verified'::public.donation_verification_state then app_private.effective_donation_amount(d.id) else 0 end),0)::numeric as verified_total,
+    coalesce(sum(case when app_private.latest_donation_reconciliation_state(d.id)='reconciled'::public.donation_reconciliation_state then app_private.effective_donation_amount(d.id) else 0 end),0)::numeric as reconciled_total,
+    c.created_at,
+    c.updated_at
+  from public.fundraising_campaigns c
+  join public.organization_units ou on ou.id = c.org_unit_id
+  left join public.donations d on d.campaign_id = c.id
+  where app_private.can_view_finance(auth.uid(), c.org_unit_id)
+  group by c.id, ou.name
+  order by c.created_at desc;
+$$;
+
+create or replace function app_private.list_finance_donations_impl(p_campaign_id uuid default null)
+returns table(
+  id uuid,
+  donation_no text,
+  campaign_id uuid,
+  campaign_no text,
+  campaign_title text,
+  org_unit_id uuid,
+  org_unit_name text,
+  donor_name text,
+  donor_mobile text,
+  donor_email text,
+  is_anonymous boolean,
+  amount numeric,
+  effective_amount numeric,
+  currency text,
+  payment_method public.finance_payment_method,
+  payment_reference text,
+  received_at timestamptz,
+  collector_user_id uuid,
+  recorded_by uuid,
+  note text,
+  verification_state public.donation_verification_state,
+  reconciliation_state public.donation_reconciliation_state,
+  latest_receipt_no text,
+  latest_receipt_version integer,
+  adjustment_count bigint,
+  created_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    d.id,
+    d.donation_no,
+    d.campaign_id,
+    c.campaign_no,
+    c.title,
+    d.org_unit_id,
+    ou.name,
+    d.donor_name,
+    d.donor_mobile,
+    d.donor_email,
+    d.is_anonymous,
+    d.amount,
+    app_private.effective_donation_amount(d.id),
+    d.currency,
+    d.payment_method,
+    d.payment_reference,
+    d.received_at,
+    d.collector_user_id,
+    d.recorded_by,
+    d.note,
+    app_private.latest_donation_verification_state(d.id),
+    app_private.latest_donation_reconciliation_state(d.id),
+    receipt.receipt_no,
+    receipt.version,
+    coalesce(adjustments.adjustment_count,0),
+    d.created_at
+  from public.donations d
+  join public.organization_units ou on ou.id = d.org_unit_id
+  left join public.fundraising_campaigns c on c.id = d.campaign_id
+  left join lateral (
+    select r.receipt_no, r.version
+    from public.donation_receipts r
+    where r.donation_id = d.id
+    order by r.version desc
+    limit 1
+  ) receipt on true
+  left join lateral (
+    select count(*)::bigint as adjustment_count
+    from public.donation_adjustments a
+    where a.donation_id = d.id
+  ) adjustments on true
+  where (p_campaign_id is null or d.campaign_id = p_campaign_id)
+    and app_private.can_view_finance(auth.uid(), d.org_unit_id)
+  order by d.received_at desc, d.created_at desc
+  limit 1000;
+$$;
+
+create or replace function app_private.list_donation_adjustments_impl(p_donation_id uuid)
+returns table(
+  id uuid,
+  kind public.donation_adjustment_kind,
+  amount_delta numeric,
+  reason text,
+  reference text,
+  created_by uuid,
+  created_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select a.id,a.kind,a.amount_delta,a.reason,a.reference,a.created_by,a.created_at
+  from public.donation_adjustments a
+  join public.donations d on d.id=a.donation_id
+  where a.donation_id=p_donation_id
+    and app_private.can_view_finance(auth.uid(),d.org_unit_id)
+  order by a.created_at desc;
+$$;
+
+create or replace function app_private.list_donation_receipts_impl(p_donation_id uuid)
+returns table(
+  id uuid,
+  receipt_no text,
+  version integer,
+  amount_snapshot numeric,
+  currency text,
+  donor_name_snapshot text,
+  payment_method public.finance_payment_method,
+  payment_reference_snapshot text,
+  issued_by uuid,
+  issued_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select r.id,r.receipt_no,r.version,r.amount_snapshot,r.currency,r.donor_name_snapshot,r.payment_method,r.payment_reference_snapshot,r.issued_by,r.issued_at
+  from public.donation_receipts r
+  join public.donations d on d.id=r.donation_id
+  where r.donation_id=p_donation_id
+    and app_private.can_view_finance(auth.uid(),d.org_unit_id)
+  order by r.version desc;
+$$;
+
+create or replace function app_private.get_finance_receipt_impl(p_receipt_no text)
+returns table(
+  receipt_no text,
+  version integer,
+  issued_at timestamptz,
+  donation_no text,
+  campaign_no text,
+  campaign_title text,
+  org_unit_name text,
+  amount numeric,
+  currency text,
+  donor_name text,
+  payment_method public.finance_payment_method,
+  payment_reference text,
+  received_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    r.receipt_no,
+    r.version,
+    r.issued_at,
+    d.donation_no,
+    c.campaign_no,
+    c.title,
+    ou.name,
+    r.amount_snapshot,
+    r.currency,
+    r.donor_name_snapshot,
+    r.payment_method,
+    r.payment_reference_snapshot,
+    d.received_at
+  from public.donation_receipts r
+  join public.donations d on d.id=r.donation_id
+  join public.organization_units ou on ou.id=d.org_unit_id
+  left join public.fundraising_campaigns c on c.id=d.campaign_id
+  where r.receipt_no=upper(trim(p_receipt_no))
+    and app_private.can_view_finance(auth.uid(),d.org_unit_id)
+  limit 1;
+$$;
+
+create or replace function app_private.list_donation_workflow_events_impl(p_donation_id uuid)
+returns table(
+  event_type text,
+  state text,
+  reference text,
+  note text,
+  actor_id uuid,
+  created_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select q.event_type,q.state,q.reference,q.note,q.actor_id,q.created_at
+  from (
+    select
+      'verification'::text as event_type,
+      v.state::text as state,
+      null::text as reference,
+      v.note,
+      v.actor_id,
+      v.created_at,
+      v.id as sort_id
+    from public.donation_verification_events v
+    where v.donation_id=p_donation_id
+
+    union all
+
+    select
+      'reconciliation'::text as event_type,
+      r.state::text as state,
+      r.reconciliation_reference as reference,
+      r.note,
+      r.actor_id,
+      r.created_at,
+      r.id as sort_id
+    from public.donation_reconciliation_events r
+    where r.donation_id=p_donation_id
+  ) q
+  where exists (
+    select 1 from public.donations d
+    where d.id=p_donation_id
+      and app_private.can_view_finance(auth.uid(),d.org_unit_id)
+  )
+  order by q.created_at desc,q.sort_id desc;
+$$;
+
+create or replace function app_private.list_finance_role_assignments_for_my_scope_impl()
+returns table(
+  assignment_id uuid,
+  user_id uuid,
+  email text,
+  role public.finance_role,
+  org_unit_id uuid,
+  org_unit_name text,
+  assigned_at timestamptz,
+  is_active boolean,
+  revoked_at timestamptz,
+  note text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    fra.id,
+    fra.user_id,
+    au.email::text,
+    fra.role,
+    fra.org_unit_id,
+    ou.name,
+    fra.assigned_at,
+    fra.is_active,
+    fra.revoked_at,
+    fra.note
+  from public.finance_role_assignments fra
+  join public.organization_units ou on ou.id=fra.org_unit_id
+  left join auth.users au on au.id=fra.user_id
+  where app_private.can_admin_finance(auth.uid(),fra.org_unit_id)
+  order by fra.is_active desc, fra.assigned_at desc;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Campaign management
+-- -----------------------------------------------------------------------------
+
+create or replace function app_private.save_fundraising_campaign_impl(
+  p_campaign_id uuid,
+  p_org_unit_id uuid,
+  p_payload jsonb
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  current_row public.fundraising_campaigns;
+  result_id uuid;
+  clean_title text := trim(coalesce(p_payload->>'title',''));
+  clean_description text := nullif(trim(coalesce(p_payload->>'description','')),'');
+  clean_currency text := upper(trim(coalesce(nullif(p_payload->>'currency',''),'PKR')));
+  clean_target numeric;
+  clean_starts timestamptz;
+  clean_ends timestamptz;
+  clean_status public.fundraising_campaign_status;
+  campaign_number bigint;
+  next_campaign_no text;
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  if p_payload is null or jsonb_typeof(p_payload)<>'object' or octet_length(p_payload::text)>12000 then raise exception 'Invalid campaign payload'; end if;
+  if exists(select 1 from jsonb_object_keys(p_payload) k where k not in ('title','description','currency','target_amount','starts_at','ends_at','status')) then raise exception 'Unsupported campaign field'; end if;
+  if length(clean_title) not between 3 and 180 then raise exception 'Campaign title is required'; end if;
+  if clean_description is not null and length(clean_description)>5000 then raise exception 'Description is too long'; end if;
+  if clean_currency !~ '^[A-Z]{3}$' then raise exception 'Currency must be a three-letter code'; end if;
+  begin clean_target := nullif(p_payload->>'target_amount','')::numeric; exception when others then raise exception 'Invalid target amount'; end;
+  if clean_target is not null and (clean_target<=0 or clean_target>9999999999999999.99) then raise exception 'Invalid target amount'; end if;
+  begin clean_starts := nullif(p_payload->>'starts_at','')::timestamptz; exception when others then raise exception 'Invalid start date'; end;
+  begin clean_ends := nullif(p_payload->>'ends_at','')::timestamptz; exception when others then raise exception 'Invalid end date'; end;
+  if clean_starts is not null and clean_ends is not null and clean_ends<=clean_starts then raise exception 'End date must be after start date'; end if;
+  begin clean_status := coalesce(nullif(p_payload->>'status',''),'draft')::public.fundraising_campaign_status; exception when invalid_text_representation then raise exception 'Invalid campaign status'; end;
+
+  if p_campaign_id is null and clean_status not in ('draft'::public.fundraising_campaign_status,'active'::public.fundraising_campaign_status) then
+    raise exception 'New campaign must start as draft or active';
+  end if;
+
+  if p_campaign_id is null then
+    if not app_private.can_manage_finance(actor,p_org_unit_id) then raise exception 'Finance campaign management access required'; end if;
+    if not exists(select 1 from public.organization_units where id=p_org_unit_id and is_active) then raise exception 'Invalid organization scope'; end if;
+    campaign_number := nextval('public.fundraising_campaign_number_seq');
+    next_campaign_no := 'PTI-FND-' || to_char(now(),'YYYY') || '-' || lpad(campaign_number::text,6,'0');
+    insert into public.fundraising_campaigns(campaign_no,org_unit_id,title,description,currency,target_amount,starts_at,ends_at,status,created_by)
+    values(next_campaign_no,p_org_unit_id,clean_title,clean_description,clean_currency,clean_target,clean_starts,clean_ends,clean_status,actor)
+    returning id into result_id;
+    insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+    values(actor,'fundraising_campaign_created','fundraising_campaign',result_id,p_org_unit_id,jsonb_build_object('campaign_no',next_campaign_no,'currency',clean_currency,'status',clean_status));
+  else
+    select * into current_row from public.fundraising_campaigns where id=p_campaign_id for update;
+    if not found then raise exception 'Campaign not found'; end if;
+    if not app_private.can_manage_finance(actor,current_row.org_unit_id) then raise exception 'Finance campaign management access required'; end if;
+    if current_row.org_unit_id<>p_org_unit_id then raise exception 'Campaign scope cannot be moved after creation'; end if;
+    if current_row.currency<>clean_currency and exists(select 1 from public.donations where campaign_id=current_row.id) then raise exception 'Campaign currency cannot change after donations are recorded'; end if;
+    if current_row.status in ('completed'::public.fundraising_campaign_status,'cancelled'::public.fundraising_campaign_status) and clean_status<>current_row.status then raise exception 'Completed or cancelled campaign cannot be reopened'; end if;
+    if current_row.status='draft'::public.fundraising_campaign_status and clean_status not in ('draft'::public.fundraising_campaign_status,'active'::public.fundraising_campaign_status,'cancelled'::public.fundraising_campaign_status) then raise exception 'Invalid campaign status transition'; end if;
+    if current_row.status='active'::public.fundraising_campaign_status and clean_status not in ('active'::public.fundraising_campaign_status,'paused'::public.fundraising_campaign_status,'completed'::public.fundraising_campaign_status,'cancelled'::public.fundraising_campaign_status) then raise exception 'Invalid campaign status transition'; end if;
+    if current_row.status='paused'::public.fundraising_campaign_status and clean_status not in ('paused'::public.fundraising_campaign_status,'active'::public.fundraising_campaign_status,'completed'::public.fundraising_campaign_status,'cancelled'::public.fundraising_campaign_status) then raise exception 'Invalid campaign status transition'; end if;
+    update public.fundraising_campaigns set title=clean_title,description=clean_description,currency=clean_currency,target_amount=clean_target,starts_at=clean_starts,ends_at=clean_ends,status=clean_status where id=current_row.id returning id into result_id;
+    insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+    values(actor,'fundraising_campaign_updated','fundraising_campaign',result_id,current_row.org_unit_id,jsonb_build_object('campaign_no',current_row.campaign_no,'from_status',current_row.status,'to_status',clean_status));
+  end if;
+  return result_id;
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Donation ledger / workflow mutations
+-- -----------------------------------------------------------------------------
+
+create or replace function app_private.record_finance_donation_impl(
+  p_campaign_id uuid,
+  p_org_unit_id uuid,
+  p_payload jsonb
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  campaign_row public.fundraising_campaigns;
+  result_id uuid;
+  donation_number bigint;
+  next_donation_no text;
+  clean_donor_name text := nullif(trim(coalesce(p_payload->>'donor_name','')),'');
+  clean_donor_mobile text := nullif(trim(coalesce(p_payload->>'donor_mobile','')),'');
+  clean_donor_email text := nullif(lower(trim(coalesce(p_payload->>'donor_email',''))),'');
+  clean_anonymous boolean := coalesce((p_payload->>'is_anonymous')::boolean,false);
+  clean_amount numeric;
+  clean_currency text := upper(trim(coalesce(p_payload->>'currency','')));
+  clean_method public.finance_payment_method;
+  clean_reference text := nullif(trim(coalesce(p_payload->>'payment_reference','')),'');
+  clean_received timestamptz;
+  clean_note text := nullif(trim(coalesce(p_payload->>'note','')),'');
+  clean_collector uuid;
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  if p_payload is null or jsonb_typeof(p_payload)<>'object' or octet_length(p_payload::text)>12000 then raise exception 'Invalid donation payload'; end if;
+  if exists(select 1 from jsonb_object_keys(p_payload) k where k not in ('donor_name','donor_mobile','donor_email','is_anonymous','amount','currency','payment_method','payment_reference','received_at','note','collector_user_id')) then raise exception 'Unsupported donation field'; end if;
+  if not app_private.can_record_finance(actor,p_org_unit_id) then raise exception 'Donation recording access required'; end if;
+  if not exists(select 1 from public.organization_units where id=p_org_unit_id and is_active) then raise exception 'Invalid organization scope'; end if;
+  begin clean_amount := (p_payload->>'amount')::numeric; exception when others then raise exception 'Invalid amount'; end;
+  if clean_amount<=0 or clean_amount>9999999999999999.99 then raise exception 'Donation amount must be positive'; end if;
+  if clean_currency !~ '^[A-Z]{3}$' then raise exception 'Currency must be a three-letter code'; end if;
+  begin clean_method := (p_payload->>'payment_method')::public.finance_payment_method; exception when invalid_text_representation then raise exception 'Invalid payment method'; end;
+  begin clean_received := coalesce(nullif(p_payload->>'received_at','')::timestamptz,now()); exception when others then raise exception 'Invalid received date'; end;
+  if clean_received>now()+interval '5 minutes' then raise exception 'Received date cannot be in the future'; end if;
+  if clean_donor_name is not null and length(clean_donor_name)>180 then raise exception 'Donor name is too long'; end if;
+  if clean_donor_mobile is not null and length(clean_donor_mobile)>40 then raise exception 'Donor mobile is too long'; end if;
+  if clean_donor_email is not null and (length(clean_donor_email)>320 or position('@' in clean_donor_email)=0) then raise exception 'Invalid donor email'; end if;
+  if clean_reference is not null and length(clean_reference)>240 then raise exception 'Payment reference is too long'; end if;
+  if clean_note is not null and length(clean_note)>2000 then raise exception 'Note is too long'; end if;
+  if clean_method in ('bank_transfer'::public.finance_payment_method,'card'::public.finance_payment_method,'online_wallet'::public.finance_payment_method,'cheque'::public.finance_payment_method) and clean_reference is null then raise exception 'Payment reference is required for this payment method'; end if;
+  begin clean_collector := nullif(p_payload->>'collector_user_id','')::uuid; exception when others then raise exception 'Invalid collector'; end;
+
+  if clean_anonymous then
+    clean_donor_name := null;
+    clean_donor_mobile := null;
+    clean_donor_email := null;
+  end if;
+
+  if clean_collector is not null and clean_collector<>actor then
+    if not app_private.can_admin_finance(actor,p_org_unit_id) then raise exception 'Only a finance admin may record for another collector'; end if;
+    if not (
+      app_private.can_record_finance(clean_collector,p_org_unit_id)
+      or app_private.can_admin_finance(clean_collector,p_org_unit_id)
+    ) then raise exception 'Selected collector does not have finance recording access in this scope'; end if;
+  end if;
+
+  if p_campaign_id is not null then
+    select * into campaign_row from public.fundraising_campaigns where id=p_campaign_id;
+    if not found then raise exception 'Campaign not found'; end if;
+    if campaign_row.status<>'active'::public.fundraising_campaign_status then raise exception 'Campaign is not open for donation recording'; end if;
+    if not app_private.is_org_descendant(p_org_unit_id,campaign_row.org_unit_id) then raise exception 'Donation scope must be inside campaign scope'; end if;
+    if clean_currency<>campaign_row.currency then raise exception 'Donation currency must match campaign currency'; end if;
+  end if;
+
+  donation_number := nextval('public.donation_number_seq');
+  next_donation_no := 'PTI-DON-' || to_char(now(),'YYYY') || '-' || lpad(donation_number::text,8,'0');
+
+  insert into public.donations(donation_no,campaign_id,org_unit_id,donor_name,donor_mobile,donor_email,is_anonymous,amount,currency,payment_method,payment_reference,received_at,collector_user_id,recorded_by,note)
+  values(next_donation_no,p_campaign_id,p_org_unit_id,clean_donor_name,clean_donor_mobile,clean_donor_email,clean_anonymous,clean_amount,clean_currency,clean_method,clean_reference,clean_received,coalesce(clean_collector,actor),actor,clean_note)
+  returning id into result_id;
+
+  insert into public.donation_verification_events(donation_id,state,note,actor_id)
+  values(result_id,'pending','Recorded; awaiting verification',actor);
+  insert into public.donation_reconciliation_events(donation_id,state,note,actor_id)
+  values(result_id,'pending','Recorded; awaiting reconciliation',actor);
+
+  insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+  values(actor,'finance_donation_recorded','donation',result_id,p_org_unit_id,jsonb_build_object('donation_no',next_donation_no,'campaign_id',p_campaign_id,'amount',clean_amount,'currency',clean_currency,'payment_method',clean_method));
+  return result_id;
+end;
+$$;
+
+create or replace function app_private.set_donation_verification_impl(
+  p_donation_id uuid,
+  p_state public.donation_verification_state,
+  p_note text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  donation_row public.donations;
+  clean_note text := nullif(trim(coalesce(p_note,'')),'');
+  previous_state public.donation_verification_state;
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  select * into donation_row from public.donations where id=p_donation_id;
+  if not found then raise exception 'Donation not found'; end if;
+  if not app_private.can_verify_finance(actor,donation_row.org_unit_id) then raise exception 'Donation verification access required'; end if;
+  if p_state not in ('verified'::public.donation_verification_state,'rejected'::public.donation_verification_state) then raise exception 'Verification state must be verified or rejected'; end if;
+  if clean_note is not null and length(clean_note)>2000 then raise exception 'Verification note is too long'; end if;
+  if p_state='rejected'::public.donation_verification_state and clean_note is null then raise exception 'A rejection reason is required'; end if;
+  previous_state := app_private.latest_donation_verification_state(donation_row.id);
+  insert into public.donation_verification_events(donation_id,state,note,actor_id) values(donation_row.id,p_state,clean_note,actor);
+  if p_state='rejected'::public.donation_verification_state and app_private.latest_donation_reconciliation_state(donation_row.id)='reconciled'::public.donation_reconciliation_state then
+    insert into public.donation_reconciliation_events(donation_id,state,note,actor_id)
+    values(donation_row.id,'exception','Verification changed to rejected after reconciliation',actor);
+  end if;
+  insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+  values(actor,'finance_donation_verification_changed','donation',donation_row.id,donation_row.org_unit_id,jsonb_build_object('donation_no',donation_row.donation_no,'from',previous_state,'to',p_state));
+end;
+$$;
+
+create or replace function app_private.set_donation_reconciliation_impl(
+  p_donation_id uuid,
+  p_state public.donation_reconciliation_state,
+  p_reference text default null,
+  p_note text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  donation_row public.donations;
+  clean_reference text := nullif(trim(coalesce(p_reference,'')),'');
+  clean_note text := nullif(trim(coalesce(p_note,'')),'');
+  previous_state public.donation_reconciliation_state;
+  effective_amount numeric;
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  select * into donation_row from public.donations where id=p_donation_id;
+  if not found then raise exception 'Donation not found'; end if;
+  if not app_private.can_reconcile_finance(actor,donation_row.org_unit_id) then raise exception 'Donation reconciliation access required'; end if;
+  if p_state not in ('reconciled'::public.donation_reconciliation_state,'exception'::public.donation_reconciliation_state) then raise exception 'Reconciliation state must be reconciled or exception'; end if;
+  if clean_reference is not null and length(clean_reference)>240 then raise exception 'Reconciliation reference is too long'; end if;
+  if clean_note is not null and length(clean_note)>2000 then raise exception 'Reconciliation note is too long'; end if;
+  if p_state='reconciled'::public.donation_reconciliation_state then
+    if app_private.latest_donation_verification_state(donation_row.id)<>'verified'::public.donation_verification_state then raise exception 'Donation must be verified before reconciliation'; end if;
+    if clean_reference is null then raise exception 'Reconciliation reference is required'; end if;
+    effective_amount := app_private.effective_donation_amount(donation_row.id);
+    if effective_amount is null or effective_amount<=0 then raise exception 'Donation has no positive amount to reconcile'; end if;
+  elsif clean_note is null then
+    raise exception 'Exception note is required';
+  end if;
+  previous_state := app_private.latest_donation_reconciliation_state(donation_row.id);
+  insert into public.donation_reconciliation_events(donation_id,state,reconciliation_reference,note,actor_id)
+  values(donation_row.id,p_state,clean_reference,clean_note,actor);
+  insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+  values(actor,'finance_donation_reconciliation_changed','donation',donation_row.id,donation_row.org_unit_id,jsonb_build_object('donation_no',donation_row.donation_no,'from',previous_state,'to',p_state,'reference',clean_reference));
+end;
+$$;
+
+create or replace function app_private.add_donation_adjustment_impl(
+  p_donation_id uuid,
+  p_kind public.donation_adjustment_kind,
+  p_amount_delta numeric,
+  p_reason text,
+  p_reference text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  donation_row public.donations;
+  result_id uuid;
+  clean_reason text := trim(coalesce(p_reason,''));
+  clean_reference text := nullif(trim(coalesce(p_reference,'')),'');
+  current_amount numeric;
+  next_amount numeric;
+  prior_reconciliation public.donation_reconciliation_state;
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  select * into donation_row from public.donations where id=p_donation_id;
+  if not found then raise exception 'Donation not found'; end if;
+  if not app_private.can_verify_finance(actor,donation_row.org_unit_id) then raise exception 'Donation adjustment access required'; end if;
+  if p_amount_delta is null or p_amount_delta=0 or abs(p_amount_delta)>9999999999999999.99 then raise exception 'Adjustment amount must be non-zero'; end if;
+  if length(clean_reason) not between 3 and 2000 then raise exception 'Adjustment reason is required'; end if;
+  if clean_reference is not null and length(clean_reference)>240 then raise exception 'Adjustment reference is too long'; end if;
+  current_amount := app_private.effective_donation_amount(donation_row.id);
+  next_amount := current_amount + p_amount_delta;
+  if next_amount<0 then raise exception 'Adjustment cannot reduce donation below zero'; end if;
+  if p_kind in ('reversal'::public.donation_adjustment_kind,'refund'::public.donation_adjustment_kind,'chargeback'::public.donation_adjustment_kind) and p_amount_delta>=0 then raise exception 'Reversal, refund and chargeback adjustments must be negative'; end if;
+  if p_kind='reversal'::public.donation_adjustment_kind and next_amount<>0 then raise exception 'A reversal must reduce the effective donation amount to zero'; end if;
+
+  prior_reconciliation := app_private.latest_donation_reconciliation_state(donation_row.id);
+  insert into public.donation_adjustments(donation_id,kind,amount_delta,reason,reference,created_by)
+  values(donation_row.id,p_kind,p_amount_delta,clean_reason,clean_reference,actor)
+  returning id into result_id;
+
+  insert into public.donation_verification_events(donation_id,state,note,actor_id)
+  values(donation_row.id,'pending','Adjustment recorded; re-verification required',actor);
+  insert into public.donation_reconciliation_events(donation_id,state,note,actor_id)
+  values(donation_row.id,case when prior_reconciliation='reconciled'::public.donation_reconciliation_state then 'exception'::public.donation_reconciliation_state else 'pending'::public.donation_reconciliation_state end,'Adjustment recorded; reconciliation must be reviewed',actor);
+
+  insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+  values(actor,'finance_donation_adjustment_created','donation_adjustment',result_id,donation_row.org_unit_id,jsonb_build_object('donation_id',donation_row.id,'donation_no',donation_row.donation_no,'kind',p_kind,'amount_delta',p_amount_delta,'effective_amount',next_amount));
+  return result_id;
+end;
+$$;
+
+create or replace function app_private.issue_donation_receipt_impl(p_donation_id uuid)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  donation_row public.donations;
+  effective_amount numeric;
+  next_version integer;
+  receipt_number bigint;
+  next_receipt_no text;
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  select * into donation_row from public.donations where id=p_donation_id;
+  if not found then raise exception 'Donation not found'; end if;
+  if not app_private.can_record_finance(actor,donation_row.org_unit_id) then raise exception 'Receipt issuance access required'; end if;
+  if app_private.latest_donation_verification_state(donation_row.id)<>'verified'::public.donation_verification_state then raise exception 'Donation must be verified before issuing a receipt'; end if;
+  effective_amount := app_private.effective_donation_amount(donation_row.id);
+  if effective_amount is null or effective_amount<=0 then raise exception 'Donation has no positive amount to receipt'; end if;
+  select coalesce(max(version),0)+1 into next_version from public.donation_receipts where donation_id=donation_row.id;
+  receipt_number := nextval('public.donation_receipt_number_seq');
+  next_receipt_no := 'PTI-RCP-' || to_char(now(),'YYYY') || '-' || lpad(receipt_number::text,8,'0');
+  insert into public.donation_receipts(donation_id,receipt_no,version,amount_snapshot,currency,donor_name_snapshot,payment_method,payment_reference_snapshot,issued_by)
+  values(donation_row.id,next_receipt_no,next_version,effective_amount,donation_row.currency,case when donation_row.is_anonymous then 'Anonymous donor' else donation_row.donor_name end,donation_row.payment_method,donation_row.payment_reference,actor);
+  insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+  values(actor,'finance_receipt_issued','donation',donation_row.id,donation_row.org_unit_id,jsonb_build_object('donation_no',donation_row.donation_no,'receipt_no',next_receipt_no,'version',next_version,'amount',effective_amount,'currency',donation_row.currency));
+  return next_receipt_no;
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Finance-role management
+-- -----------------------------------------------------------------------------
+
+create or replace function app_private.assign_finance_role_by_email_impl(
+  p_email text,
+  p_role public.finance_role,
+  p_org_unit_id uuid,
+  p_note text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  target_user uuid;
+  result_id uuid;
+  clean_email text := lower(trim(coalesce(p_email,'')));
+  clean_note text := nullif(trim(coalesce(p_note,'')),'');
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  if not app_private.can_admin_finance(actor,p_org_unit_id) then raise exception 'Finance role administration access required'; end if;
+  if clean_email='' or position('@' in clean_email)=0 or length(clean_email)>320 then raise exception 'Valid user email is required'; end if;
+  if clean_note is not null and length(clean_note)>1000 then raise exception 'Note is too long'; end if;
+  select u.id into target_user from auth.users u where lower(u.email)=clean_email limit 1;
+  if target_user is null then raise exception 'No registered account found for that email'; end if;
+  if not exists(select 1 from public.organization_units where id=p_org_unit_id and is_active) then raise exception 'Invalid organization scope'; end if;
+
+  insert into public.finance_role_assignments(user_id,role,org_unit_id,assigned_by,note,is_active,revoked_by,revoked_at)
+  values(target_user,p_role,p_org_unit_id,actor,clean_note,true,null,null)
+  on conflict(user_id,role,org_unit_id) do update set assigned_by=actor,assigned_at=now(),note=excluded.note,is_active=true,revoked_by=null,revoked_at=null
+  returning id into result_id;
+
+  insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+  values(actor,'finance_role_assigned','finance_role_assignment',result_id,p_org_unit_id,jsonb_build_object('user_id',target_user,'role',p_role));
+  return result_id;
+end;
+$$;
+
+create or replace function app_private.revoke_finance_role_impl(p_assignment_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  actor uuid := auth.uid();
+  row_data public.finance_role_assignments;
+begin
+  if actor is null then raise exception 'Authentication required'; end if;
+  select * into row_data from public.finance_role_assignments where id=p_assignment_id for update;
+  if not found then raise exception 'Finance role assignment not found'; end if;
+  if not app_private.can_admin_finance(actor,row_data.org_unit_id) then raise exception 'Finance role administration access required'; end if;
+  if not row_data.is_active then return; end if;
+  update public.finance_role_assignments set is_active=false,revoked_by=actor,revoked_at=now() where id=row_data.id;
+  insert into public.audit_events(actor_id,action,entity_type,entity_id,org_unit_id,detail)
+  values(actor,'finance_role_revoked','finance_role_assignment',row_data.id,row_data.org_unit_id,jsonb_build_object('user_id',row_data.user_id,'role',row_data.role));
+end;
+$$;
+
+-- -----------------------------------------------------------------------------
+-- Public API wrappers
+-- -----------------------------------------------------------------------------
+-- Public functions stay SECURITY INVOKER. They call authenticated-only
+-- SECURITY DEFINER implementations in app_private, which is not an exposed API
+-- schema. This preserves RPC authorization while avoiding public definer RPCs.
+
+create or replace function public.my_finance_workbench_access()
+returns table(can_view boolean, can_record boolean, can_verify boolean, can_reconcile boolean, can_admin boolean)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.my_finance_workbench_access_impl();
+$$;
+
+create or replace function public.list_fundraising_campaigns_for_my_scope()
+returns table(
+  id uuid, campaign_no text, org_unit_id uuid, org_unit_name text, title text,
+  description text, currency text, target_amount numeric, starts_at timestamptz,
+  ends_at timestamptz, status public.fundraising_campaign_status,
+  donation_count bigint, recorded_total numeric, verified_total numeric,
+  reconciled_total numeric, created_at timestamptz, updated_at timestamptz
+)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.list_fundraising_campaigns_for_my_scope_impl();
+$$;
+
+create or replace function public.list_finance_donations(p_campaign_id uuid default null)
+returns table(
+  id uuid, donation_no text, campaign_id uuid, campaign_no text, campaign_title text,
+  org_unit_id uuid, org_unit_name text, donor_name text, donor_mobile text,
+  donor_email text, is_anonymous boolean, amount numeric, effective_amount numeric,
+  currency text, payment_method public.finance_payment_method, payment_reference text,
+  received_at timestamptz, collector_user_id uuid, recorded_by uuid, note text,
+  verification_state public.donation_verification_state,
+  reconciliation_state public.donation_reconciliation_state,
+  latest_receipt_no text, latest_receipt_version integer, adjustment_count bigint,
+  created_at timestamptz
+)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.list_finance_donations_impl(p_campaign_id);
+$$;
+
+create or replace function public.list_donation_adjustments(p_donation_id uuid)
+returns table(
+  id uuid, kind public.donation_adjustment_kind, amount_delta numeric, reason text,
+  reference text, created_by uuid, created_at timestamptz
+)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.list_donation_adjustments_impl(p_donation_id);
+$$;
+
+create or replace function public.list_donation_receipts(p_donation_id uuid)
+returns table(
+  id uuid, receipt_no text, version integer, amount_snapshot numeric, currency text,
+  donor_name_snapshot text, payment_method public.finance_payment_method,
+  payment_reference_snapshot text, issued_by uuid, issued_at timestamptz
+)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.list_donation_receipts_impl(p_donation_id);
+$$;
+
+create or replace function public.list_donation_workflow_events(p_donation_id uuid)
+returns table(event_type text, state text, reference text, note text, actor_id uuid, created_at timestamptz)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.list_donation_workflow_events_impl(p_donation_id);
+$$;
+
+create or replace function public.get_finance_receipt(p_receipt_no text)
+returns table(
+  receipt_no text, version integer, issued_at timestamptz, donation_no text,
+  campaign_no text, campaign_title text, org_unit_name text, amount numeric,
+  currency text, donor_name text, payment_method public.finance_payment_method,
+  payment_reference text, received_at timestamptz
+)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.get_finance_receipt_impl(p_receipt_no);
+$$;
+
+create or replace function public.list_finance_role_assignments_for_my_scope()
+returns table(
+  assignment_id uuid, user_id uuid, email text, role public.finance_role,
+  org_unit_id uuid, org_unit_name text, assigned_at timestamptz, is_active boolean,
+  revoked_at timestamptz, note text
+)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select * from app_private.list_finance_role_assignments_for_my_scope_impl();
+$$;
+
+create or replace function public.save_fundraising_campaign(p_campaign_id uuid, p_org_unit_id uuid, p_payload jsonb)
+returns uuid
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.save_fundraising_campaign_impl(p_campaign_id,p_org_unit_id,p_payload);
+$$;
+
+create or replace function public.record_finance_donation(p_campaign_id uuid, p_org_unit_id uuid, p_payload jsonb)
+returns uuid
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.record_finance_donation_impl(p_campaign_id,p_org_unit_id,p_payload);
+$$;
+
+create or replace function public.set_donation_verification(
+  p_donation_id uuid,
+  p_state public.donation_verification_state,
+  p_note text default null
+)
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.set_donation_verification_impl(p_donation_id,p_state,p_note);
+$$;
+
+create or replace function public.set_donation_reconciliation(
+  p_donation_id uuid,
+  p_state public.donation_reconciliation_state,
+  p_reference text default null,
+  p_note text default null
+)
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.set_donation_reconciliation_impl(p_donation_id,p_state,p_reference,p_note);
+$$;
+
+create or replace function public.add_donation_adjustment(
+  p_donation_id uuid,
+  p_kind public.donation_adjustment_kind,
+  p_amount_delta numeric,
+  p_reason text,
+  p_reference text default null
+)
+returns uuid
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.add_donation_adjustment_impl(p_donation_id,p_kind,p_amount_delta,p_reason,p_reference);
+$$;
+
+create or replace function public.issue_donation_receipt(p_donation_id uuid)
+returns text
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.issue_donation_receipt_impl(p_donation_id);
+$$;
+
+create or replace function public.assign_finance_role_by_email(
+  p_email text,
+  p_role public.finance_role,
+  p_org_unit_id uuid,
+  p_note text default null
+)
+returns uuid
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.assign_finance_role_by_email_impl(p_email,p_role,p_org_unit_id,p_note);
+$$;
+
+create or replace function public.revoke_finance_role(p_assignment_id uuid)
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  select app_private.revoke_finance_role_impl(p_assignment_id);
+$$;
+
+-- -----------------------------------------------------------------------------
+-- RLS. Reads are scoped; direct writes are revoked and mutations are RPC-only.
+-- -----------------------------------------------------------------------------
+
+alter table public.finance_role_assignments enable row level security;
+alter table public.fundraising_campaigns enable row level security;
+alter table public.donations enable row level security;
+alter table public.donation_verification_events enable row level security;
+alter table public.donation_reconciliation_events enable row level security;
+alter table public.donation_adjustments enable row level security;
+alter table public.donation_receipts enable row level security;
+
+create policy finance_role_assignments_select_scoped
+on public.finance_role_assignments
+for select
+to authenticated
+using (
+  user_id = (select auth.uid())
+  or app_private.can_admin_finance((select auth.uid()),org_unit_id)
+);
+
+create policy fundraising_campaigns_select_scoped
+on public.fundraising_campaigns
+for select
+to authenticated
+using (app_private.can_view_finance((select auth.uid()),org_unit_id));
+
+create policy donations_select_scoped
+on public.donations
+for select
+to authenticated
+using (app_private.can_view_finance((select auth.uid()),org_unit_id));
+
+create policy donation_verification_events_select_scoped
+on public.donation_verification_events
+for select
+to authenticated
+using (
+  exists (
+    select 1 from public.donations d
+    where d.id=donation_verification_events.donation_id
+      and app_private.can_view_finance((select auth.uid()),d.org_unit_id)
+  )
+);
+
+create policy donation_reconciliation_events_select_scoped
+on public.donation_reconciliation_events
+for select
+to authenticated
+using (
+  exists (
+    select 1 from public.donations d
+    where d.id=donation_reconciliation_events.donation_id
+      and app_private.can_view_finance((select auth.uid()),d.org_unit_id)
+  )
+);
+
+create policy donation_adjustments_select_scoped
+on public.donation_adjustments
+for select
+to authenticated
+using (
+  exists (
+    select 1 from public.donations d
+    where d.id=donation_adjustments.donation_id
+      and app_private.can_view_finance((select auth.uid()),d.org_unit_id)
+  )
+);
+
+create policy donation_receipts_select_scoped
+on public.donation_receipts
+for select
+to authenticated
+using (
+  exists (
+    select 1 from public.donations d
+    where d.id=donation_receipts.donation_id
+      and app_private.can_view_finance((select auth.uid()),d.org_unit_id)
+  )
+);
+
+revoke all on public.finance_role_assignments from anon, authenticated;
+revoke all on public.fundraising_campaigns from anon, authenticated;
+revoke all on public.donations from anon, authenticated;
+revoke all on public.donation_verification_events from anon, authenticated;
+revoke all on public.donation_reconciliation_events from anon, authenticated;
+revoke all on public.donation_adjustments from anon, authenticated;
+revoke all on public.donation_receipts from anon, authenticated;
+
+grant select on public.finance_role_assignments to authenticated;
+grant select on public.fundraising_campaigns to authenticated;
+grant select on public.donations to authenticated;
+grant select on public.donation_verification_events to authenticated;
+grant select on public.donation_reconciliation_events to authenticated;
+grant select on public.donation_adjustments to authenticated;
+grant select on public.donation_receipts to authenticated;
+
+-- -----------------------------------------------------------------------------
+-- RPC ACLs / private implementation contract
+-- -----------------------------------------------------------------------------
+
+-- Private implementation functions are not exposed by PostgREST. Public wrappers
+-- are SECURITY INVOKER and require authenticated access to these exact impls.
+revoke all on function app_private.my_finance_workbench_access_impl() from public, anon, authenticated;
+revoke all on function app_private.list_fundraising_campaigns_for_my_scope_impl() from public, anon, authenticated;
+revoke all on function app_private.list_finance_donations_impl(uuid) from public, anon, authenticated;
+revoke all on function app_private.list_donation_adjustments_impl(uuid) from public, anon, authenticated;
+revoke all on function app_private.list_donation_receipts_impl(uuid) from public, anon, authenticated;
+revoke all on function app_private.list_donation_workflow_events_impl(uuid) from public, anon, authenticated;
+revoke all on function app_private.get_finance_receipt_impl(text) from public, anon, authenticated;
+revoke all on function app_private.list_finance_role_assignments_for_my_scope_impl() from public, anon, authenticated;
+revoke all on function app_private.save_fundraising_campaign_impl(uuid,uuid,jsonb) from public, anon, authenticated;
+revoke all on function app_private.record_finance_donation_impl(uuid,uuid,jsonb) from public, anon, authenticated;
+revoke all on function app_private.set_donation_verification_impl(uuid,public.donation_verification_state,text) from public, anon, authenticated;
+revoke all on function app_private.set_donation_reconciliation_impl(uuid,public.donation_reconciliation_state,text,text) from public, anon, authenticated;
+revoke all on function app_private.add_donation_adjustment_impl(uuid,public.donation_adjustment_kind,numeric,text,text) from public, anon, authenticated;
+revoke all on function app_private.issue_donation_receipt_impl(uuid) from public, anon, authenticated;
+revoke all on function app_private.assign_finance_role_by_email_impl(text,public.finance_role,uuid,text) from public, anon, authenticated;
+revoke all on function app_private.revoke_finance_role_impl(uuid) from public, anon, authenticated;
+
+grant execute on function app_private.my_finance_workbench_access_impl() to authenticated;
+grant execute on function app_private.list_fundraising_campaigns_for_my_scope_impl() to authenticated;
+grant execute on function app_private.list_finance_donations_impl(uuid) to authenticated;
+grant execute on function app_private.list_donation_adjustments_impl(uuid) to authenticated;
+grant execute on function app_private.list_donation_receipts_impl(uuid) to authenticated;
+grant execute on function app_private.list_donation_workflow_events_impl(uuid) to authenticated;
+grant execute on function app_private.get_finance_receipt_impl(text) to authenticated;
+grant execute on function app_private.list_finance_role_assignments_for_my_scope_impl() to authenticated;
+grant execute on function app_private.save_fundraising_campaign_impl(uuid,uuid,jsonb) to authenticated;
+grant execute on function app_private.record_finance_donation_impl(uuid,uuid,jsonb) to authenticated;
+grant execute on function app_private.set_donation_verification_impl(uuid,public.donation_verification_state,text) to authenticated;
+grant execute on function app_private.set_donation_reconciliation_impl(uuid,public.donation_reconciliation_state,text,text) to authenticated;
+grant execute on function app_private.add_donation_adjustment_impl(uuid,public.donation_adjustment_kind,numeric,text,text) to authenticated;
+grant execute on function app_private.issue_donation_receipt_impl(uuid) to authenticated;
+grant execute on function app_private.assign_finance_role_by_email_impl(text,public.finance_role,uuid,text) to authenticated;
+grant execute on function app_private.revoke_finance_role_impl(uuid) to authenticated;
+
+revoke all on function public.my_finance_workbench_access() from public, anon;
+revoke all on function public.list_fundraising_campaigns_for_my_scope() from public, anon;
+revoke all on function public.list_finance_donations(uuid) from public, anon;
+revoke all on function public.list_donation_adjustments(uuid) from public, anon;
+revoke all on function public.list_donation_receipts(uuid) from public, anon;
+revoke all on function public.list_donation_workflow_events(uuid) from public, anon;
+revoke all on function public.get_finance_receipt(text) from public, anon;
+revoke all on function public.list_finance_role_assignments_for_my_scope() from public, anon;
+revoke all on function public.save_fundraising_campaign(uuid,uuid,jsonb) from public, anon;
+revoke all on function public.record_finance_donation(uuid,uuid,jsonb) from public, anon;
+revoke all on function public.set_donation_verification(uuid,public.donation_verification_state,text) from public, anon;
+revoke all on function public.set_donation_reconciliation(uuid,public.donation_reconciliation_state,text,text) from public, anon;
+revoke all on function public.add_donation_adjustment(uuid,public.donation_adjustment_kind,numeric,text,text) from public, anon;
+revoke all on function public.issue_donation_receipt(uuid) from public, anon;
+revoke all on function public.assign_finance_role_by_email(text,public.finance_role,uuid,text) from public, anon;
+revoke all on function public.revoke_finance_role(uuid) from public, anon;
+
+grant execute on function public.my_finance_workbench_access() to authenticated;
+grant execute on function public.list_fundraising_campaigns_for_my_scope() to authenticated;
+grant execute on function public.list_finance_donations(uuid) to authenticated;
+grant execute on function public.list_donation_adjustments(uuid) to authenticated;
+grant execute on function public.list_donation_receipts(uuid) to authenticated;
+grant execute on function public.list_donation_workflow_events(uuid) to authenticated;
+grant execute on function public.get_finance_receipt(text) to authenticated;
+grant execute on function public.list_finance_role_assignments_for_my_scope() to authenticated;
+grant execute on function public.save_fundraising_campaign(uuid,uuid,jsonb) to authenticated;
+grant execute on function public.record_finance_donation(uuid,uuid,jsonb) to authenticated;
+grant execute on function public.set_donation_verification(uuid,public.donation_verification_state,text) to authenticated;
+grant execute on function public.set_donation_reconciliation(uuid,public.donation_reconciliation_state,text,text) to authenticated;
+grant execute on function public.add_donation_adjustment(uuid,public.donation_adjustment_kind,numeric,text,text) to authenticated;
+grant execute on function public.issue_donation_receipt(uuid) to authenticated;
+grant execute on function public.assign_finance_role_by_email(text,public.finance_role,uuid,text) to authenticated;
+grant execute on function public.revoke_finance_role(uuid) to authenticated;
+
+commit;

@@ -14,7 +14,6 @@ export function useAuthRole() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [hasVolunteerWorkbenchAccess, setHasVolunteerWorkbenchAccess] = useState(false)
   const [hasOperationsWorkbenchAccess, setHasOperationsWorkbenchAccess] = useState(false)
-  const [hasFinanceWorkbenchAccess, setHasFinanceWorkbenchAccess] = useState(false)
   const [accountEmail, setAccountEmail] = useState('')
 
   const checkAdmin = useCallback(async (userId: string) => {
@@ -45,12 +44,6 @@ export function useAuthRole() {
     return Boolean(data?.[0]?.can_view)
   }, [])
 
-  const checkFinanceWorkbench = useCallback(async () => {
-    const { data, error } = await supabase.rpc('my_finance_workbench_access')
-    if (error) return false
-    return Boolean(data?.[0]?.can_view)
-  }, [])
-
   const syncAuthState = useCallback(
     async (user?: AuthUser | null) => {
       const userId = user?.id ?? null
@@ -59,26 +52,23 @@ export function useAuthRole() {
       setAccountEmail(user?.email ?? '')
 
       if (userId) {
-        const [adminAccess, volunteerAccess, operationsAccess, financeAccess] = await Promise.all([
+        const [adminAccess, volunteerAccess, operationsAccess] = await Promise.all([
           checkAdmin(userId),
           checkVolunteerWorkbench(),
           checkOperationsWorkbench(),
-          checkFinanceWorkbench(),
         ])
         setIsAdmin(adminAccess)
         setHasVolunteerWorkbenchAccess(volunteerAccess)
         setHasOperationsWorkbenchAccess(operationsAccess)
-        setHasFinanceWorkbenchAccess(financeAccess)
       } else {
         setIsAdmin(false)
         setHasVolunteerWorkbenchAccess(false)
         setHasOperationsWorkbenchAccess(false)
-        setHasFinanceWorkbenchAccess(false)
       }
 
       setAuthLoading(false)
     },
-    [checkAdmin, checkFinanceWorkbench, checkOperationsWorkbench, checkVolunteerWorkbench],
+    [checkAdmin, checkOperationsWorkbench, checkVolunteerWorkbench],
   )
 
   useEffect(() => {
@@ -95,7 +85,6 @@ export function useAuthRole() {
         setIsAdmin(false)
         setHasVolunteerWorkbenchAccess(false)
         setHasOperationsWorkbenchAccess(false)
-        setHasFinanceWorkbenchAccess(false)
         setAccountEmail('')
         setAuthLoading(false)
         return
@@ -138,7 +127,6 @@ export function useAuthRole() {
     setIsAdmin(false)
     setHasVolunteerWorkbenchAccess(false)
     setHasOperationsWorkbenchAccess(false)
-    setHasFinanceWorkbenchAccess(false)
     setAccountEmail('')
     setLogoutLoading(false)
     return true
@@ -151,7 +139,6 @@ export function useAuthRole() {
     isAdmin,
     hasVolunteerWorkbenchAccess,
     hasOperationsWorkbenchAccess,
-    hasFinanceWorkbenchAccess,
     accountEmail,
     accountInitial,
     logout,

@@ -6,7 +6,6 @@ import {
   ChevronRight,
   ClipboardList,
   Globe2,
-  HandCoins,
   IdCard,
   Layers3,
   MapPinned,
@@ -84,10 +83,6 @@ const HOME_COPY: Record<'en' | 'ur', HomeCopy> = {
         title: 'Attendance & Participation',
         text: 'Secure QR check-in, manual attendance and long-term volunteer participation history.',
       },
-      {
-        title: 'Fundraising & Finance',
-        text: 'Scoped campaigns, immutable donation ledger, receipts, verification, reconciliation and audited adjustments.',
-      },
     ],
     slides: [
       {
@@ -147,10 +142,6 @@ const HOME_COPY: Record<'en' | 'ur', HomeCopy> = {
         title: 'حاضری اور شرکت',
         text: 'محفوظ QR چیک اِن، دستی حاضری اور رضاکار کی شرکت کی مکمل تاریخ۔',
       },
-      {
-        title: 'فنڈ ریزنگ اور فنانس',
-        text: 'مجاز دائرے میں مہمات، ناقابلِ ترمیم عطیہ لیجر، رسیدیں، تصدیق، ریکنسلی ایشن اور آڈٹ شدہ ایڈجسٹمنٹس۔',
-      },
     ],
     slides: [
       {
@@ -182,7 +173,6 @@ const moduleIcons: ReactNode[] = [
   <UsersRound className="h-5 w-5" />,
   <ClipboardList className="h-5 w-5" />,
   <CalendarCheck2 className="h-5 w-5" />,
-  <HandCoins className="h-5 w-5" />,
 ]
 
 function HomePage() {

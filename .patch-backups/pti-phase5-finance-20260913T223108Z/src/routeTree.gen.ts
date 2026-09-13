@@ -21,11 +21,9 @@ import { Route as VerifyMemberNoRouteImport } from './routes/verify/$memberNo'
 import { Route as OperationsWorkbenchRouteImport } from './routes/operations/workbench'
 import { Route as OperationsVolunteersRouteImport } from './routes/operations/volunteers'
 import { Route as OperationsAttendanceRouteImport } from './routes/operations/attendance'
-import { Route as FinanceWorkbenchRouteImport } from './routes/finance/workbench'
 import { Route as AdminRolesRouteImport } from './routes/admin/roles'
 import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
-import { Route as FinanceReceiptReceiptNoRouteImport } from './routes/finance/receipt/$receiptNo'
 import { Route as AttendanceCheckInTokenRouteImport } from './routes/attendance/check-in/$token'
 import { Route as AdminMembersIdRouteImport } from './routes/admin/members/$id'
 import { Route as AdminMembersIdCardRouteImport } from './routes/admin/members/$id/card'
@@ -90,11 +88,6 @@ const OperationsAttendanceRoute = OperationsAttendanceRouteImport.update({
   path: '/operations/attendance',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FinanceWorkbenchRoute = FinanceWorkbenchRouteImport.update({
-  id: '/finance/workbench',
-  path: '/finance/workbench',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRolesRoute = AdminRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -109,11 +102,6 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
   getParentRoute: () => AdminRoute,
-} as any)
-const FinanceReceiptReceiptNoRoute = FinanceReceiptReceiptNoRouteImport.update({
-  id: '/finance/receipt/$receiptNo',
-  path: '/finance/receipt/$receiptNo',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AttendanceCheckInTokenRoute = AttendanceCheckInTokenRouteImport.update({
   id: '/attendance/check-in/$token',
@@ -143,14 +131,12 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
-  '/finance/workbench': typeof FinanceWorkbenchRoute
   '/operations/attendance': typeof OperationsAttendanceRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
   '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/attendance/check-in/$token': typeof AttendanceCheckInTokenRoute
-  '/finance/receipt/$receiptNo': typeof FinanceReceiptReceiptNoRoute
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
 }
 export interface FileRoutesByTo {
@@ -165,14 +151,12 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
-  '/finance/workbench': typeof FinanceWorkbenchRoute
   '/operations/attendance': typeof OperationsAttendanceRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
   '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/attendance/check-in/$token': typeof AttendanceCheckInTokenRoute
-  '/finance/receipt/$receiptNo': typeof FinanceReceiptReceiptNoRoute
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
 }
 export interface FileRoutesById {
@@ -188,14 +172,12 @@ export interface FileRoutesById {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/roles': typeof AdminRolesRoute
-  '/finance/workbench': typeof FinanceWorkbenchRoute
   '/operations/attendance': typeof OperationsAttendanceRoute
   '/operations/volunteers': typeof OperationsVolunteersRoute
   '/operations/workbench': typeof OperationsWorkbenchRoute
   '/verify/$memberNo': typeof VerifyMemberNoRoute
   '/admin/members/$id': typeof AdminMembersIdRouteWithChildren
   '/attendance/check-in/$token': typeof AttendanceCheckInTokenRoute
-  '/finance/receipt/$receiptNo': typeof FinanceReceiptReceiptNoRoute
   '/admin/members/$id/card': typeof AdminMembersIdCardRoute
 }
 export interface FileRouteTypes {
@@ -212,14 +194,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/organization'
     | '/admin/roles'
-    | '/finance/workbench'
     | '/operations/attendance'
     | '/operations/volunteers'
     | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/attendance/check-in/$token'
-    | '/finance/receipt/$receiptNo'
     | '/admin/members/$id/card'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -234,14 +214,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/organization'
     | '/admin/roles'
-    | '/finance/workbench'
     | '/operations/attendance'
     | '/operations/volunteers'
     | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/attendance/check-in/$token'
-    | '/finance/receipt/$receiptNo'
     | '/admin/members/$id/card'
   id:
     | '__root__'
@@ -256,14 +234,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/organization'
     | '/admin/roles'
-    | '/finance/workbench'
     | '/operations/attendance'
     | '/operations/volunteers'
     | '/operations/workbench'
     | '/verify/$memberNo'
     | '/admin/members/$id'
     | '/attendance/check-in/$token'
-    | '/finance/receipt/$receiptNo'
     | '/admin/members/$id/card'
   fileRoutesById: FileRoutesById
 }
@@ -276,13 +252,11 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   VolunteerRoute: typeof VolunteerRoute
-  FinanceWorkbenchRoute: typeof FinanceWorkbenchRoute
   OperationsAttendanceRoute: typeof OperationsAttendanceRoute
   OperationsVolunteersRoute: typeof OperationsVolunteersRoute
   OperationsWorkbenchRoute: typeof OperationsWorkbenchRoute
   VerifyMemberNoRoute: typeof VerifyMemberNoRoute
   AttendanceCheckInTokenRoute: typeof AttendanceCheckInTokenRoute
-  FinanceReceiptReceiptNoRoute: typeof FinanceReceiptReceiptNoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -371,13 +345,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OperationsAttendanceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/finance/workbench': {
-      id: '/finance/workbench'
-      path: '/finance/workbench'
-      fullPath: '/finance/workbench'
-      preLoaderRoute: typeof FinanceWorkbenchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/roles': {
       id: '/admin/roles'
       path: '/roles'
@@ -398,13 +365,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRoute
-    }
-    '/finance/receipt/$receiptNo': {
-      id: '/finance/receipt/$receiptNo'
-      path: '/finance/receipt/$receiptNo'
-      fullPath: '/finance/receipt/$receiptNo'
-      preLoaderRoute: typeof FinanceReceiptReceiptNoRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/attendance/check-in/$token': {
       id: '/attendance/check-in/$token'
@@ -467,13 +427,11 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
   VolunteerRoute: VolunteerRoute,
-  FinanceWorkbenchRoute: FinanceWorkbenchRoute,
   OperationsAttendanceRoute: OperationsAttendanceRoute,
   OperationsVolunteersRoute: OperationsVolunteersRoute,
   OperationsWorkbenchRoute: OperationsWorkbenchRoute,
   VerifyMemberNoRoute: VerifyMemberNoRoute,
   AttendanceCheckInTokenRoute: AttendanceCheckInTokenRoute,
-  FinanceReceiptReceiptNoRoute: FinanceReceiptReceiptNoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import {
   ClipboardList,
   HeartHandshake,
-  HandCoins,
   Home,
   IdCard,
   LayoutDashboard,
@@ -19,7 +18,7 @@ export const adminRoleNames = ['admin'] as const
 
 export type HeaderMenuKey = 'account' | null
 
-export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/operations/attendance' | '/finance/workbench' | '/admin'
+export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/operations/attendance' | '/admin'
 
 export type NavigationItem = {
   label: string
@@ -81,7 +80,7 @@ export const loggedOutAccountItems: NavigationItem[] = [
   },
 ]
 
-export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false, hasOperationsWorkbenchAccess = false, hasFinanceWorkbenchAccess = false): NavigationItem[] {
+export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false, hasOperationsWorkbenchAccess = false): NavigationItem[] {
   return [
     ...memberNavigationItems,
     ...(hasVolunteerWorkbenchAccess
@@ -110,17 +109,6 @@ export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = 
             to: '/operations/attendance' as const,
             icon: <ScanLine className="h-4 w-4" />,
             badge: 'Phase 4',
-          },
-        ]
-      : []),
-    ...(hasFinanceWorkbenchAccess
-      ? [
-          {
-            label: 'Fundraising & Finance',
-            description: 'Campaigns, donation ledger, receipts and reconciliation',
-            to: '/finance/workbench' as const,
-            icon: <HandCoins className="h-4 w-4" />,
-            badge: 'Phase 5',
           },
         ]
       : []),

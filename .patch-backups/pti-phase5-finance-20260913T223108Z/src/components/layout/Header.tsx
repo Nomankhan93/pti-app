@@ -28,15 +28,14 @@ export function Header({ compact }: { compact: boolean }) {
     isAdmin,
     hasVolunteerWorkbenchAccess,
     hasOperationsWorkbenchAccess,
-    hasFinanceWorkbenchAccess,
     accountInitial,
     logout,
   } = useAuthRole()
 
   const accountOpen = openMenu === 'account'
   const accountItems = useMemo(
-    () => (isLoggedIn ? getAccountItems(isAdmin, hasVolunteerWorkbenchAccess, hasOperationsWorkbenchAccess, hasFinanceWorkbenchAccess) : loggedOutAccountItems),
-    [hasFinanceWorkbenchAccess, hasOperationsWorkbenchAccess, hasVolunteerWorkbenchAccess, isAdmin, isLoggedIn],
+    () => (isLoggedIn ? getAccountItems(isAdmin, hasVolunteerWorkbenchAccess, hasOperationsWorkbenchAccess) : loggedOutAccountItems),
+    [hasOperationsWorkbenchAccess, hasVolunteerWorkbenchAccess, isAdmin, isLoggedIn],
   )
 
   useEffect(() => {

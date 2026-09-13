@@ -5,7 +5,6 @@ import {
   Building2,
   ClipboardList,
   Download,
-  HandCoins,
   ListChecks,
   IdCard,
   LayoutDashboard,
@@ -25,7 +24,6 @@ export type AdminNavigationRoute =
   | '/operations/volunteers'
   | '/operations/workbench'
   | '/operations/attendance'
-  | '/finance/workbench'
 
 export type AdminNavigationItem = {
   label: string
@@ -140,18 +138,6 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         to: '/operations/volunteers',
         icon: <UsersRound size={17} />,
         badge: 'PHASE 2',
-      },
-    ],
-  },
-  {
-    title: 'Fundraising & Finance',
-    items: [
-      {
-        label: 'Finance Workbench',
-        description: 'Campaigns, immutable donations, receipts, verification and reconciliation',
-        to: '/finance/workbench',
-        icon: <HandCoins size={17} />,
-        badge: 'PHASE 5',
       },
     ],
   },
