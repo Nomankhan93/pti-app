@@ -27,7 +27,7 @@ export const Route = createRootRoute({
       {
         name: 'description',
         content:
-          'Pakistan Tehreek-e-Insaf digital membership portal for signup, member registration, admin approval, digital cards and QR verification.',
+          'Pakistan Tehreek-e-Insaf digital membership portal for free self-registration, automatic member issuance, digital cards and QR verification.',
       },
       { name: 'theme-color', content: '#0f172a' },
       { name: 'application-name', content: APP_SHORT_NAME },

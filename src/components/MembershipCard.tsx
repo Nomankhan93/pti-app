@@ -39,8 +39,8 @@ export type MembershipCardMember = {
   emergency_contact_relation: string | null
   emergency_contact_mobile: string | null
   photo_url?: string | null
-  status: 'pending' | 'approved' | 'rejected'
-  approved_at: string | null
+  is_active: boolean
+  issued_at: string
 }
 
 type MembershipCardProps = {
@@ -97,7 +97,7 @@ const CardFront = forwardRef<HTMLElement, {
   ref,
 ) {
   const { t, direction, language } = useI18n()
-  const expiryDate = formatExpiryDate(member.approved_at, language)
+  const expiryDate = formatExpiryDate(member.issued_at, language)
 
   return (
     <section
@@ -181,8 +181,8 @@ const CardFront = forwardRef<HTMLElement, {
             <Info label={t('dashboard.designationLevel')} value={member.designation_level} />
             <Info label={t('dashboard.designationArea')} value={member.designation_area} />
             <Info
-              label={t('card.approvedDate')}
-              value={formatDate(member.approved_at, language)}
+              label={issueDateLabel(language)}
+              value={formatDate(member.issued_at, language)}
             />
             <Info
               label={t('card.expiryDate')}
@@ -190,7 +190,7 @@ const CardFront = forwardRef<HTMLElement, {
             />
             <Info
               label={t('admin.table.status')}
-              value={statusLabel(member.status, t)}
+              value={member.is_active ? activeStatusLabel(language) : inactiveStatusLabel(language)}
             />
           </div>
 
@@ -238,7 +238,7 @@ const CardBack = forwardRef<HTMLElement, {
   ref,
 ) {
   const { t, direction, language } = useI18n()
-  const expiryDate = formatExpiryDate(member.approved_at, language)
+  const expiryDate = formatExpiryDate(member.issued_at, language)
 
   return (
     <section
@@ -439,14 +439,6 @@ function LeaderPortrait({ leaderImageUrl }: { leaderImageUrl?: string | null }) 
   )
 }
 
-function statusLabel(
-  status: MembershipCardMember['status'],
-  t: ReturnType<typeof useI18n>['t'],
-) {
-  if (status === 'approved') return t('common.status.approved')
-  if (status === 'rejected') return t('common.status.rejected')
-  return t('common.status.pending')
-}
 
 
 function MiniInfo({
@@ -547,13 +539,31 @@ function Info({
   )
 }
 
+function issueDateLabel(language: string) {
+  if (language === 'ur') return 'اجراء کی تاریخ'
+  if (language === 'sd') return 'جاري ٿيڻ جي تاريخ'
+  return 'Issue Date'
+}
+
+function activeStatusLabel(language: string) {
+  if (language === 'ur') return 'فعال'
+  if (language === 'sd') return 'فعال'
+  return 'Active'
+}
+
+function inactiveStatusLabel(language: string) {
+  if (language === 'ur') return 'غیر فعال'
+  if (language === 'sd') return 'غير فعال'
+  return 'Inactive'
+}
+
 function formatExpiryDate(value: string | null | undefined, language: string) {
   if (!value) return null
 
-  const approvedDate = new Date(value)
-  if (Number.isNaN(approvedDate.getTime())) return null
+  const issuedDate = new Date(value)
+  if (Number.isNaN(issuedDate.getTime())) return null
 
-  const expiryDate = new Date(approvedDate)
+  const expiryDate = new Date(issuedDate)
   expiryDate.setFullYear(expiryDate.getFullYear() + 1)
 
   return formatDate(expiryDate.toISOString(), language)

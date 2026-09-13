@@ -52,7 +52,6 @@ export type Database = {
       members: {
         Row: {
           address: string | null
-          approved_at: string | null
           blood_group: string | null
           caste_branch: string | null
           cnic: string
@@ -71,21 +70,18 @@ export type Database = {
           full_name: string
           gender: string | null
           id: string
+          is_active: boolean
+          issued_at: string
           member_no: string | null
           mobile: string
           photo_url: string
           profession: string | null
-          rejection_reason: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: Database["public"]["Enums"]["member_status"]
           taluka: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           address?: string | null
-          approved_at?: string | null
           blood_group?: string | null
           caste_branch?: string | null
           cnic: string
@@ -104,21 +100,18 @@ export type Database = {
           full_name: string
           gender?: string | null
           id?: string
+          is_active?: boolean
+          issued_at?: string
           member_no?: string | null
           mobile: string
           photo_url: string
           profession?: string | null
-          rejection_reason?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["member_status"]
           taluka?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           address?: string | null
-          approved_at?: string | null
           blood_group?: string | null
           caste_branch?: string | null
           cnic?: string
@@ -137,14 +130,12 @@ export type Database = {
           full_name?: string
           gender?: string | null
           id?: string
+          is_active?: boolean
+          issued_at?: string
           member_no?: string | null
           mobile?: string
           photo_url?: string
           profession?: string | null
-          rejection_reason?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: Database["public"]["Enums"]["member_status"]
           taluka?: string | null
           updated_at?: string
           user_id?: string
@@ -195,72 +186,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      approve_member: {
-        Args: { _member_id: string; _reviewed_by?: string }
-        Returns: {
-          approved_at: string | null
-          caste_branch: string | null
-          cnic: string
-          created_at: string
-          district: string
-          father_name: string
-          full_name: string
-          id: string
-          member_no: string | null
-          mobile: string
-          photo_url: string
-          profession: string | null
-          rejection_reason: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: Database["public"]["Enums"]["member_status"]
-          updated_at: string
-          user_id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "members"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      reject_member: {
-        Args: {
-          _member_id: string
-          _rejection_reason: string
-          _reviewed_by?: string
-        }
-        Returns: {
-          approved_at: string | null
-          caste_branch: string | null
-          cnic: string
-          created_at: string
-          district: string
-          father_name: string
-          full_name: string
-          id: string
-          member_no: string | null
-          mobile: string
-          photo_url: string
-          profession: string | null
-          rejection_reason: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: Database["public"]["Enums"]["member_status"]
-          updated_at: string
-          user_id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "members"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      [_ in never]: never
     }
     Enums: {
       app_role: "admin"
-      member_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -392,7 +321,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin"],
-      member_status: ["pending", "approved", "rejected"],
     },
   },
 } as const

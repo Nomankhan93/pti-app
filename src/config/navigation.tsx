@@ -37,7 +37,7 @@ export const publicNavigationItems: NavigationItem[] = [
 export const memberNavigationItems: NavigationItem[] = [
   {
     label: 'Dashboard',
-    description: 'Track application status',
+    description: 'View active membership and card',
     to: '/dashboard',
     icon: <LayoutDashboard className="h-4 w-4" />,
   },
@@ -49,7 +49,7 @@ export const memberNavigationItems: NavigationItem[] = [
   },
   {
     label: 'Digital Card',
-    description: 'Approved member QR card',
+    description: 'Active membership QR card',
     to: '/card',
     icon: <IdCard className="h-4 w-4" />,
   },
@@ -77,7 +77,7 @@ export function getAccountItems(isAdmin: boolean): NavigationItem[] {
       ? [
           {
             label: 'Admin Panel',
-            description: 'Review and approve applications',
+            description: 'Manage members and designations',
             to: '/admin' as const,
             icon: <ShieldCheck className="h-4 w-4" />,
             badge: 'Admin',

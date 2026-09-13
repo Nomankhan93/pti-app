@@ -45,7 +45,7 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     kicker: 'PTI Membership Portal',
     titleLines: ['Digital', 'Membership', 'System'],
     lede:
-      'A focused membership portal for PTI: signup, membership form, admin approval, digital card, QR verification and member dashboard.',
+      'A focused PTI membership portal with free self-registration, automatic member number issuance, digital card, QR verification and member dashboard.',
     ctaDashboard: 'Open Dashboard',
     ctaSignup: 'Become a Member',
     ctaCard: 'Digital Card',
@@ -53,11 +53,11 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ctaAdmin: 'Admin Panel',
     steps: [
       { label: 'Step 01', value: 'Signup' },
-      { label: 'Step 02', value: 'Admin Review' },
+      { label: 'Step 02', value: 'Auto Issue' },
       { label: 'Step 03', value: 'QR Card' },
     ],
     badges: {
-      secureReview: 'Secure Review',
+      secureReview: 'Self-Issued',
       qrVerified: 'QR Verified',
     },
     slides: [
@@ -71,19 +71,19 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
         src: '/home-slides/pti-slide-02.jpg',
         alt: 'PTI public gathering and outreach moment',
         title: 'Member Registration',
-        text: 'Members submit complete details once and track the review status online.',
+        text: 'Members submit complete details once and receive their membership number automatically.',
       },
       {
         src: '/home-slides/pti-slide-03.jpg',
         alt: 'PTI leadership speaking at a formal event',
-        title: 'Admin Approval',
-        text: 'Admin officers review applications before member number and card activation.',
+        title: 'Automatic Issuance',
+        text: 'Membership number and active status are issued automatically when registration is submitted.',
       },
       {
         src: '/home-slides/pti-slide-04.jpg',
         alt: 'PTI public address and member engagement',
         title: 'QR Verification',
-        text: 'Approved members receive a public verification link and downloadable card.',
+        text: 'Active members receive a public verification link and downloadable card.',
       },
     ],
     workflow: 'PTI Workflow',
@@ -91,25 +91,25 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     features: [
       {
         title: 'Membership Form',
-        text: 'Collects member identity, area and contact details in a clean mobile-first flow. Official designations are assigned by admin after approval.',
+        text: 'Collects member identity, area and contact details in a clean mobile-first flow. Official designations remain admin-managed.',
       },
       {
         title: 'Admin Console',
-        text: 'Admins can search, filter, approve, reject and export member applications without extra modules.',
+        text: 'Admins can search, edit, activate/deactivate, assign designations and export member records.',
       },
       {
         title: 'Digital Card',
-        text: 'Approved members get front/back digital card, QR code, verification page and PNG download.',
+        text: 'Active members get front/back digital card, QR code, verification page and PNG download.',
       },
     ],
     scopeKicker: 'Membership portal only',
     scopeTitle:
-      'Clean PTI scope with Rs. 500 membership fee receipt verification, digital cards and admin workflows.',
+      'Free PTI membership with self-issuance, digital cards, QR verification and admin member management.',
     scopeText:
-      'This app is intentionally focused on membership lifecycle: account, registration, review, approval, card and public QR verification.',
+      'This app is intentionally focused on membership lifecycle: account, free registration, automatic issuance, card and public QR verification.',
     scopeItems: [
       'Mobile-first member dashboard',
-      'Admin approval workflow',
+      'Automatic self-issuance',
       'Searchable member records',
       'QR public verification',
       'Front/back card export',
@@ -120,7 +120,7 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     kicker: 'پی ٹی آئی ممبرشپ پورٹل',
     titleLines: ['ڈیجیٹل', 'ممبرشپ', 'سسٹم'],
     lede:
-      'پی ٹی آئی کے لیے ایک مکمل ممبرشپ پورٹل: سائن اَپ، ممبرشپ فارم، ایڈمن منظوری، ڈیجیٹل کارڈ، QR ویریفکیشن اور ممبر ڈیش بورڈ۔',
+      'پی ٹی آئی کے لیے مفت ممبرشپ پورٹل: سائن اَپ، ممبرشپ فارم، خودکار ممبر نمبر، ڈیجیٹل کارڈ، QR ویریفکیشن اور ممبر ڈیش بورڈ۔',
     ctaDashboard: 'ڈیش بورڈ کھولیں',
     ctaSignup: 'ممبر بنیں',
     ctaCard: 'ڈیجیٹل کارڈ',
@@ -128,11 +128,11 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ctaAdmin: 'ایڈمن پینل',
     steps: [
       { label: 'مرحلہ 01', value: 'سائن اَپ' },
-      { label: 'مرحلہ 02', value: 'ایڈمن ریویو' },
+      { label: 'مرحلہ 02', value: 'خودکار اجراء' },
       { label: 'مرحلہ 03', value: 'QR کارڈ' },
     ],
     badges: {
-      secureReview: 'محفوظ ریویو',
+      secureReview: 'خودکار ممبرشپ',
       qrVerified: 'QR تصدیق شدہ',
     },
     slides: [
@@ -179,12 +179,12 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ],
     scopeKicker: 'صرف ممبرشپ پورٹل',
     scopeTitle:
-      'Rs. 500 ممبرشپ فیس رسید ویریفکیشن، ڈیجیٹل کارڈز اور ایڈمن ورک فلو کے ساتھ صاف پی ٹی آئی اسکوپ۔',
+      'مفت خودکار PTI ممبرشپ، ڈیجیٹل کارڈز، QR ویریفکیشن اور ایڈمن ممبر مینجمنٹ۔',
     scopeText:
       'یہ ایپ ممبرشپ لائف سائیکل پر فوکس کرتی ہے: اکاؤنٹ، رجسٹریشن، ریویو، منظوری، کارڈ اور پبلک QR ویریفکیشن۔',
     scopeItems: [
       'موبائل فرسٹ ممبر ڈیش بورڈ',
-      'ایڈمن منظوری ورک فلو',
+      'خودکار ممبرشپ اجراء',
       'قابل تلاش ممبر ریکارڈز',
       'QR پبلک ویریفکیشن',
       'فرنٹ/بیک کارڈ ایکسپورٹ',
@@ -195,7 +195,7 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     kicker: 'پی ٹی آئی ميمبرشپ پورٽل',
     titleLines: ['ڊجيٽل', 'ميمبرشپ', 'سسٽم'],
     lede:
-      'پی ٹی آئی لاءِ مڪمل ميمبرشپ پورٽل: سائن اَپ، ميمبرشپ فارم، ايڊمن منظوري، ڊجيٽل ڪارڊ، QR ويريفڪيشن ۽ ميمبر ڊيش بورڊ.',
+      'پی ٹی آئی لاءِ مفت ميمبرشپ پورٽل: سائن اَپ، ميمبرشپ فارم، پاڻمرادو ميمبر نمبر، ڊجيٽل ڪارڊ، QR ويريفڪيشن ۽ ميمبر ڊيش بورڊ.',
     ctaDashboard: 'ڊيش بورڊ کوليو',
     ctaSignup: 'ميمبر بڻجو',
     ctaCard: 'ڊجيٽل ڪارڊ',
@@ -203,11 +203,11 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ctaAdmin: 'ايڊمن پينل',
     steps: [
       { label: 'مرحلو 01', value: 'سائن اَپ' },
-      { label: 'مرحلو 02', value: 'ايڊمن ريويو' },
+      { label: 'مرحلو 02', value: 'پاڻمرادو جاري' },
       { label: 'مرحلو 03', value: 'QR ڪارڊ' },
     ],
     badges: {
-      secureReview: 'محفوظ ريويو',
+      secureReview: 'پاڻمرادو ميمبرشپ',
       qrVerified: 'QR تصديق ٿيل',
     },
     slides: [
@@ -254,12 +254,12 @@ const HOME_COPY: Record<AppLanguage, HomeCopy> = {
     ],
     scopeKicker: 'صرف ميمبرشپ پورٽل',
     scopeTitle:
-      'Rs. 500 ميمبرشپ فيس رسيد ويريفڪيشن، ڊجيٽل ڪارڊز ۽ ايڊمن ورڪ فلو سان صاف پی ٹی آئی اسڪوپ.',
+      'مفت پاڻمرادو PTI ميمبرشپ، ڊجيٽل ڪارڊز، QR ويريفڪيشن ۽ ايڊمن ميمبر مينيجمينٽ.',
     scopeText:
       'هي ايپ ميمبرشپ لائيف سائيڪل تي فوڪس ڪري ٿي: اڪائونٽ، رجسٽريشن، ريويو، منظوري، ڪارڊ ۽ پبلڪ QR ويريفڪيشن.',
     scopeItems: [
       'موبائل فرسٽ ميمبر ڊيش بورڊ',
-      'ايڊمن منظوري ورڪ فلو',
+      'پاڻمرادو ميمبرشپ جاري',
       'ڳولڻ لائق ميمبر رڪارڊز',
       'QR پبلڪ ويريفڪيشن',
       'فرنٽ/بئڪ ڪارڊ ايڪسپورٽ',

@@ -67,7 +67,7 @@ function CardPage() {
     const { data, error } = await supabase
       .from('members')
       .select(
-        'id, member_no, full_name, father_name, cnic, mobile, district, taluka, address, date_of_birth, gender, education, blood_group, profession, designation, designation_level, designation_area, caste_branch, emergency_contact_name, emergency_contact_relation, emergency_contact_mobile, photo_url, status, approved_at',
+        'id, member_no, full_name, father_name, cnic, mobile, district, taluka, address, date_of_birth, gender, education, blood_group, profession, designation, designation_level, designation_area, caste_branch, emergency_contact_name, emergency_contact_relation, emergency_contact_mobile, photo_url, is_active, issued_at',
       )
       .eq('user_id', user.id)
       .maybeSingle()
@@ -86,8 +86,8 @@ function CardPage() {
 
     setMember(data)
 
-    if (data.status !== 'approved' || !data.member_no) {
-      setError(t('card.notApproved'))
+    if (!data.is_active || !data.member_no) {
+      setError('Digital card is available only for active memberships.')
       setLoading(false)
       return
     }
@@ -196,7 +196,7 @@ function CardPage() {
           </div>
         ) : null}
 
-        {member?.status === 'approved' && member.member_no ? (
+        {member?.is_active && member.member_no ? (
           <>
             <ResponsiveCardPreview
               className="rounded-[2rem] bg-white p-2 shadow-sm ring-1 ring-slate-200/70 sm:p-4"
@@ -264,7 +264,7 @@ function CardPage() {
           </>
         ) : (
           <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-slate-700">{t('card.availableAfterApproval')}</p>
+            <p className="text-slate-700">{'Digital card is available for active memberships.'}</p>
           </div>
         )}
       </div>

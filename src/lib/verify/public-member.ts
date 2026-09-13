@@ -1,5 +1,3 @@
-export type VerifyMemberStatus = 'pending' | 'approved' | 'rejected'
-
 export type VerifyMemberRow = {
   id: string
   member_no: string | null
@@ -9,22 +7,11 @@ export type VerifyMemberRow = {
   designation: string | null
   designation_level: string | null
   designation_area: string | null
-  status: VerifyMemberStatus
-  approved_at: string | null
+  is_active: boolean
+  issued_at: string
 }
 
-export type PublicVerifyMember = {
-  id: string
-  member_no: string | null
-  full_name: string
-  district: string
-  taluka: string | null
-  designation: string | null
-  designation_level: string | null
-  designation_area: string | null
-  status: VerifyMemberStatus
-  approved_at: string | null
-}
+export type PublicVerifyMember = VerifyMemberRow
 
 export type PublicVerifyPayload = {
   found: boolean
@@ -45,21 +32,18 @@ export function buildPublicVerifyPayload(
     }
   }
 
-  if (member.status !== 'approved') {
+  if (!member.is_active) {
     return {
       found: true,
       verified: false,
       member: {
-        id: member.id,
-        member_no: member.member_no,
+        ...member,
         full_name: NOT_DISCLOSED,
         district: NOT_DISCLOSED,
         taluka: null,
         designation: null,
         designation_level: null,
         designation_area: null,
-        status: member.status,
-        approved_at: null,
       },
     }
   }
@@ -67,21 +51,10 @@ export function buildPublicVerifyPayload(
   return {
     found: true,
     verified: true,
-    member: {
-      id: member.id,
-      member_no: member.member_no,
-      full_name: member.full_name,
-      district: member.district,
-      taluka: member.taluka,
-      designation: member.designation,
-      designation_level: member.designation_level,
-      designation_area: member.designation_area,
-      status: member.status,
-      approved_at: member.approved_at,
-    },
+    member,
   }
 }
 
 export function canExposeMemberPhoto(member: VerifyMemberRow | null) {
-  return Boolean(member?.status === 'approved')
+  return Boolean(member?.is_active)
 }

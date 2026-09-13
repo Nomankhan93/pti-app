@@ -1,16 +1,13 @@
 import type { ReactNode } from 'react'
 import {
-  BadgeCheck,
   BriefcaseBusiness,
   ClipboardList,
-  Clock3,
   Download,
   IdCard,
   LayoutDashboard,
   SearchCheck,
   ShieldCheck,
   Users,
-  XCircle,
 } from 'lucide-react'
 
 export type AdminNavigationRoute = '/admin'
@@ -35,38 +32,15 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
     items: [
       {
         label: 'Dashboard Overview',
-        description: 'Live counts, filters and recent applications',
+        description: 'Live counts, filters and recent members',
         to: '/admin',
         icon: <LayoutDashboard size={17} />,
       },
       {
-        label: 'All Applications',
-        description: 'Search every submitted membership form',
+        label: 'All Members',
+        description: 'Search every registered PTI member',
         to: '/admin',
         icon: <Users size={17} />,
-      },
-    ],
-  },
-  {
-    title: 'Review Queue',
-    items: [
-      {
-        label: 'Pending Review',
-        description: 'Applications waiting for admin action',
-        to: '/admin',
-        icon: <Clock3 size={17} />,
-      },
-      {
-        label: 'Approved Members',
-        description: 'Members with active digital card access',
-        to: '/admin',
-        icon: <BadgeCheck size={17} />,
-      },
-      {
-        label: 'Rejected / Returned',
-        description: 'Applications needing correction',
-        to: '/admin',
-        icon: <XCircle size={17} />,
       },
     ],
   },
@@ -92,14 +66,14 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         icon: <SearchCheck size={17} />,
       },
       {
-        label: 'Approvals Workflow',
-        description: 'Approve or reject from detail page',
+        label: 'Membership Status',
+        description: 'Activate or deactivate memberships from member detail',
         to: '/admin',
         icon: <ClipboardList size={17} />,
       },
       {
         label: 'Assign Designations',
-        description: 'Open approved member detail and assign official card title',
+        description: 'Open member detail and assign official card title',
         to: '/admin',
         icon: <BriefcaseBusiness size={17} />,
       },

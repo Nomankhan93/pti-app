@@ -19,8 +19,8 @@ type VerifyResult = {
     designation: string | null
     designation_level: string | null
     designation_area: string | null
-    status: 'pending' | 'approved' | 'rejected'
-    approved_at: string | null
+    is_active: boolean
+    issued_at: string
   } | null
   photoSignedUrl: string | null
 }
@@ -138,8 +138,8 @@ function VerifyMemberPage() {
                 <Info label={t('dashboard.designationLevel')} value={result.member.designation_level} />
                 <Info label={t('dashboard.designationArea')} value={result.member.designation_area} />
                 <Info
-                  label={t('verify.approvedAt')}
-                  value={formatDate(result.member.approved_at, language) ?? t('common.na')}
+                  label={issueDateLabel(language)}
+                  value={formatDate(result.member.issued_at, language) ?? t('common.na')}
                 />
               </div>
             </div>
@@ -162,7 +162,7 @@ function VerifyMemberPage() {
               <Info label={t('dashboard.memberNo')} value={memberNo} />
               <Info
                 label={t('admin.table.status')}
-                value={result.member?.status ? t(statusKey(result.member.status)) : t('common.na')}
+                value={result.member?.is_active ? activeStatusLabel(language) : inactiveStatusLabel(language)}
               />
             </div>
           </section>
@@ -196,8 +196,24 @@ function Info({ label, value }: { label: string; value: string | null | undefine
   )
 }
 
-function statusKey(status: 'pending' | 'approved' | 'rejected') {
-  return `common.status.${status}` as const
+
+
+function issueDateLabel(language: string) {
+  if (language === 'ur') return 'اجراء کی تاریخ'
+  if (language === 'sd') return 'جاري ٿيڻ جي تاريخ'
+  return 'Issue Date'
+}
+
+function activeStatusLabel(language: string) {
+  if (language === 'ur') return 'فعال'
+  if (language === 'sd') return 'فعال'
+  return 'Active'
+}
+
+function inactiveStatusLabel(language: string) {
+  if (language === 'ur') return 'غیر فعال'
+  if (language === 'sd') return 'غير فعال'
+  return 'Inactive'
 }
 
 function formatDate(value: string | null | undefined, language: string) {

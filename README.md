@@ -8,13 +8,13 @@ This app is a membership portal only. It includes:
 
 - Member signup and login
 - Membership registration form
-- Admin approval/rejection workflow
+- Free self-registration with automatic PTI member number issuance
 - Member dashboard
 - Digital membership card with QR verification
 - Public verification page
 - Admin member management
 
-Payment collection is intentionally disabled in the PTI app. Do not re-enable payment tables, receipt uploads, or payment UI unless PTI explicitly approves a new payment workflow.
+Membership is free and self-issued. There is no membership payment table, receipt workflow, or admin approval/rejection gate. Admins manage member profiles, designations, and active/inactive status.
 
 ## Tech Stack
 
@@ -71,10 +71,10 @@ Run migrations locally with Supabase CLI, or apply them in Supabase Cloud SQL ed
 Important latest migration:
 
 ```txt
-supabase/migrations/20260618150000_pti_membership_payment_rs500.sql
+supabase/migrations/20260913193000_pti_free_membership_self_issuance.sql
 ```
 
-It re-enables the PTI membership payment workflow with a fixed Rs. 500 fee, private receipt uploads, and admin payment verification policies. The earlier `20260613120000_pti_constraints_and_payment_cleanup.sql` migration is still part of history and should remain in order.
+It removes the runtime payment/review workflow, adds `issued_at` and `is_active`, self-issues PTI member numbers atomically at registration, removes approval/rejection RPCs, drops `membership_payments`, and removes the private membership receipt bucket. Earlier migrations remain part of immutable migration history.
 
 ## Admin Setup
 

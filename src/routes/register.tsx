@@ -164,11 +164,11 @@ const talukasByDistrict: Record<string, string[]> = {
 const genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say']
 const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
-type MemberStatus = 'pending' | 'approved' | 'rejected'
-
 type ExistingMember = {
   id: string
-  status: MemberStatus
+  member_no: string | null
+  is_active: boolean
+  issued_at: string
   address: string | null
   date_of_birth: string | null
   gender: string | null
@@ -292,9 +292,7 @@ function RegisterPage() {
   const [success, setSuccess] = useState('')
   const [draftSavedAt, setDraftSavedAt] = useState('')
 
-  const locked = existingMember?.status === 'approved'
-  const isPendingEdit = existingMember?.status === 'pending'
-  const isRejected = existingMember?.status === 'rejected'
+  const locked = false
   const isLastStep = currentStep === formSteps.length - 1
   const localizedSteps = useMemo(() =>
     formSteps.map((step) => ({
@@ -347,7 +345,9 @@ function RegisterPage() {
       .select(
         [
           'id',
-          'status',
+          'member_no',
+          'is_active',
+          'issued_at',
           'address',
           'date_of_birth',
           'gender',
@@ -592,10 +592,6 @@ function RegisterPage() {
       return
     }
 
-    if (existingMember?.status === 'approved') {
-      setError(t('register.error.approvedLocked'))
-      return
-    }
 
     const allErrors = validateForm()
     setFieldErrors(allErrors)
@@ -663,18 +659,9 @@ function RegisterPage() {
     }
 
     if (existingMember) {
-      const updatePayload =
-        existingMember.status === 'rejected'
-          ? {
-              ...payload,
-              status: 'pending' as const,
-              rejection_reason: null,
-            }
-          : payload
-
       const { error: updateError } = await (supabase as any)
         .from('members')
-        .update(updatePayload)
+        .update(payload)
         .eq('id', existingMember.id)
 
       if (updateError) {
@@ -688,7 +675,6 @@ function RegisterPage() {
         .insert({
           user_id: userId,
           ...payload,
-          status: 'pending',
         })
 
       if (insertError) {
@@ -1353,24 +1339,10 @@ function RegisterPage() {
             </div>
           </div>
 
-          {existingMember?.status === 'approved' ? (
+          {existingMember ? (
             <div className="reg-banner reg-banner--success">
               <span className="reg-banner-icon">✓</span>
-              {t('register.approvedBanner')}
-            </div>
-          ) : null}
-
-          {isPendingEdit ? (
-            <div className="reg-banner reg-banner--info">
-              <span className="reg-banner-icon">i</span>
-              {t('register.pendingEditBanner')}
-            </div>
-          ) : null}
-
-          {isRejected ? (
-            <div className="reg-banner reg-banner--warning">
-              <span className="reg-banner-icon">!</span>
-              {t('register.rejectedBanner')}
+              Membership is self-issued and active. You can update your profile details here.
             </div>
           ) : null}
 
@@ -1460,8 +1432,6 @@ function RegisterPage() {
                         <span className="reg-spinner reg-spinner--sm" />
                         {t('register.saving')}
                       </>
-                    ) : isRejected ? (
-                      t('register.resubmit')
                     ) : existingMember ? (
                       t('register.updateForm')
                     ) : (

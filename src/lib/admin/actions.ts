@@ -36,58 +36,27 @@ async function requireAdmin(accessToken: string) {
   }
 }
 
-export const approveMemberAction = createServerFn({ method: 'POST' })
-  .validator((data: { memberId: string; accessToken: string }) => {
-    if (!data.memberId) throw new Error('Member ID is required.')
-    if (!data.accessToken) throw new Error('Access token is required.')
-    return data
-  })
-  .handler(async ({ data }) => {
-    const { supabaseAdmin, user } = await requireAdmin(data.accessToken)
-
-    const { data: approved, error } = await supabaseAdmin.rpc('approve_member', {
-      _member_id: data.memberId,
-      _reviewed_by: user.id,
-    })
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    return approved
-  })
-
-export const rejectMemberAction = createServerFn({ method: 'POST' })
+export const setMemberActiveAction = createServerFn({ method: 'POST' })
   .validator(
-    (data: {
-      memberId: string
-      rejectionReason: string
-      accessToken: string
-    }) => {
+    (data: { memberId: string; isActive: boolean; accessToken: string }) => {
       if (!data.memberId) throw new Error('Member ID is required.')
       if (!data.accessToken) throw new Error('Access token is required.')
-      if (!data.rejectionReason || data.rejectionReason.trim().length < 3) {
-        throw new Error('Rejection reason is required.')
-      }
-
-      return {
-        ...data,
-        rejectionReason: data.rejectionReason.trim(),
-      }
+      return data
     },
   )
   .handler(async ({ data }) => {
-    const { supabaseAdmin, user } = await requireAdmin(data.accessToken)
+    const { supabaseAdmin } = await requireAdmin(data.accessToken)
 
-    const { data: rejected, error } = await supabaseAdmin.rpc('reject_member', {
-      _member_id: data.memberId,
-      _rejection_reason: data.rejectionReason,
-      _reviewed_by: user.id,
-    })
+    const { data: member, error } = await supabaseAdmin
+      .from('members')
+      .update({ is_active: data.isActive })
+      .eq('id', data.memberId)
+      .select('id, member_no, is_active')
+      .single()
 
     if (error) {
       throw new Error(error.message)
     }
 
-    return rejected
+    return member
   })

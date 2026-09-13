@@ -27,7 +27,7 @@ import {
   imageUrlToDataUrl,
 } from '../../../../components/MembershipCard'
 import { ResponsiveCardPreview } from '../../../../components/ResponsiveCardPreview'
-import { useI18n, type TranslationKey } from '../../../../lib/i18n'
+import { useI18n } from '../../../../lib/i18n'
 import { exportElementAsPng } from '../../../../lib/shared/card-export'
 import { generateQrDataUrl } from '../../../../lib/shared/qrcode'
 import { supabase } from '../../../../lib/supabase/client'
@@ -38,8 +38,6 @@ export const Route = createFileRoute('/admin/members/$id/card')({
 
 type Member = MembershipCardMember & {
   user_id: string
-  rejection_reason: string | null
-  reviewed_at: string | null
   created_at: string
 }
 
@@ -53,11 +51,6 @@ const MEMBER_PHOTO_BUCKET = 'member-photos'
 const SIGNED_URL_TTL_SECONDS = 60 * 60
 const MEMBERSHIP_REVIEW_ROLES = ['admin'] as const
 
-const statusLabelKeys: Record<Member['status'], TranslationKey> = {
-  pending: 'common.status.pending',
-  approved: 'common.status.approved',
-  rejected: 'common.status.rejected',
-}
 
 function AdminMemberCardPage() {
   const { id } = Route.useParams()
@@ -81,7 +74,7 @@ function AdminMemberCardPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const cardReady = Boolean(member?.status === 'approved' && member.member_no && qrUrl)
+  const cardReady = Boolean(member?.is_active && member.member_no && qrUrl)
 
   const loadMemberCard = useCallback(
     async (options?: { silent?: boolean }) => {
@@ -124,11 +117,11 @@ function AdminMemberCardPage() {
 
         setMember(data)
 
-        if (data.status !== 'approved' || !data.member_no) {
+        if (!data.is_active || !data.member_no) {
           setPhotoUrl(null)
           setQrUrl(null)
           setVerifyUrl('')
-          setError(t('admin.card.onlyApproved'))
+          setError('Digital card is available only for active memberships.')
           return
         }
 
@@ -259,7 +252,7 @@ function AdminMemberCardPage() {
 
   if (!member) {
     return (
-      <AdminShell title={t('admin.card.title')} subtitle={t('admin.card.onlyApproved')}>
+      <AdminShell title={t('admin.card.title')} subtitle={'Digital card is available only for active memberships.'}>
         <EmptyCardState
           title={t('common.memberNotFound')}
           message="This member record could not be loaded. Please return to the admin panel and try again."
@@ -305,12 +298,12 @@ function AdminMemberCardPage() {
                   {t('admin.card.title')}
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-600">
-                  Preview and download the same front/back digital membership card that approved members can access from their dashboard.
+                  Preview and download the same front/back digital membership card available to active self-issued members.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <StatusPill status={member.status} label={t(statusLabelKeys[member.status])} />
+                <StatusPill active={member.is_active} />
                 <button
                   type="button"
                   onClick={() => void loadMemberCard({ silent: true })}
@@ -326,7 +319,7 @@ function AdminMemberCardPage() {
 
           <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
             <SummaryItem label="Member" value={member.full_name} icon={<QrCode className="h-4 w-4" />} />
-            <SummaryItem label="Status" value={t(statusLabelKeys[member.status])} icon={<ShieldCheck className="h-4 w-4" />} />
+            <SummaryItem label="Status" value={member.is_active ? 'Active' : 'Inactive'} icon={<ShieldCheck className="h-4 w-4" />} />
             <SummaryItem label="Member No" value={member.member_no || t('dashboard.notIssuedYet')} icon={<IdCard className="h-4 w-4" />} />
             <SummaryItem label="Card State" value={cardReady ? 'Ready' : 'Not available'} icon={<CreditCard className="h-4 w-4" />} />
           </div>
@@ -369,7 +362,7 @@ function AdminMemberCardPage() {
                     <div>
                       <h2 className="text-base font-black text-slate-950">Card is ready</h2>
                       <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">
-                        This member is approved and has a membership number. The QR code points to the public verification page.
+                        This membership is active and self-issued. The QR code points to the public verification page.
                       </p>
                     </div>
                   </div>
@@ -439,9 +432,9 @@ function AdminMemberCardPage() {
           <EmptyCardState
             title="Digital card is not available yet"
             message={
-              member.status === 'approved'
-                ? 'This member is approved, but the member number is not available yet. The card will become available after member number issuance.'
-                : 'This digital card is available only after admin approval and member number issuance.'
+              member.is_active
+                ? 'This member is active, but the member number is not available yet.'
+                : 'This digital card is available only for active memberships.'
             }
             action={
               <Link
@@ -513,10 +506,8 @@ async function fetchMemberForCard(id: string) {
         'emergency_contact_relation',
         'emergency_contact_mobile',
         'photo_url',
-        'status',
-        'rejection_reason',
-        'reviewed_at',
-        'approved_at',
+        'is_active',
+        'issued_at',
         'created_at',
       ].join(', '),
     )
@@ -568,17 +559,14 @@ function SummaryItem({
   )
 }
 
-function StatusPill({ status, label }: { status: Member['status']; label: string }) {
-  const classes =
-    status === 'approved'
-      ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
-      : status === 'rejected'
-        ? 'bg-red-50 text-red-700 ring-red-200'
-        : 'bg-amber-50 text-amber-700 ring-amber-200'
+function StatusPill({ active }: { active: boolean }) {
+  const classes = active
+    ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+    : 'bg-slate-100 text-slate-700 ring-slate-200'
 
   return (
     <span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide ring-1 ${classes}`}>
-      {label}
+      {active ? 'Active' : 'Inactive'}
     </span>
   )
 }

@@ -5,7 +5,7 @@ import { AdminSidebar } from './AdminSidebar'
 export function AdminShell({
   children,
   title = 'Admin Panel',
-  subtitle = 'Review applications, approve members and manage digital cards.',
+  subtitle = 'Manage members, designations, activation and digital cards.',
 }: {
   children: ReactNode
   title?: string
