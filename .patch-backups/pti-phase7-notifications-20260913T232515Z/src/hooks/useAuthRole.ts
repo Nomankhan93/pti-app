@@ -16,8 +16,6 @@ export function useAuthRole() {
   const [hasOperationsWorkbenchAccess, setHasOperationsWorkbenchAccess] = useState(false)
   const [hasFinanceWorkbenchAccess, setHasFinanceWorkbenchAccess] = useState(false)
   const [hasLeadershipAccess, setHasLeadershipAccess] = useState(false)
-  const [hasCommandCenterAccess, setHasCommandCenterAccess] = useState(false)
-  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0)
   const [accountEmail, setAccountEmail] = useState('')
 
   const checkAdmin = useCallback(async (userId: string) => {
@@ -60,18 +58,6 @@ export function useAuthRole() {
     return Boolean(data?.[0]?.can_view)
   }, [])
 
-  const checkCommandCenter = useCallback(async () => {
-    const { data, error } = await (supabase as any).rpc('my_command_center_access')
-    if (error) return false
-    return Boolean(data?.[0]?.can_view)
-  }, [])
-
-  const checkNotificationCount = useCallback(async () => {
-    const { data, error } = await (supabase as any).rpc('my_notification_unread_count')
-    if (error) return 0
-    return Number(data ?? 0) || 0
-  }, [])
-
   const syncAuthState = useCallback(
     async (user?: AuthUser | null) => {
       const userId = user?.id ?? null
@@ -80,35 +66,29 @@ export function useAuthRole() {
       setAccountEmail(user?.email ?? '')
 
       if (userId) {
-        const [adminAccess, volunteerAccess, operationsAccess, financeAccess, leadershipAccess, commandCenterAccess, notificationCount] = await Promise.all([
+        const [adminAccess, volunteerAccess, operationsAccess, financeAccess, leadershipAccess] = await Promise.all([
           checkAdmin(userId),
           checkVolunteerWorkbench(),
           checkOperationsWorkbench(),
           checkFinanceWorkbench(),
           checkLeadership(),
-          checkCommandCenter(),
-          checkNotificationCount(),
         ])
         setIsAdmin(adminAccess)
         setHasVolunteerWorkbenchAccess(volunteerAccess)
         setHasOperationsWorkbenchAccess(operationsAccess)
         setHasFinanceWorkbenchAccess(financeAccess)
         setHasLeadershipAccess(leadershipAccess)
-        setHasCommandCenterAccess(commandCenterAccess)
-        setUnreadNotificationCount(notificationCount)
       } else {
         setIsAdmin(false)
         setHasVolunteerWorkbenchAccess(false)
         setHasOperationsWorkbenchAccess(false)
         setHasFinanceWorkbenchAccess(false)
         setHasLeadershipAccess(false)
-        setHasCommandCenterAccess(false)
-        setUnreadNotificationCount(0)
       }
 
       setAuthLoading(false)
     },
-    [checkAdmin, checkCommandCenter, checkFinanceWorkbench, checkLeadership, checkNotificationCount, checkOperationsWorkbench, checkVolunteerWorkbench],
+    [checkAdmin, checkFinanceWorkbench, checkLeadership, checkOperationsWorkbench, checkVolunteerWorkbench],
   )
 
   useEffect(() => {
@@ -127,8 +107,6 @@ export function useAuthRole() {
         setHasOperationsWorkbenchAccess(false)
         setHasFinanceWorkbenchAccess(false)
         setHasLeadershipAccess(false)
-        setHasCommandCenterAccess(false)
-        setUnreadNotificationCount(0)
         setAccountEmail('')
         setAuthLoading(false)
         return
@@ -152,27 +130,6 @@ export function useAuthRole() {
     }
   }, [syncAuthState])
 
-  useEffect(() => {
-    async function refreshNotificationCount() {
-      if (!isLoggedIn) return
-      setUnreadNotificationCount(await checkNotificationCount())
-    }
-
-    function handleVisibility() {
-      if (document.visibilityState === 'visible') void refreshNotificationCount()
-    }
-
-    window.addEventListener('pti:notifications-changed', refreshNotificationCount)
-    document.addEventListener('visibilitychange', handleVisibility)
-    const timer = window.setInterval(() => void refreshNotificationCount(), 60_000)
-
-    return () => {
-      window.removeEventListener('pti:notifications-changed', refreshNotificationCount)
-      document.removeEventListener('visibilitychange', handleVisibility)
-      window.clearInterval(timer)
-    }
-  }, [checkNotificationCount, isLoggedIn])
-
   const accountInitial = (
     accountEmail.split('@')[0]?.trim().charAt(0) || 'M'
   ).toUpperCase()
@@ -194,8 +151,6 @@ export function useAuthRole() {
     setHasOperationsWorkbenchAccess(false)
     setHasFinanceWorkbenchAccess(false)
     setHasLeadershipAccess(false)
-    setHasCommandCenterAccess(false)
-    setUnreadNotificationCount(0)
     setAccountEmail('')
     setLogoutLoading(false)
     return true
@@ -210,8 +165,6 @@ export function useAuthRole() {
     hasOperationsWorkbenchAccess,
     hasFinanceWorkbenchAccess,
     hasLeadershipAccess,
-    hasCommandCenterAccess,
-    unreadNotificationCount,
     accountEmail,
     accountInitial,
     logout,

@@ -12,11 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeadershipRouteImport } from './routes/leadership'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CommandCenterRouteImport } from './routes/command-center'
 import { Route as CardRouteImport } from './routes/card'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -48,11 +46,6 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -66,11 +59,6 @@ const LeadershipRoute = LeadershipRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommandCenterRoute = CommandCenterRouteImport.update({
-  id: '/command-center',
-  path: '/command-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CardRoute = CardRouteImport.update({
@@ -153,11 +141,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/card': typeof CardRoute
-  '/command-center': typeof CommandCenterRoute
   '/dashboard': typeof DashboardRoute
   '/leadership': typeof LeadershipRoute
   '/login': typeof LoginRoute
-  '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/volunteer': typeof VolunteerRoute
@@ -178,11 +164,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/card': typeof CardRoute
-  '/command-center': typeof CommandCenterRoute
   '/dashboard': typeof DashboardRoute
   '/leadership': typeof LeadershipRoute
   '/login': typeof LoginRoute
-  '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/volunteer': typeof VolunteerRoute
@@ -204,11 +188,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/card': typeof CardRoute
-  '/command-center': typeof CommandCenterRoute
   '/dashboard': typeof DashboardRoute
   '/leadership': typeof LeadershipRoute
   '/login': typeof LoginRoute
-  '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/volunteer': typeof VolunteerRoute
@@ -231,11 +213,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/card'
-    | '/command-center'
     | '/dashboard'
     | '/leadership'
     | '/login'
-    | '/notifications'
     | '/register'
     | '/signup'
     | '/volunteer'
@@ -256,11 +236,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/card'
-    | '/command-center'
     | '/dashboard'
     | '/leadership'
     | '/login'
-    | '/notifications'
     | '/register'
     | '/signup'
     | '/volunteer'
@@ -281,11 +259,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/card'
-    | '/command-center'
     | '/dashboard'
     | '/leadership'
     | '/login'
-    | '/notifications'
     | '/register'
     | '/signup'
     | '/volunteer'
@@ -307,11 +283,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   CardRoute: typeof CardRoute
-  CommandCenterRoute: typeof CommandCenterRoute
   DashboardRoute: typeof DashboardRoute
   LeadershipRoute: typeof LeadershipRoute
   LoginRoute: typeof LoginRoute
-  NotificationsRoute: typeof NotificationsRoute
   RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   VolunteerRoute: typeof VolunteerRoute
@@ -347,13 +321,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -373,13 +340,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/command-center': {
-      id: '/command-center'
-      path: '/command-center'
-      fullPath: '/command-center'
-      preLoaderRoute: typeof CommandCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/card': {
@@ -522,11 +482,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   CardRoute: CardRoute,
-  CommandCenterRoute: CommandCenterRoute,
   DashboardRoute: DashboardRoute,
   LeadershipRoute: LeadershipRoute,
   LoginRoute: LoginRoute,
-  NotificationsRoute: NotificationsRoute,
   RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
   VolunteerRoute: VolunteerRoute,

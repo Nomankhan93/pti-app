@@ -7,7 +7,6 @@ import {
   ClipboardList,
   Download,
   HandCoins,
-  RadioTower,
   ListChecks,
   IdCard,
   LayoutDashboard,
@@ -29,7 +28,6 @@ export type AdminNavigationRoute =
   | '/operations/attendance'
   | '/finance/workbench'
   | '/leadership'
-  | '/command-center'
 
 export type AdminNavigationItem = {
   label: string
@@ -168,18 +166,6 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         to: '/leadership',
         icon: <BarChart3 size={17} />,
         badge: 'PHASE 6',
-      },
-    ],
-  },
-  {
-    title: 'Communications & Command',
-    items: [
-      {
-        label: 'Operational Command Center',
-        description: 'Targeted announcements, alerts, duty reminders and operation updates',
-        to: '/command-center',
-        icon: <RadioTower size={17} />,
-        badge: 'PHASE 7',
       },
     ],
   },

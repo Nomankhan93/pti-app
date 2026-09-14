@@ -34,99 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      notification_messages: {
-        Row: {
-          action_url: string | null
-          audience: Database["public"]["Enums"]["notification_audience"]
-          body: string
-          cancelled_at: string | null
-          cancelled_by: string | null
-          created_at: string
-          created_by: string | null
-          expires_at: string | null
-          id: string
-          kind: Database["public"]["Enums"]["notification_kind"]
-          notification_no: string
-          operation_id: string | null
-          org_unit_id: string
-          published_at: string
-          severity: Database["public"]["Enums"]["notification_severity"]
-          source_key: string | null
-          status: Database["public"]["Enums"]["notification_status"]
-          target_spec: Json
-          title: string
-        }
-        Insert: {
-          action_url?: string | null
-          audience: Database["public"]["Enums"]["notification_audience"]
-          body: string
-          cancelled_at?: string | null
-          cancelled_by?: string | null
-          created_at?: string
-          created_by?: string | null
-          expires_at?: string | null
-          id?: string
-          kind: Database["public"]["Enums"]["notification_kind"]
-          notification_no: string
-          operation_id?: string | null
-          org_unit_id: string
-          published_at?: string
-          severity?: Database["public"]["Enums"]["notification_severity"]
-          source_key?: string | null
-          status?: Database["public"]["Enums"]["notification_status"]
-          target_spec?: Json
-          title: string
-        }
-        Update: {
-          action_url?: string | null
-          audience?: Database["public"]["Enums"]["notification_audience"]
-          body?: string
-          cancelled_at?: string | null
-          cancelled_by?: string | null
-          created_at?: string
-          created_by?: string | null
-          expires_at?: string | null
-          id?: string
-          kind?: Database["public"]["Enums"]["notification_kind"]
-          notification_no?: string
-          operation_id?: string | null
-          org_unit_id?: string
-          published_at?: string
-          severity?: Database["public"]["Enums"]["notification_severity"]
-          source_key?: string | null
-          status?: Database["public"]["Enums"]["notification_status"]
-          target_spec?: Json
-          title?: string
-        }
-        Relationships: []
-      }
-      notification_deliveries: {
-        Row: {
-          archived_at: string | null
-          delivered_at: string
-          id: number
-          message_id: string
-          read_at: string | null
-          recipient_user_id: string
-        }
-        Insert: {
-          archived_at?: string | null
-          delivered_at?: string
-          id?: number
-          message_id: string
-          read_at?: string | null
-          recipient_user_id: string
-        }
-        Update: {
-          archived_at?: string | null
-          delivered_at?: string
-          id?: number
-          message_id?: string
-          read_at?: string | null
-          recipient_user_id?: string
-        }
-        Relationships: []
-      }
       finance_role_assignments: {
         Row: {
           assigned_at: string
@@ -1218,122 +1125,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      archive_my_notification: {
-        Args: { p_delivery_id: number }
-        Returns: undefined
-      }
-      cancel_notification: {
-        Args: { p_message_id: string }
-        Returns: undefined
-      }
-      generate_due_duty_reminders: {
-        Args: { p_horizon_hours?: number }
-        Returns: number
-      }
-      list_command_center_messages: {
-        Args: { p_limit?: number; p_org_unit_id?: string | null }
-        Returns: {
-          action_url: string | null
-          audience: Database["public"]["Enums"]["notification_audience"]
-          body: string
-          created_by: string | null
-          expires_at: string | null
-          id: string
-          kind: Database["public"]["Enums"]["notification_kind"]
-          notification_no: string
-          operation_id: string | null
-          operation_title: string | null
-          org_unit_id: string
-          org_unit_name: string
-          published_at: string
-          read_count: number
-          recipient_count: number
-          severity: Database["public"]["Enums"]["notification_severity"]
-          status: Database["public"]["Enums"]["notification_status"]
-          title: string
-          unread_count: number
-        }[]
-      }
-      list_my_notifications: {
-        Args: { p_before?: string | null; p_limit?: number }
-        Returns: {
-          action_url: string | null
-          archived_at: string | null
-          body: string
-          delivered_at: string
-          delivery_id: number
-          expires_at: string | null
-          kind: Database["public"]["Enums"]["notification_kind"]
-          message_id: string
-          notification_no: string
-          operation_id: string | null
-          org_unit_id: string
-          org_unit_name: string
-          published_at: string
-          read_at: string | null
-          severity: Database["public"]["Enums"]["notification_severity"]
-          title: string
-        }[]
-      }
-      list_notification_operations: {
-        Args: { p_org_unit_id?: string | null }
-        Returns: {
-          ends_at: string | null
-          id: string
-          org_unit_id: string
-          org_unit_name: string
-          starts_at: string | null
-          status: Database["public"]["Enums"]["operation_status"]
-          title: string
-        }[]
-      }
-      list_notification_scopes: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          code: string
-          id: string
-          level: Database["public"]["Enums"]["organization_level"]
-          name: string
-          parent_id: string | null
-        }[]
-      }
-      mark_all_my_notifications_read: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      mark_my_notification_read: {
-        Args: { p_delivery_id: number }
-        Returns: undefined
-      }
-      my_command_center_access: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          can_manage: boolean
-          can_view: boolean
-          default_org_unit_id: string | null
-          default_org_unit_level: Database["public"]["Enums"]["organization_level"] | null
-          default_org_unit_name: string | null
-        }[]
-      }
-      my_notification_unread_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      publish_notification: {
-        Args: {
-          p_action_url?: string | null
-          p_audience: Database["public"]["Enums"]["notification_audience"]
-          p_body: string
-          p_expires_at?: string | null
-          p_kind: Database["public"]["Enums"]["notification_kind"]
-          p_operation_id?: string | null
-          p_org_unit_id: string
-          p_severity: Database["public"]["Enums"]["notification_severity"]
-          p_target_spec?: Json
-          p_title: string
-        }
-        Returns: Json
-      }
       get_leadership_dashboard: {
         Args: {
           p_from?: string | null
@@ -1891,10 +1682,6 @@ export type Database = {
       }
     }
     Enums: {
-      notification_audience: "org_scope" | "members" | "volunteers" | "organization_roles" | "finance_roles" | "operation_participants" | "specific_users"
-      notification_kind: "announcement" | "alert" | "duty_reminder" | "operation_update"
-      notification_severity: "info" | "success" | "warning" | "critical"
-      notification_status: "published" | "cancelled"
       donation_adjustment_kind: "correction" | "reversal" | "refund" | "chargeback"
       donation_reconciliation_state: "pending" | "reconciled" | "exception"
       donation_verification_state: "pending" | "verified" | "rejected"
@@ -2061,10 +1848,6 @@ export const Constants = {
   },
   public: {
     Enums: {
-      notification_audience: ["org_scope", "members", "volunteers", "organization_roles", "finance_roles", "operation_participants", "specific_users"],
-      notification_kind: ["announcement", "alert", "duty_reminder", "operation_update"],
-      notification_severity: ["info", "success", "warning", "critical"],
-      notification_status: ["published", "cancelled"],
       donation_adjustment_kind: ["correction", "reversal", "refund", "chargeback"],
       donation_reconciliation_state: ["pending", "reconciled", "exception"],
       donation_verification_state: ["pending", "verified", "rejected"],

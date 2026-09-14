@@ -1616,28 +1616,3 @@ body [dir] {
     opacity: .035;
   }
 }
-
-
-.field-select {
-  width: 100%;
-  border: 1px solid rgb(226 232 240);
-  border-radius: .85rem;
-  background: rgb(255 255 255);
-  padding: .72rem .85rem;
-  color: rgb(15 23 42);
-  font-size: .875rem;
-  font-weight: 700;
-  outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
-}
-
-.field-select:focus {
-  border-color: rgb(16 185 129);
-  box-shadow: 0 0 0 3px rgba(16,185,129,.12);
-}
-
-.field-select:disabled {
-  cursor: not-allowed;
-  background: rgb(248 250 252);
-  color: rgb(148 163 184);
-}

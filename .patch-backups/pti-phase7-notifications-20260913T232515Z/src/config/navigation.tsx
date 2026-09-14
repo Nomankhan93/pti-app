@@ -8,8 +8,6 @@ import {
   IdCard,
   LayoutDashboard,
   ListChecks,
-  Bell,
-  RadioTower,
   ScanLine,
   LogIn,
   LogOut,
@@ -22,7 +20,7 @@ export const adminRoleNames = ['admin'] as const
 
 export type HeaderMenuKey = 'account' | null
 
-export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/notifications' | '/command-center' | '/operations/volunteers' | '/operations/workbench' | '/operations/attendance' | '/finance/workbench' | '/leadership' | '/admin'
+export type KnownRoute = '/' | '/signup' | '/login' | '/dashboard' | '/register' | '/card' | '/volunteer' | '/operations/volunteers' | '/operations/workbench' | '/operations/attendance' | '/finance/workbench' | '/leadership' | '/admin'
 
 export type NavigationItem = {
   label: string
@@ -84,16 +82,9 @@ export const loggedOutAccountItems: NavigationItem[] = [
   },
 ]
 
-export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false, hasOperationsWorkbenchAccess = false, hasFinanceWorkbenchAccess = false, hasLeadershipAccess = false, hasCommandCenterAccess = false, unreadNotificationCount = 0): NavigationItem[] {
+export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = false, hasOperationsWorkbenchAccess = false, hasFinanceWorkbenchAccess = false, hasLeadershipAccess = false): NavigationItem[] {
   return [
     ...memberNavigationItems,
-    {
-      label: 'Notifications',
-      description: 'Announcements, alerts, duty reminders and operational updates',
-      to: '/notifications' as const,
-      icon: <Bell className="h-4 w-4" />,
-      badge: unreadNotificationCount > 0 ? `${unreadNotificationCount > 99 ? '99+' : unreadNotificationCount} New` : undefined,
-    },
     ...(hasVolunteerWorkbenchAccess
       ? [
           {
@@ -142,17 +133,6 @@ export function getAccountItems(isAdmin: boolean, hasVolunteerWorkbenchAccess = 
             to: '/leadership' as const,
             icon: <BarChart3 className="h-4 w-4" />,
             badge: 'Phase 6',
-          },
-        ]
-      : []),
-    ...(hasCommandCenterAccess
-      ? [
-          {
-            label: 'Operational Command Center',
-            description: 'Target announcements, alerts, duty reminders and operation updates',
-            to: '/command-center' as const,
-            icon: <RadioTower className="h-4 w-4" />,
-            badge: 'Phase 7',
           },
         ]
       : []),

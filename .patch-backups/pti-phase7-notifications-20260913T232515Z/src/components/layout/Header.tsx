@@ -30,16 +30,14 @@ export function Header({ compact }: { compact: boolean }) {
     hasOperationsWorkbenchAccess,
     hasFinanceWorkbenchAccess,
     hasLeadershipAccess,
-    hasCommandCenterAccess,
-    unreadNotificationCount,
     accountInitial,
     logout,
   } = useAuthRole()
 
   const accountOpen = openMenu === 'account'
   const accountItems = useMemo(
-    () => (isLoggedIn ? getAccountItems(isAdmin, hasVolunteerWorkbenchAccess, hasOperationsWorkbenchAccess, hasFinanceWorkbenchAccess, hasLeadershipAccess, hasCommandCenterAccess, unreadNotificationCount) : loggedOutAccountItems),
-    [hasCommandCenterAccess, hasFinanceWorkbenchAccess, hasLeadershipAccess, hasOperationsWorkbenchAccess, hasVolunteerWorkbenchAccess, isAdmin, isLoggedIn, unreadNotificationCount],
+    () => (isLoggedIn ? getAccountItems(isAdmin, hasVolunteerWorkbenchAccess, hasOperationsWorkbenchAccess, hasFinanceWorkbenchAccess, hasLeadershipAccess) : loggedOutAccountItems),
+    [hasFinanceWorkbenchAccess, hasLeadershipAccess, hasOperationsWorkbenchAccess, hasVolunteerWorkbenchAccess, isAdmin, isLoggedIn],
   )
 
   useEffect(() => {
@@ -152,7 +150,6 @@ export function Header({ compact }: { compact: boolean }) {
             <AccountMenuButton
               accountInitial={isLoggedIn ? accountInitial : 'PTI'}
               isOpen={accountOpen}
-              unreadLabel={isLoggedIn ? (unreadNotificationCount > 99 ? '99+' : unreadNotificationCount > 0 ? String(unreadNotificationCount) : undefined) : undefined}
               onClick={() => setOpenMenu(accountOpen ? null : 'account')}
             />
             {accountOpen ? (
@@ -238,14 +235,9 @@ export function Header({ compact }: { compact: boolean }) {
                       <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
                         {item.icon}
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2 text-sm font-black text-slate-950">
+                      <span>
+                        <span className="block text-sm font-black text-slate-950">
                           {item.label}
-                          {item.badge ? (
-                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-100">
-                              {item.badge}
-                            </span>
-                          ) : null}
                         </span>
                         {item.description ? (
                           <span className="mt-0.5 block text-xs font-semibold text-slate-500">
