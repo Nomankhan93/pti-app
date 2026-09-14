@@ -16,11 +16,15 @@
     "safe-export": "bash scripts/safe-export.sh",
     "check-safe-archive": "bash scripts/check-safe-archive.sh",
     "lock:sync": "npm install --package-lock-only",
-    "cleanup:starter": "bash scripts/cleanup-unused-starter-files.sh",
     "security:audit": "npm audit --audit-level=high",
     "security:audit:prod": "npm audit --omit=dev --audit-level=high",
     "verify:production": "bash scripts/verify-production-readiness.sh",
-    "scan:secrets": "bash scripts/scan-secrets.sh"
+    "scan:secrets": "bash scripts/scan-secrets.sh",
+    "test:e2e:release": "node scripts/e2e-release-smoke.mjs",
+    "qa:release": "bash scripts/run-release-qa.sh",
+    "db:backup": "bash scripts/db-backup.sh",
+    "db:restore-drill": "bash scripts/db-restore-drill.sh",
+    "release:check": "npm run check && npm test && npm run build && npm run security:audit:prod && npm run verify:production"
   },
   "dependencies": {
     "@faker-js/faker": "^10.3.0",

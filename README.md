@@ -13,6 +13,10 @@ The platform currently includes:
 - Operations, teams, shifts and duties
 - Attendance, QR check-in and participation history
 - Admin organization, roles and audit views
+- Fundraising/finance ledger with verification, reconciliation and receipts
+- Leadership monitoring and hierarchy drill-down analytics
+- Notifications and operational command center
+- Production readiness, audited exports, rate limits and release gates
 
 Membership remains free and self-issued. There is no membership payment workflow or admin approval/rejection gate.
 
@@ -70,6 +74,11 @@ npm audit
 20260913223000  Volunteer Registry
 20260913233000  Operations / Teams / Duties
 20260914000000  Attendance / Participation
+20260914010000  Database Security / Performance Stabilization
+20260914020000  Fundraising / Finance Ledger
+20260914030000  Leadership Monitoring
+20260914040000  Notifications / Operational Command Center
+20260914050000  Production Hardening
 ```
 
 ## Key Routes
@@ -89,5 +98,10 @@ npm audit
 /admin/organization       Organization hierarchy
 /admin/roles              Scoped roles
 /admin/audit              Audit log
+/admin/production         Production readiness, monitoring and audited exports
+/finance/workbench        Fundraising and finance ledger
+/leadership               Leadership monitoring and drill-down analytics
+/notifications            Personal notification inbox
+/command-center           Operational command center
 /verify/$memberNo         Public membership verification
 ```

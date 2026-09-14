@@ -23,6 +23,7 @@ supabase/.temp/
 supabase/.branches/
 supabase/snippets/
 backups/
+.patch-backups/
 exports/
 *.log
 *.zip

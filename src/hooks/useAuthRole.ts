@@ -21,19 +21,29 @@ export function useAuthRole() {
   const [accountEmail, setAccountEmail] = useState('')
 
   const checkAdmin = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .in('role', [...adminRoleNames])
-      .limit(1)
+    const [legacyResult, scopedResult] = await Promise.all([
+      supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .in('role', [...adminRoleNames])
+        .limit(1),
+      (supabase as any)
+        .from('organization_role_assignments')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'super_admin')
+        .eq('is_active', true)
+        .limit(1),
+    ])
 
+    const error = legacyResult.error ?? scopedResult.error
     if (error) {
       console.error('Admin role check failed:', error.message)
       return false
     }
 
-    return Boolean(data?.length)
+    return Boolean(legacyResult.data?.length || scopedResult.data?.length)
   }, [])
 
   const checkVolunteerWorkbench = useCallback(async () => {

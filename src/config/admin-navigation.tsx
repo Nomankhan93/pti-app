@@ -24,6 +24,7 @@ export type AdminNavigationRoute =
   | '/admin/organization'
   | '/admin/roles'
   | '/admin/audit'
+  | '/admin/production'
   | '/operations/volunteers'
   | '/operations/workbench'
   | '/operations/attendance'
@@ -118,6 +119,12 @@ export const adminNavigationGroups: AdminNavigationGroup[] = [
         description: 'Review organization and access-control activity',
         to: '/admin/audit',
         icon: <Activity size={17} />,
+      },
+      {
+        label: 'Production Readiness',
+        description: 'Security posture, monitoring, audited exports and release gates',
+        to: '/admin/production',
+        icon: <ShieldCheck size={17} />,
       },
     ],
   },

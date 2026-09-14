@@ -26,6 +26,7 @@ import { Route as OperationsVolunteersRouteImport } from './routes/operations/vo
 import { Route as OperationsAttendanceRouteImport } from './routes/operations/attendance'
 import { Route as FinanceWorkbenchRouteImport } from './routes/finance/workbench'
 import { Route as AdminRolesRouteImport } from './routes/admin/roles'
+import { Route as AdminProductionRouteImport } from './routes/admin/production'
 import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as FinanceReceiptReceiptNoRouteImport } from './routes/finance/receipt/$receiptNo'
@@ -118,6 +119,11 @@ const AdminRolesRoute = AdminRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminProductionRoute = AdminProductionRouteImport.update({
+  id: '/production',
+  path: '/production',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
   id: '/organization',
   path: '/organization',
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/volunteer': typeof VolunteerRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/production': typeof AdminProductionRoute
   '/admin/roles': typeof AdminRolesRoute
   '/finance/workbench': typeof FinanceWorkbenchRoute
   '/operations/attendance': typeof OperationsAttendanceRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/volunteer': typeof VolunteerRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/production': typeof AdminProductionRoute
   '/admin/roles': typeof AdminRolesRoute
   '/finance/workbench': typeof FinanceWorkbenchRoute
   '/operations/attendance': typeof OperationsAttendanceRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/volunteer': typeof VolunteerRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/production': typeof AdminProductionRoute
   '/admin/roles': typeof AdminRolesRoute
   '/finance/workbench': typeof FinanceWorkbenchRoute
   '/operations/attendance': typeof OperationsAttendanceRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/volunteer'
     | '/admin/audit'
     | '/admin/organization'
+    | '/admin/production'
     | '/admin/roles'
     | '/finance/workbench'
     | '/operations/attendance'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/volunteer'
     | '/admin/audit'
     | '/admin/organization'
+    | '/admin/production'
     | '/admin/roles'
     | '/finance/workbench'
     | '/operations/attendance'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/volunteer'
     | '/admin/audit'
     | '/admin/organization'
+    | '/admin/production'
     | '/admin/roles'
     | '/finance/workbench'
     | '/operations/attendance'
@@ -445,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRolesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/production': {
+      id: '/admin/production'
+      path: '/production'
+      fullPath: '/admin/production'
+      preLoaderRoute: typeof AdminProductionRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/organization': {
       id: '/admin/organization'
       path: '/organization'
@@ -505,6 +524,7 @@ const AdminMembersIdRouteWithChildren = AdminMembersIdRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
   AdminOrganizationRoute: typeof AdminOrganizationRoute
+  AdminProductionRoute: typeof AdminProductionRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminMembersIdRoute: typeof AdminMembersIdRouteWithChildren
 }
@@ -512,6 +532,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
   AdminOrganizationRoute: AdminOrganizationRoute,
+  AdminProductionRoute: AdminProductionRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminMembersIdRoute: AdminMembersIdRouteWithChildren,
 }

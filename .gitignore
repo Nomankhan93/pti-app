@@ -27,6 +27,7 @@ supabase/snippets/
 
 # Local backups/exports/logs
 backups/
+.patch-backups/
 exports/
 *.log
 *.zip
