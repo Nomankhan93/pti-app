@@ -23,6 +23,7 @@ type Member = {
   id: string
   user_id: string
   member_no: string | null
+  public_verify_token: string
   full_name: string
   father_name: string
   cnic: string
@@ -66,9 +67,9 @@ function DashboardPage() {
   }, [])
 
   const verifyUrl = useMemo(() => {
-    if (!member?.member_no || typeof window === 'undefined') return ''
-    return `${window.location.origin}/verify/${encodeURIComponent(member.member_no)}`
-  }, [member?.member_no])
+    if (!member?.public_verify_token || typeof window === 'undefined') return ''
+    return `${window.location.origin}/verify/${encodeURIComponent(member.public_verify_token)}`
+  }, [member?.public_verify_token])
 
   async function loadDashboard() {
     setLoading((previous) => previous && !member)
@@ -278,7 +279,7 @@ function DashboardPage() {
                   {member.is_active && member.member_no ? (
                     <Link
                       to="/verify/$memberNo"
-                      params={{ memberNo: member.member_no }}
+                      params={{ memberNo: member.public_verify_token }}
                       className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-800 no-underline hover:bg-emerald-100"
                     >
                       <ShieldCheck className="h-4 w-4" />
@@ -343,7 +344,7 @@ function formatDate(value: string | null | undefined, language: string) {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
-  const locale = language === 'ur' ? 'ur-PK' : language === 'sd' ? 'sd-PK' : 'en-PK'
+  const locale = language === 'ur' ? 'ur-PK' : 'en-PK'
   return date.toLocaleDateString(locale)
 }
 
@@ -359,19 +360,16 @@ function maskMobile(value: string) {
 
 function activeLabel(language: string) {
   if (language === 'ur') return 'ممبرشپ فعال'
-  if (language === 'sd') return 'ميمبرشپ فعال'
   return 'Membership Active'
 }
 
 function inactiveLabel(language: string) {
   if (language === 'ur') return 'ممبرشپ غیر فعال'
-  if (language === 'sd') return 'ميمبرشپ غير فعال'
   return 'Membership Inactive'
 }
 
 function issueDateLabel(language: string) {
   if (language === 'ur') return 'اجراء کی تاریخ'
-  if (language === 'sd') return 'جاري ٿيڻ جي تاريخ'
   return 'Issue Date'
 }
 
@@ -380,11 +378,6 @@ function membershipMessage(isActive: boolean, language: string) {
     return isActive
       ? 'آپ کی PTI ممبرشپ رجسٹریشن کے ساتھ خودکار طور پر جاری اور فعال ہو گئی ہے۔'
       : 'آپ کی PTI ممبرشپ فی الحال غیر فعال ہے۔'
-  }
-  if (language === 'sd') {
-    return isActive
-      ? 'توهان جي PTI ميمبرشپ رجسٽريشن سان پاڻمرادو جاري ۽ فعال ٿي وئي آهي.'
-      : 'توهان جي PTI ميمبرشپ هن وقت غير فعال آهي.'
   }
   return isActive
     ? 'Your PTI membership was issued automatically at registration. No payment or admin approval is required.'

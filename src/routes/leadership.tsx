@@ -71,7 +71,7 @@ function LeadershipMonitoringPage() {
       return
     }
 
-    const { data, error: rpcError } = await (supabase as any).rpc('get_leadership_dashboard', {
+    const { data, error: rpcError } = await supabase.rpc('get_leadership_dashboard', {
       p_org_unit_id: targetScopeId,
       p_from: bounds.from,
       p_to: bounds.to,
@@ -110,8 +110,8 @@ function LeadershipMonitoringPage() {
       }
 
       const [{ data: accessRows, error: accessError }, { data: scopeRows, error: scopeError }] = await Promise.all([
-        (supabase as any).rpc('my_leadership_access'),
-        (supabase as any).rpc('list_leadership_scopes'),
+        supabase.rpc('my_leadership_access'),
+        supabase.rpc('list_leadership_scopes'),
       ])
 
       if (!active) return

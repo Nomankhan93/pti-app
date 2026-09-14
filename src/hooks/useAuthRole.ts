@@ -28,7 +28,7 @@ export function useAuthRole() {
         .eq('user_id', userId)
         .in('role', [...adminRoleNames])
         .limit(1),
-      (supabase as any)
+      supabase
         .from('organization_role_assignments')
         .select('role')
         .eq('user_id', userId)
@@ -65,19 +65,19 @@ export function useAuthRole() {
   }, [])
 
   const checkLeadership = useCallback(async () => {
-    const { data, error } = await (supabase as any).rpc('my_leadership_access')
+    const { data, error } = await supabase.rpc('my_leadership_access')
     if (error) return false
     return Boolean(data?.[0]?.can_view)
   }, [])
 
   const checkCommandCenter = useCallback(async () => {
-    const { data, error } = await (supabase as any).rpc('my_command_center_access')
+    const { data, error } = await supabase.rpc('my_command_center_access')
     if (error) return false
     return Boolean(data?.[0]?.can_view)
   }, [])
 
   const checkNotificationCount = useCallback(async () => {
-    const { data, error } = await (supabase as any).rpc('my_notification_unread_count')
+    const { data, error } = await supabase.rpc('my_notification_unread_count')
     if (error) return 0
     return Number(data ?? 0) || 0
   }, [])

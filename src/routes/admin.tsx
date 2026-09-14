@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from '@tan
 import { Download, IdCard, RefreshCw, Search, ShieldCheck, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { AdminShell } from '../components/admin/AdminShell'
+import { hasMembershipAdminAccess } from '../lib/admin/access'
 import { useI18n } from '../lib/i18n'
 import { csvCell, maskCnic, maskMobile } from '../lib/shared/formatters'
 import { supabase } from '../lib/supabase/client'
@@ -80,15 +81,7 @@ function AdminPage() {
       return false
     }
 
-    const { data: role, error: roleError } = await supabase
-      .from('user_roles')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle()
-
-    if (roleError) throw roleError
-    if (!role) {
+    if (!(await hasMembershipAdminAccess(user.id))) {
       navigate({ to: '/dashboard' })
       return false
     }
@@ -182,15 +175,25 @@ function AdminPage() {
     return count ?? 0
   }
 
-  async function exportCsv() {
+  async function exportCsv(includeSensitive = false) {
     setExporting(true)
     setError('')
     try {
       if (!(await requireAdmin())) return
-      const { data, error: exportError } = await supabase
-        .from('members')
-        .select('member_no, full_name, cnic, mobile, district, taluka, designation, designation_level, designation_area, is_active, issued_at, created_at')
-        .order('created_at', { ascending: false })
+
+      let reason: string | null = null
+      if (includeSensitive) {
+        reason = window.prompt('Reason for exporting full CNIC/mobile data (minimum 10 characters):')?.trim() || null
+        if (!reason || reason.length < 10) {
+          throw new Error('Sensitive export cancelled. A reason of at least 10 characters is required.')
+        }
+      }
+
+      const { data, error: exportError } = await supabase.rpc('production_export_members', {
+        p_include_sensitive: includeSensitive,
+        p_reason: reason,
+        p_limit: 10000,
+      })
       if (exportError) throw exportError
 
       const rows = data ?? []
@@ -217,7 +220,7 @@ function AdminPage() {
       const url = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = url
-      anchor.download = `pti-members-${new Date().toISOString().slice(0, 10)}.csv`
+      anchor.download = `pti-members-${includeSensitive ? 'sensitive' : 'masked'}-${new Date().toISOString().slice(0, 10)}.csv`
       anchor.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -273,8 +276,11 @@ function AdminPage() {
               <button type="button" onClick={() => void loadAdmin()} disabled={refreshing} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-60">
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} /> Refresh
               </button>
-              <button type="button" onClick={() => void exportCsv()} disabled={exporting} className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white disabled:opacity-60">
-                <Download className="h-4 w-4" /> {exporting ? 'Exporting...' : 'Export CSV'}
+              <button type="button" onClick={() => void exportCsv(false)} disabled={exporting} className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white disabled:opacity-60">
+                <Download className="h-4 w-4" /> {exporting ? 'Exporting...' : 'Export masked CSV'}
+              </button>
+              <button type="button" onClick={() => void exportCsv(true)} disabled={exporting} className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-black text-red-800 disabled:opacity-60">
+                <Download className="h-4 w-4" /> Full PII export
               </button>
             </div>
           </div>
@@ -353,6 +359,6 @@ function formatDate(value: string | null | undefined, language: string) {
   if (!value) return '—'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  const locale = language === 'ur' ? 'ur-PK' : language === 'sd' ? 'sd-PK' : 'en-PK'
+  const locale = language === 'ur' ? 'ur-PK' : 'en-PK'
   return date.toLocaleDateString(locale)
 }

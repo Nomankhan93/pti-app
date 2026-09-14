@@ -1,5 +1,4 @@
 export type VerifyMemberRow = {
-  id: string
   member_no: string | null
   full_name: string
   district: string
@@ -9,9 +8,11 @@ export type VerifyMemberRow = {
   designation_area: string | null
   is_active: boolean
   issued_at: string
+  user_id: string
+  photo_url: string | null
 }
 
-export type PublicVerifyMember = VerifyMemberRow
+export type PublicVerifyMember = Omit<VerifyMemberRow, 'user_id' | 'photo_url'>
 
 export type PublicVerifyPayload = {
   found: boolean
@@ -19,12 +20,11 @@ export type PublicVerifyPayload = {
   member: PublicVerifyMember | null
 }
 
-const NOT_DISCLOSED = 'Not disclosed'
-
 export function buildPublicVerifyPayload(
   member: VerifyMemberRow | null,
 ): PublicVerifyPayload {
-  if (!member) {
+  // Deliberately make inactive and unknown references indistinguishable.
+  if (!member?.is_active) {
     return {
       found: false,
       verified: false,
@@ -32,29 +32,16 @@ export function buildPublicVerifyPayload(
     }
   }
 
-  if (!member.is_active) {
-    return {
-      found: true,
-      verified: false,
-      member: {
-        ...member,
-        full_name: NOT_DISCLOSED,
-        district: NOT_DISCLOSED,
-        taluka: null,
-        designation: null,
-        designation_level: null,
-        designation_area: null,
-      },
-    }
-  }
+  const { user_id: _userId, photo_url: _photoUrl, ...publicMember } = member
 
   return {
     found: true,
     verified: true,
-    member,
+    member: publicMember,
   }
 }
 
 export function canExposeMemberPhoto(member: VerifyMemberRow | null) {
-  return Boolean(member?.is_active)
+  if (!member?.is_active || !member.photo_url || !member.user_id) return false
+  return member.photo_url.startsWith(`${member.user_id}/`)
 }

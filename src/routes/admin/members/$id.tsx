@@ -6,9 +6,11 @@ import {
   designationTitleOptions,
   getDefaultDesignationArea,
 } from '../../../lib/designation-assignment'
+import { hasMembershipAdminAccess } from '../../../lib/admin/access'
 import { setMemberActiveAction } from '../../../lib/admin/actions'
 import { useI18n } from '../../../lib/i18n'
 import { supabase } from '../../../lib/supabase/client'
+import { geographyPath, type GeographyRow } from '../../../lib/volunteers'
 
 export const Route = createFileRoute('/admin/members/$id')({
   component: AdminMemberDetailPage,
@@ -24,6 +26,7 @@ type Member = {
   mobile: string
   district: string
   taluka: string | null
+  geography_id: string | null
   address: string | null
   date_of_birth: string | null
   gender: string | null
@@ -47,8 +50,7 @@ type ProfileForm = {
   father_name: string
   cnic: string
   mobile: string
-  district: string
-  taluka: string
+  geography_id: string
   address: string
   profession: string
   caste_branch: string
@@ -65,8 +67,7 @@ const emptyProfile: ProfileForm = {
   father_name: '',
   cnic: '',
   mobile: '',
-  district: '',
-  taluka: '',
+  geography_id: '',
   address: '',
   profession: '',
   caste_branch: '',
@@ -85,6 +86,7 @@ function AdminMemberDetailPage() {
 
   const [member, setMember] = useState<Member | null>(null)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [geographies, setGeographies] = useState<GeographyRow[]>([])
   const [loading, setLoading] = useState(true)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingDesignation, setSavingDesignation] = useState(false)
@@ -112,30 +114,24 @@ function AdminMemberDetailPage() {
       return
     }
 
-    const { data: role } = await supabase
-      .from('user_roles')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle()
-
-    if (!role) {
+    if (!(await hasMembershipAdminAccess(user.id))) {
       navigate({ to: '/dashboard' })
       return
     }
 
-    const { data, error: memberError } = await supabase
-      .from('members')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const [{ data, error: memberError }, { data: geographyData, error: geographyError }] = await Promise.all([
+      supabase.from('members').select('*').eq('id', id).single(),
+      supabase.from('geographies').select('*').eq('is_active', true).order('name'),
+    ])
 
-    if (memberError) {
-      setError(memberError.message)
+    if (memberError || geographyError) {
+      setError(memberError?.message || geographyError?.message || 'Unable to load member data.')
       setLoading(false)
       return
     }
 
+    const activeGeographies = (geographyData ?? []) as GeographyRow[]
+    setGeographies(activeGeographies)
     const nextMember = data as Member
     setMember(nextMember)
     setProfileForm(memberToProfileForm(nextMember))
@@ -205,8 +201,7 @@ function AdminMemberDetailPage() {
         father_name: profileForm.father_name.trim(),
         cnic: profileForm.cnic.trim(),
         mobile: profileForm.mobile.trim(),
-        district: profileForm.district.trim(),
-        taluka: optionalText(profileForm.taluka),
+        geography_id: profileForm.geography_id || null,
         address: optionalText(profileForm.address),
         profession: optionalText(profileForm.profession),
         caste_branch: optionalText(profileForm.caste_branch),
@@ -340,8 +335,24 @@ function AdminMemberDetailPage() {
                 <Field label="Father Name" value={profileForm.father_name} onChange={(value) => setProfileForm((current) => ({ ...current, father_name: value }))} required />
                 <Field label="CNIC" value={profileForm.cnic} onChange={(value) => setProfileForm((current) => ({ ...current, cnic: value }))} required />
                 <Field label="Mobile" value={profileForm.mobile} onChange={(value) => setProfileForm((current) => ({ ...current, mobile: value }))} required />
-                <Field label="District" value={profileForm.district} onChange={(value) => setProfileForm((current) => ({ ...current, district: value }))} required />
-                <Field label="Taluka" value={profileForm.taluka} onChange={(value) => setProfileForm((current) => ({ ...current, taluka: value }))} />
+                <label className="md:col-span-2">
+                  <span className="mb-1 block text-sm font-black text-slate-700">Canonical Geography / Tehsil</span>
+                  <select
+                    className="input"
+                    value={profileForm.geography_id}
+                    onChange={(event) => setProfileForm((current) => ({ ...current, geography_id: event.target.value }))}
+                    required
+                  >
+                    <option value="">Select tehsil / taluka</option>
+                    {geographies
+                      .filter((row) => row.kind === 'tehsil' && row.is_active)
+                      .sort((a, b) => geographyPath(geographies, a.id).localeCompare(geographyPath(geographies, b.id)))
+                      .map((row) => (
+                        <option key={row.id} value={row.id}>{geographyPath(geographies, row.id)}</option>
+                      ))}
+                  </select>
+                  <p className="mt-1 text-xs font-semibold text-slate-500">District and taluka are synchronized from the canonical Pakistan geography reference.</p>
+                </label>
                 <Field label="Profession" value={profileForm.profession} onChange={(value) => setProfileForm((current) => ({ ...current, profession: value }))} />
                 <Field label="Caste Branch" value={profileForm.caste_branch} onChange={(value) => setProfileForm((current) => ({ ...current, caste_branch: value }))} />
                 <label className="md:col-span-2">
@@ -413,8 +424,7 @@ function memberToProfileForm(member: Member): ProfileForm {
     father_name: member.father_name,
     cnic: member.cnic,
     mobile: member.mobile,
-    district: member.district,
-    taluka: member.taluka ?? '',
+    geography_id: member.geography_id ?? '',
     address: member.address ?? '',
     profession: member.profession ?? '',
     caste_branch: member.caste_branch ?? '',
@@ -457,6 +467,6 @@ function formatDateTime(value: string | null | undefined, language: string) {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  const locale = language === 'ur' ? 'ur-PK' : language === 'sd' ? 'sd-PK' : 'en-PK'
+  const locale = language === 'ur' ? 'ur-PK' : 'en-PK'
   return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }

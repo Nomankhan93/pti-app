@@ -67,7 +67,7 @@ function CardPage() {
     const { data, error } = await supabase
       .from('members')
       .select(
-        'id, member_no, full_name, father_name, cnic, mobile, district, taluka, address, date_of_birth, gender, education, blood_group, profession, designation, designation_level, designation_area, caste_branch, emergency_contact_name, emergency_contact_relation, emergency_contact_mobile, photo_url, is_active, issued_at',
+        'id, member_no, public_verify_token, full_name, father_name, cnic, mobile, district, taluka, address, date_of_birth, gender, education, blood_group, profession, designation, designation_level, designation_area, caste_branch, emergency_contact_name, emergency_contact_relation, emergency_contact_mobile, photo_url, is_active, issued_at',
       )
       .eq('user_id', user.id)
       .maybeSingle()
@@ -86,13 +86,13 @@ function CardPage() {
 
     setMember(data)
 
-    if (!data.is_active || !data.member_no) {
+    if (!data.is_active || !data.member_no || !data.public_verify_token) {
       setError('Digital card is available only for active memberships.')
       setLoading(false)
       return
     }
 
-    const publicVerifyUrl = createPublicVerifyUrl(data.member_no)
+    const publicVerifyUrl = createPublicVerifyUrl(data.public_verify_token)
     setVerifyUrl(publicVerifyUrl)
 
     const generatedQr = await createQrDataUrl(publicVerifyUrl)
@@ -255,7 +255,7 @@ function CardPage() {
 
               <Link
                 to="/verify/$memberNo"
-                params={{ memberNo: member.member_no }}
+                params={{ memberNo: member.public_verify_token }}
                 className="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-medium text-slate-700 no-underline hover:bg-slate-50"
               >
                 {t('common.openVerificationPage')}
@@ -272,9 +272,9 @@ function CardPage() {
   )
 }
 
-function createPublicVerifyUrl(memberNo: string) {
-  const encodedMemberNo = encodeURIComponent(memberNo)
-  return `${window.location.origin}/verify/${encodedMemberNo}`
+function createPublicVerifyUrl(verificationToken: string) {
+  const encodedToken = encodeURIComponent(verificationToken)
+  return `${window.location.origin}/verify/${encodedToken}`
 }
 
 async function createQrDataUrl(value: string) {

@@ -15,19 +15,29 @@ async function requireAdmin(accessToken: string) {
     throw new Error('Invalid session.')
   }
 
-  const { data: role, error: roleError } = await supabaseAdmin
-    .from('user_roles')
-    .select('id')
-    .eq('user_id', userData.user.id)
-    .eq('role', 'admin')
-    .maybeSingle()
+  const [{ data: legacyRole, error: legacyRoleError }, { data: superAdminRole, error: superAdminRoleError }] = await Promise.all([
+    supabaseAdmin
+      .from('user_roles')
+      .select('id')
+      .eq('user_id', userData.user.id)
+      .eq('role', 'admin')
+      .maybeSingle(),
+    supabaseAdmin
+      .from('organization_role_assignments')
+      .select('id')
+      .eq('user_id', userData.user.id)
+      .eq('role', 'super_admin')
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle(),
+  ])
 
-  if (roleError) {
-    throw new Error(roleError.message)
+  if (legacyRoleError && superAdminRoleError) {
+    throw new Error(legacyRoleError.message || superAdminRoleError.message)
   }
 
-  if (!role) {
-    throw new Error('Admin access required.')
+  if (!legacyRole && !superAdminRole) {
+    throw new Error('Membership admin access required.')
   }
 
   return {

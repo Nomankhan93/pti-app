@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pti-pwa-v1'
-const APP_SHELL = ['/', '/offline.html', '/site.webmanifest', '/icon-192x192.png', '/icon-512x512.png']
+const CACHE_NAME = 'pti-pwa-v2-rc1'
+const APP_SHELL = ['/', '/offline.html', '/manifest.json', '/icon-192x192.png', '/icon-512x512.png']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -50,4 +50,30 @@ self.addEventListener('fetch', (event) => {
         .catch(() => cached)
     }),
   )
+})
+
+
+self.addEventListener('push', (event) => {
+  if (!event.data) return
+  let payload = {}
+  try { payload = event.data.json() } catch { payload = { body: event.data.text() } }
+  const title = payload.title || 'PTI Update'
+  const options = {
+    body: payload.body || 'You have a new PTI notification.',
+    icon: '/icon-192x192.png',
+    badge: '/favicon-96x96.png',
+    data: { url: payload.url || '/notifications' },
+  }
+  event.waitUntil(self.registration.showNotification(title, options))
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const target = event.notification.data?.url || '/notifications'
+  event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+    for (const client of windows) {
+      if ('focus' in client) { client.navigate(target); return client.focus() }
+    }
+    return clients.openWindow(target)
+  }))
 })

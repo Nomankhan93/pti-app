@@ -56,7 +56,7 @@ function ProductionReadinessPage() {
   async function loadPage() {
     setLoading(true)
     setError('')
-    const accessResult = await (supabase as any).rpc('my_production_readiness_access')
+    const accessResult = await supabase.rpc('my_production_readiness_access')
     if (accessResult.error) {
       setError(accessResult.error.message)
       setLoading(false)
@@ -71,8 +71,8 @@ function ProductionReadinessPage() {
     }
 
     const [healthResult, exportResult, unitResult] = await Promise.all([
-      (supabase as any).rpc('production_health_summary'),
-      (supabase as any).rpc('list_production_exports', { p_limit: 50 }),
+      supabase.rpc('production_health_summary'),
+      supabase.rpc('list_production_exports', { p_limit: 50 }),
       supabase.from('organization_units').select('id,name,level').eq('is_active', true).order('name'),
     ])
     const firstError = healthResult.error ?? exportResult.error ?? unitResult.error
@@ -92,7 +92,7 @@ function ProductionReadinessPage() {
     setExporting(kind)
     setError('')
     const fn = kind === 'audit' ? 'production_export_audit_events' : 'production_export_finance_ledger'
-    const { data, error: rpcError } = await (supabase as any).rpc(fn, {
+    const { data, error: rpcError } = await supabase.rpc(fn, {
       p_org_unit_id: scope || null,
       p_from: toBound(from),
       p_to: toBound(to, true),

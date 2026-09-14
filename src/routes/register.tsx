@@ -264,7 +264,7 @@ function RegisterPage() {
     const activeGeographies = (geographyData ?? []) as GeographyRow[]
     setGeographies(activeGeographies)
 
-    const { data: rawData, error: memberError } = await (supabase as any)
+    const { data: rawData, error: memberError } = await supabase
       .from('members')
       .select(
         [
@@ -520,7 +520,7 @@ function RegisterPage() {
     try {
       const savedAt = new Date().toISOString()
 
-      localStorage.setItem(
+      sessionStorage.setItem(
         draftKey(userId),
         JSON.stringify({
           version: REGISTER_DRAFT_VERSION,
@@ -540,7 +540,7 @@ function RegisterPage() {
   function clearDraft() {
     if (!userId) return
 
-    localStorage.removeItem(draftKey(userId))
+    sessionStorage.removeItem(draftKey(userId))
     setDraftSavedAt('')
     setSuccess(t('register.draftCleared'))
     setError('')
@@ -624,7 +624,7 @@ function RegisterPage() {
     }
 
     if (existingMember) {
-      const { error: updateError } = await (supabase as any)
+      const { error: updateError } = await supabase
         .from('members')
         .update(payload)
         .eq('id', existingMember.id)
@@ -635,7 +635,7 @@ function RegisterPage() {
         return
       }
     } else {
-      const { error: insertError } = await (supabase as any)
+      const { error: insertError } = await supabase
         .from('members')
         .insert({
           user_id: userId,
@@ -650,7 +650,7 @@ function RegisterPage() {
     }
 
 
-    localStorage.removeItem(draftKey(userId))
+    sessionStorage.removeItem(draftKey(userId))
     setDraftSavedAt('')
     setSubmitting(false)
 
@@ -1520,7 +1520,7 @@ function draftKey(userId: string) {
 
 function readDraft(userId: string) {
   try {
-    const raw = localStorage.getItem(draftKey(userId))
+    const raw = sessionStorage.getItem(draftKey(userId))
     if (!raw) return null
 
     const parsed = JSON.parse(raw) as {

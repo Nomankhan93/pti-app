@@ -601,6 +601,8 @@ export type Database = {
           created_at: string
           date_of_birth: string | null
           declaration_accepted: boolean
+          declaration_accepted_at: string | null
+          declaration_version: string | null
           designation: string | null
           designation_area: string | null
           designation_level: string | null
@@ -620,6 +622,7 @@ export type Database = {
           mobile: string
           org_unit_id: string | null
           photo_url: string
+          public_verify_token: string
           profession: string | null
           taluka: string | null
           updated_at: string
@@ -633,6 +636,8 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           declaration_accepted?: boolean
+          declaration_accepted_at?: string | null
+          declaration_version?: string | null
           designation?: string | null
           designation_area?: string | null
           designation_level?: string | null
@@ -652,6 +657,7 @@ export type Database = {
           mobile: string
           org_unit_id?: string | null
           photo_url: string
+          public_verify_token?: string
           profession?: string | null
           taluka?: string | null
           updated_at?: string
@@ -665,6 +671,8 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           declaration_accepted?: boolean
+          declaration_accepted_at?: string | null
+          declaration_version?: string | null
           designation?: string | null
           designation_area?: string | null
           designation_level?: string | null
@@ -684,6 +692,7 @@ export type Database = {
           mobile?: string
           org_unit_id?: string | null
           photo_url?: string
+          public_verify_token?: string
           profession?: string | null
           taluka?: string | null
           updated_at?: string
@@ -1218,6 +1227,102 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_public_verification_budget: {
+        Args: { p_reference: string }
+        Returns: undefined
+      }
+      production_export_members: {
+        Args: {
+          p_include_sensitive?: boolean
+          p_limit?: number
+          p_reason?: string | null
+        }
+        Returns: {
+          member_no: string | null
+          full_name: string
+          cnic: string
+          mobile: string
+          district: string
+          taluka: string | null
+          designation: string | null
+          designation_level: string | null
+          designation_area: string | null
+          is_active: boolean
+          issued_at: string
+          created_at: string
+        }[]
+      }
+      my_production_readiness_access: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          can_view: boolean
+          can_run_checks: boolean
+          can_export_audit: boolean
+          can_export_finance: boolean
+        }[]
+      }
+      production_health_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      list_production_exports: {
+        Args: { p_limit?: number }
+        Returns: {
+          id: number
+          export_kind: string
+          actor_id: string
+          actor_email: string | null
+          org_unit_id: string | null
+          org_unit_name: string | null
+          row_count: number
+          filters: Json
+          created_at: string
+        }[]
+      }
+      production_export_audit_events: {
+        Args: {
+          p_org_unit_id?: string | null
+          p_from?: string | null
+          p_to?: string | null
+          p_limit?: number
+        }
+        Returns: {
+          event_id: number
+          actor_id: string | null
+          action: string
+          entity_type: string
+          entity_id: string | null
+          org_unit_id: string | null
+          org_unit_name: string | null
+          detail: Json
+          created_at: string
+        }[]
+      }
+      production_export_finance_ledger: {
+        Args: {
+          p_org_unit_id?: string | null
+          p_from?: string | null
+          p_to?: string | null
+          p_limit?: number
+        }
+        Returns: {
+          donation_no: string
+          campaign_no: string
+          campaign_title: string
+          org_unit_id: string
+          org_unit_name: string
+          base_amount: number
+          adjustment_total: number
+          effective_amount: number
+          currency: string
+          payment_method: Database["public"]["Enums"]["finance_payment_method"]
+          received_at: string
+          verification_state: Database["public"]["Enums"]["donation_verification_state"]
+          reconciliation_state: Database["public"]["Enums"]["donation_reconciliation_state"]
+          latest_receipt_no: string | null
+          created_at: string
+        }[]
+      }
       archive_my_notification: {
         Args: { p_delivery_id: number }
         Returns: undefined

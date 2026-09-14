@@ -6,7 +6,8 @@ command -v psql >/dev/null 2>&1 || { echo 'psql is required.' >&2; exit 2; }
 for sql in \
   supabase/qa/production-security-rls-audit.sql \
   supabase/qa/finance-ledger-integrity.sql \
-  supabase/qa/production-release-gate.sql; do
+  supabase/qa/production-release-gate.sql \
+  supabase/qa/final-gap-closure-release-candidate.sql; do
   echo "==> $sql"
   psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$sql"
 done

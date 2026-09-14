@@ -10,38 +10,49 @@ type VerifyMemberInput = {
   memberNo: string
 }
 
+const VERIFY_TOKEN_RE = /^[a-f0-9]{64}$/i
+
 export const verifyMemberAction = createServerFn({ method: 'POST' })
   .validator((data: VerifyMemberInput) => {
-    if (!data.memberNo || data.memberNo.trim().length < 3) {
-      throw new Error('Member number is required.')
+    const reference = data.memberNo?.trim() ?? ''
+    if (!VERIFY_TOKEN_RE.test(reference)) {
+      throw new Error('Invalid verification reference.')
     }
 
-    return {
-      memberNo: data.memberNo.trim(),
-    }
+    return { memberNo: reference }
   })
   .handler(async ({ data }) => {
     const supabaseAdmin = createSupabaseAdminClient()
 
+    const { error: budgetError } = await supabaseAdmin.rpc(
+      'consume_public_verification_budget',
+      { p_reference: data.memberNo },
+    )
+
+    if (budgetError) {
+      throw new Error(budgetError.message)
+    }
+
     const { data: member, error } = await supabaseAdmin
       .from('members')
       .select(
-        'id, member_no, full_name, district, taluka, designation, designation_level, designation_area, photo_url, is_active, issued_at',
+        'member_no, full_name, district, taluka, designation, designation_level, designation_area, photo_url, user_id, is_active, issued_at',
       )
-      .eq('member_no', data.memberNo)
+      .eq('public_verify_token', data.memberNo)
       .maybeSingle()
 
     if (error) {
       throw new Error(error.message)
     }
 
-    const publicPayload = buildPublicVerifyPayload(member as VerifyMemberRow | null)
+    const row = member as VerifyMemberRow | null
+    const publicPayload = buildPublicVerifyPayload(row)
     let photoSignedUrl: string | null = null
 
-    if (canExposeMemberPhoto(member as VerifyMemberRow | null) && member?.photo_url) {
+    if (canExposeMemberPhoto(row) && row?.photo_url) {
       const { data: signed } = await supabaseAdmin.storage
         .from('member-photos')
-        .createSignedUrl(member.photo_url, 60 * 10)
+        .createSignedUrl(row.photo_url, 60 * 10)
 
       photoSignedUrl = signed?.signedUrl ?? null
     }

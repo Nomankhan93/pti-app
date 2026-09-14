@@ -10,7 +10,7 @@ python3 - <<'PY'
 from pathlib import Path
 import json,sys
 p=json.loads(Path('package.json').read_text())
-required=['check','test','build','security:audit:prod','test:e2e:release','db:backup','db:restore-drill','qa:release']
+required=['check','test','build','security:audit:prod','test:e2e:release','db:backup','db:restore-drill','qa:release','verify:release-candidate']
 missing=[x for x in required if x not in p.get('scripts',{})]
 if missing:
     print('Missing release scripts: '+', '.join(missing),file=sys.stderr);sys.exit(1)

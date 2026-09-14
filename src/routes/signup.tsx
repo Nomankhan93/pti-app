@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { PasswordInput } from '../components/auth/PasswordInput'
+import { PASSWORD_MIN_LENGTH, validatePasswordPolicy } from '../lib/auth/password-policy'
 import { useI18n, type TranslationKey } from '../lib/i18n'
 import { supabase } from '../lib/supabase/client'
 
@@ -8,38 +9,24 @@ export const Route = createFileRoute('/signup')({
   component: SignupPage,
 })
 
-type SignupMethod = 'email' | 'phone'
-
 function SignupPage() {
   const navigate = useNavigate()
   const { t, direction } = useI18n()
-  const [method, setMethod] = useState<SignupMethod>('email')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  function resetAlerts() {
-    setError('')
-    setMessage('')
-  }
-
-  function switchMethod(nextMethod: SignupMethod) {
-    setMethod(nextMethod)
-    resetAlerts()
-  }
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    resetAlerts()
+    setError('')
+    setMessage('')
 
     const name = fullName.trim()
     const normalizedEmail = email.trim().toLowerCase()
-    const normalizedPhone = normalizePakistanPhone(phone)
 
     if (!name) {
       setError(t('signup.error.fullNameRequired'))
@@ -51,18 +38,14 @@ function SignupPage() {
       return
     }
 
-    if (method === 'email' && !isValidEmail(normalizedEmail)) {
+    if (!isValidEmail(normalizedEmail)) {
       setError(t('signup.error.invalidEmail'))
       return
     }
 
-    if (method === 'phone' && !isValidPakistanMobile(normalizedPhone)) {
-      setError(t('signup.error.invalidPhone'))
-      return
-    }
-
-    if (password.length < 6) {
-      setError(t('signup.error.passwordShort'))
+    const policy = validatePasswordPolicy(password)
+    if (!policy.valid) {
+      setError(t('signup.auth.passwordInvalid'))
       return
     }
 
@@ -73,38 +56,22 @@ function SignupPage() {
 
     setLoading(true)
 
-    const { data, error: signupError } =
-      method === 'email'
-        ? await supabase.auth.signUp({
-            email: normalizedEmail,
-            password,
-            options: {
-              data: {
-                full_name: name,
-                login_method: 'email_password',
-              },
-            },
-          })
-        : await supabase.auth.signUp({
-            phone: normalizedPhone,
-            password,
-            options: {
-              data: {
-                full_name: name,
-                login_method: 'phone_password',
-              },
-            },
-          })
+    const { data, error: signupError } = await supabase.auth.signUp({
+      email: normalizedEmail,
+      password,
+      options: {
+        data: {
+          full_name: name,
+          login_method: 'email_password',
+        },
+      },
+    })
 
     setLoading(false)
 
     if (signupError) {
       setError(toFriendlySignupError(signupError.message, t))
       return
-    }
-
-    if (method === 'phone') {
-      setPhone(normalizedPhone)
     }
 
     if (data.session) {
@@ -131,33 +98,6 @@ function SignupPage() {
           </p>
         </div>
 
-        <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200/80 bg-slate-100/80 p-1 shadow-inner">
-          <button
-            type="button"
-            onClick={() => switchMethod('email')}
-            className={`rounded-xl px-3 py-3 text-sm font-black transition ${
-              method === 'email'
-                ? 'bg-white text-emerald-800 shadow-sm ring-1 ring-slate-200'
-                : 'text-slate-600 hover:text-slate-950'
-            }`}
-            aria-pressed={method === 'email'}
-          >
-            {t('authPage.common.emailMethod')}
-          </button>
-          <button
-            type="button"
-            onClick={() => switchMethod('phone')}
-            className={`rounded-xl px-3 py-3 text-sm font-black transition ${
-              method === 'phone'
-                ? 'bg-white text-emerald-800 shadow-sm ring-1 ring-slate-200'
-                : 'text-slate-600 hover:text-slate-950'
-            }`}
-            aria-pressed={method === 'phone'}
-          >
-            {t('authPage.common.mobileOtp')}
-          </button>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
@@ -173,41 +113,20 @@ function SignupPage() {
             />
           </div>
 
-          {method === 'email' ? (
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                {t('authPage.common.email')}
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required={method === 'email'}
-                className="pti-input"
-                placeholder={t('login.email.placeholder')}
-                autoComplete="email"
-              />
-            </div>
-          ) : (
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                {t('authPage.common.mobileNumber')}
-              </label>
-              <input
-                type="tel"
-                inputMode="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                required={method === 'phone'}
-                className="pti-input"
-                placeholder="03001234567"
-                autoComplete="tel"
-              />
-              <p className="mt-2 text-xs leading-5 text-slate-500">
-                {t('authPage.common.phoneHint')}
-              </p>
-            </div>
-          )}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">
+              {t('authPage.common.email')}
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              className="pti-input"
+              placeholder={t('login.email.placeholder')}
+              autoComplete="email"
+            />
+          </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
@@ -217,10 +136,13 @@ function SignupPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
-              minLength={6}
+              minLength={PASSWORD_MIN_LENGTH}
               placeholder={t('signup.password.placeholder')}
               autoComplete="new-password"
             />
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              {t('signup.password.policy')}
+            </p>
           </div>
 
           <div>
@@ -231,7 +153,7 @@ function SignupPage() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               required
-              minLength={6}
+              minLength={PASSWORD_MIN_LENGTH}
               placeholder={t('signup.confirmPassword.placeholder')}
               autoComplete="new-password"
             />
@@ -269,32 +191,6 @@ function SignupPage() {
   )
 }
 
-function normalizePakistanPhone(value: string) {
-  const digits = value.replace(/\D/g, '')
-
-  if (digits.startsWith('0092')) {
-    return `+${digits.slice(2)}`
-  }
-
-  if (digits.startsWith('92')) {
-    return `+${digits}`
-  }
-
-  if (digits.startsWith('0')) {
-    return `+92${digits.slice(1)}`
-  }
-
-  if (digits.startsWith('3')) {
-    return `+92${digits}`
-  }
-
-  return value.trim()
-}
-
-function isValidPakistanMobile(value: string) {
-  return /^\+923\d{9}$/.test(value)
-}
-
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
@@ -308,10 +204,6 @@ function toFriendlySignupError(message: string, t: (key: TranslationKey) => stri
 
   if (lower.includes('password')) {
     return t('signup.auth.passwordInvalid')
-  }
-
-  if (lower.includes('phone') || lower.includes('sms')) {
-    return t('signup.auth.phoneFailed')
   }
 
   if (lower.includes('email')) {

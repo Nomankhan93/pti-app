@@ -7,11 +7,14 @@ required=(
   package.json package-lock.json .gitignore .zipignore .nvmrc
   supabase/config.toml
   supabase/migrations/20260914050000_pti_production_hardening.sql
+  supabase/migrations/20260914060000_pti_final_gap_closure_release_candidate.sql
   supabase/qa/production-security-rls-audit.sql
   supabase/qa/finance-ledger-integrity.sql
   supabase/qa/production-release-gate.sql
+  supabase/qa/final-gap-closure-release-candidate.sql
   scripts/scan-secrets.sh scripts/safe-export.sh scripts/check-safe-archive.sh
   scripts/db-backup.sh scripts/db-restore-drill.sh scripts/e2e-release-smoke.mjs
+  scripts/verify-release-candidate.sh .env.example vercel.json
 )
 for f in "${required[@]}"; do
   [[ -f "$f" ]] || { echo "Missing required file: $f" >&2; exit 1; }
@@ -36,7 +39,7 @@ phase7=(root/'supabase/migrations/20260914040000_pti_notifications_command_cente
 if 'select distinct ou.id, ou.parent_id, ou.level, ou.name, ou.code' in phase7:
     print('Phase 7 DISTINCT/ORDER BY defect is still present',file=sys.stderr);sys.exit(1)
 pkg=json.loads((root/'package.json').read_text())
-for name in ['release:check','security:audit:prod','verify:production','scan:secrets','db:backup','db:restore-drill','test:e2e:release']:
+for name in ['release:check','security:audit:prod','verify:production','verify:release-candidate','scan:secrets','db:backup','db:restore-drill','test:e2e:release']:
     if name not in pkg.get('scripts',{}):
         print(f'Missing package script: {name}',file=sys.stderr);sys.exit(1)
 print(f'Migration chain: PASS ({len(migrations)} files, latest {migrations[-1].name})')

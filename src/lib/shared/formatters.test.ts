@@ -25,7 +25,11 @@ describe('sensitive data formatters', () => {
     expect(formatMobileInput('00923001234567')).toBe('+923001234567')
   })
 
-  it('escapes CSV cells', () => {
+  it('escapes CSV cells and neutralizes spreadsheet formulas', () => {
     expect(csvCell('Ali "Test", Khan')).toBe('"Ali ""Test"", Khan"')
+    expect(csvCell('=HYPERLINK("https://example.com")')).toBe(`"'=HYPERLINK(""https://example.com"")"`)
+    expect(csvCell('+123')).toBe(`"'+123"`)
+    expect(csvCell('-10')).toBe(`"'-10"`)
+    expect(csvCell('@SUM(A1:A2)')).toBe(`"'@SUM(A1:A2)"`)
   })
 })

@@ -32,6 +32,7 @@ import {
   type NotificationSeverity,
 } from '../lib/notifications'
 import { supabase } from '../lib/supabase/client'
+import type { Json } from '../lib/supabase/database.types'
 
 export const Route = createFileRoute('/command-center')({ component: CommandCenterPage })
 
@@ -100,7 +101,7 @@ function CommandCenterPage() {
       return
     }
 
-    const { data: accessRows, error: accessError } = await (supabase as any).rpc('my_command_center_access')
+    const { data: accessRows, error: accessError } = await supabase.rpc('my_command_center_access')
     if (accessError) {
       setError(accessError.message)
       setLoading(false)
@@ -114,7 +115,7 @@ function CommandCenterPage() {
       return
     }
 
-    const { data: scopeRows, error: scopeError } = await (supabase as any).rpc('list_notification_scopes')
+    const { data: scopeRows, error: scopeError } = await supabase.rpc('list_notification_scopes')
     if (scopeError) {
       setError(scopeError.message)
       setLoading(false)
@@ -130,7 +131,7 @@ function CommandCenterPage() {
   }
 
   async function loadOperations(scopeId: string) {
-    const { data, error: rpcError } = await (supabase as any).rpc('list_notification_operations', { p_org_unit_id: scopeId })
+    const { data, error: rpcError } = await supabase.rpc('list_notification_operations', { p_org_unit_id: scopeId })
     if (rpcError) setError(rpcError.message)
     else {
       const rows = (data ?? []) as NotificationOperation[]
@@ -144,7 +145,7 @@ function CommandCenterPage() {
 
   async function loadMessages(scopeId = form.scopeId) {
     if (!scopeId) return
-    const { data, error: rpcError } = await (supabase as any).rpc('list_command_center_messages', {
+    const { data, error: rpcError } = await supabase.rpc('list_command_center_messages', {
       p_org_unit_id: scopeId,
       p_limit: 50,
     })
@@ -168,11 +169,11 @@ function CommandCenterPage() {
     setError('')
     setSuccess('')
 
-    const targetSpec: Record<string, unknown> = {}
+    const targetSpec: { [key: string]: Json | undefined } = {}
     if (form.audience === 'organization_roles') targetSpec.organization_roles = form.organizationRoles
     if (form.audience === 'finance_roles') targetSpec.finance_roles = form.financeRoles
 
-    const { data, error: rpcError } = await (supabase as any).rpc('publish_notification', {
+    const { data, error: rpcError } = await supabase.rpc('publish_notification', {
       p_org_unit_id: form.scopeId,
       p_kind: form.kind,
       p_severity: form.severity,
@@ -203,7 +204,7 @@ function CommandCenterPage() {
     setSaving(true)
     setError('')
     setSuccess('')
-    const { error: rpcError } = await (supabase as any).rpc('cancel_notification', { p_message_id: messageId })
+    const { error: rpcError } = await supabase.rpc('cancel_notification', { p_message_id: messageId })
     if (rpcError) setError(rpcError.message)
     else {
       setSuccess('Notification cancelled. It will no longer appear in active recipient inboxes.')
@@ -216,7 +217,7 @@ function CommandCenterPage() {
     setSaving(true)
     setError('')
     setSuccess('')
-    const { data, error: rpcError } = await (supabase as any).rpc('generate_due_duty_reminders', {
+    const { data, error: rpcError } = await supabase.rpc('generate_due_duty_reminders', {
       p_horizon_hours: Number(reminderHours),
     })
     if (rpcError) setError(rpcError.message)

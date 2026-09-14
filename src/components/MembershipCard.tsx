@@ -18,6 +18,7 @@ const CARD_SIDE_STYLE: CSSProperties = {
 export type MembershipCardMember = {
   id: string
   member_no: string | null
+  public_verify_token: string
   full_name: string
   father_name: string
   cnic: string
@@ -538,19 +539,16 @@ function Info({
 
 function issueDateLabel(language: string) {
   if (language === 'ur') return 'اجراء کی تاریخ'
-  if (language === 'sd') return 'جاري ٿيڻ جي تاريخ'
   return 'Issue Date'
 }
 
 function activeStatusLabel(language: string) {
   if (language === 'ur') return 'فعال'
-  if (language === 'sd') return 'فعال'
   return 'Active'
 }
 
 function inactiveStatusLabel(language: string) {
   if (language === 'ur') return 'غیر فعال'
-  if (language === 'sd') return 'غير فعال'
   return 'Inactive'
 }
 
@@ -572,7 +570,7 @@ function formatDate(value: string | null | undefined, language: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
 
-  const locale = language === 'ur' ? 'ur-PK' : language === 'sd' ? 'sd-PK' : 'en-PK'
+  const locale = language === 'ur' ? 'ur-PK' : 'en-PK'
   return date.toLocaleDateString(locale)
 }
 

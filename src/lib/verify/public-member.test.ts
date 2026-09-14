@@ -6,7 +6,6 @@ import {
 } from './public-member'
 
 const activeMember: VerifyMemberRow = {
-  id: 'member-1',
   member_no: 'PTI-2026-0001',
   full_name: 'Test Member',
   district: 'Umerkot',
@@ -16,10 +15,12 @@ const activeMember: VerifyMemberRow = {
   designation_area: null,
   is_active: true,
   issued_at: '2026-09-13T00:00:00.000Z',
+  user_id: '11111111-1111-1111-1111-111111111111',
+  photo_url: '11111111-1111-1111-1111-111111111111/photo.jpg',
 }
 
 describe('public member verification', () => {
-  it('returns not found for missing member', () => {
+  it('returns generic not found for missing member', () => {
     expect(buildPublicVerifyPayload(null)).toEqual({
       found: false,
       verified: false,
@@ -27,33 +28,26 @@ describe('public member verification', () => {
     })
   })
 
-  it('does not expose inactive member identity', () => {
+  it('does not reveal whether an inactive member exists', () => {
     expect(buildPublicVerifyPayload({ ...activeMember, is_active: false })).toEqual({
-      found: true,
+      found: false,
       verified: false,
-      member: {
-        ...activeMember,
-        is_active: false,
-        full_name: 'Not disclosed',
-        district: 'Not disclosed',
-        taluka: null,
-        designation: null,
-        designation_level: null,
-        designation_area: null,
-      },
+      member: null,
     })
   })
 
-  it('exposes active self-issued membership', () => {
-    expect(buildPublicVerifyPayload(activeMember)).toEqual({
-      found: true,
-      verified: true,
-      member: activeMember,
-    })
+  it('exposes only the approved public active-member payload', () => {
+    const payload = buildPublicVerifyPayload(activeMember)
+    expect(payload.found).toBe(true)
+    expect(payload.verified).toBe(true)
+    expect(payload.member).toMatchObject({ member_no: 'PTI-2026-0001', full_name: 'Test Member' })
+    expect(payload.member).not.toHaveProperty('user_id')
+    expect(payload.member).not.toHaveProperty('photo_url')
   })
 
-  it('allows photos only for active memberships', () => {
+  it('exposes photos only when the object belongs to the member folder', () => {
     expect(canExposeMemberPhoto({ ...activeMember, is_active: false })).toBe(false)
     expect(canExposeMemberPhoto(activeMember)).toBe(true)
+    expect(canExposeMemberPhoto({ ...activeMember, photo_url: 'another-user/photo.jpg' })).toBe(false)
   })
 })

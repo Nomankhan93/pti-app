@@ -41,13 +41,25 @@ Central → Province / Territory → Division → District → Tehsil / Taluka
 
 ## Environment Variables
 
-Create `.env.local` locally and keep it out of Git/ZIP exports.
+Copy `.env.example` to `.env.local`, replace placeholders locally, and keep `.env.local` out of Git/ZIP exports. Browser-safe and server-only variables are intentionally separate.
+
+```bash
+cp .env.example .env.local
+```
+
+Required values:
 
 ```bash
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your-public-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-server-only-service-role-key
+
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-placeholder
+
+VITE_PUBLIC_SITE_URL=https://your-production-domain.example
 ```
+
+`SUPABASE_SERVICE_ROLE_KEY` must never be exposed through a `VITE_*` variable. Phone login is intentionally hidden in the release-candidate UI until an SMS provider is configured and production-tested.
 
 ## Local Development
 
@@ -79,6 +91,7 @@ npm audit
 20260914030000  Leadership Monitoring
 20260914040000  Notifications / Operational Command Center
 20260914050000  Production Hardening
+20260914060000  Final Gap Closure / Release Candidate Hardening
 ```
 
 ## Key Routes
@@ -103,5 +116,21 @@ npm audit
 /leadership               Leadership monitoring and drill-down analytics
 /notifications            Personal notification inbox
 /command-center           Operational command center
-/verify/$memberNo         Public membership verification
+/verify/$memberNo         Public membership verification (route param carries a random verification token, not the member number)
 ```
+
+
+## Release Candidate Security Notes
+
+- Official designation, issuance state, verification token and organization scope are server-managed membership fields.
+- Membership QR codes use a high-entropy public verification token; the human-readable member number is not used as the public lookup key.
+- Member photos are accepted only from the member's own storage folder, and public verification signs a photo only after ownership validation.
+- Legacy `admin` and organization `super_admin` share one canonical membership-administration authorization rule.
+- Member exports are server-side, audited and rate-limited. Masked export is the default; full-PII export requires a reason that is written to the audit trail.
+- Finance uses maker/checker separation: the recorder cannot verify/reconcile the same donation, and the verifier cannot also reconcile it.
+- Registration drafts use tab-scoped `sessionStorage`, not persistent `localStorage`.
+- Authentication is email/password in the release candidate, with password recovery. Passwords require at least 8 characters including a letter and a digit.
+- Vercel security headers are committed in `vercel.json`. If another host is used, reproduce the same headers there.
+- The service worker can display Web Push payloads, but a push subscription/delivery backend is still an external operational integration rather than a database-only feature.
+
+Before a production release, also verify hosted Supabase settings that cannot be guaranteed by repository migrations alone: leaked-password protection, MFA policy for privileged accounts, SMTP, CAPTCHA/bot controls, backups/PITR and alerting.

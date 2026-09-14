@@ -55,7 +55,7 @@ function NotificationsPage() {
     append ? setLoadingMore(true) : setLoading(true)
     setError('')
     const before = append && items.length ? items[items.length - 1]?.delivered_at ?? null : null
-    const { data, error: rpcError } = await (supabase as any).rpc('list_my_notifications', {
+    const { data, error: rpcError } = await supabase.rpc('list_my_notifications', {
       p_limit: 50,
       p_before: before,
     })
@@ -73,7 +73,7 @@ function NotificationsPage() {
 
   async function markRead(deliveryId: number) {
     setWorkingId(deliveryId)
-    const { error: rpcError } = await (supabase as any).rpc('mark_my_notification_read', {
+    const { error: rpcError } = await supabase.rpc('mark_my_notification_read', {
       p_delivery_id: deliveryId,
     })
     if (rpcError) setError(rpcError.message)
@@ -87,7 +87,7 @@ function NotificationsPage() {
 
   async function markAllRead() {
     setWorkingId(-1)
-    const { error: rpcError } = await (supabase as any).rpc('mark_all_my_notifications_read')
+    const { error: rpcError } = await supabase.rpc('mark_all_my_notifications_read')
     if (rpcError) setError(rpcError.message)
     else {
       const now = new Date().toISOString()
@@ -99,7 +99,7 @@ function NotificationsPage() {
 
   async function archive(deliveryId: number) {
     setWorkingId(deliveryId)
-    const { error: rpcError } = await (supabase as any).rpc('archive_my_notification', {
+    const { error: rpcError } = await supabase.rpc('archive_my_notification', {
       p_delivery_id: deliveryId,
     })
     if (rpcError) setError(rpcError.message)

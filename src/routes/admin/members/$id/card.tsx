@@ -27,6 +27,7 @@ import {
   imageUrlToDataUrl,
 } from '../../../../components/MembershipCard'
 import { ResponsiveCardPreview } from '../../../../components/ResponsiveCardPreview'
+import { hasMembershipAdminAccess } from '../../../../lib/admin/access'
 import { useI18n } from '../../../../lib/i18n'
 import { exportElementAsPng } from '../../../../lib/shared/card-export'
 import { generateQrDataUrl } from '../../../../lib/shared/qrcode'
@@ -49,8 +50,6 @@ type AdminAccessResult =
 
 const MEMBER_PHOTO_BUCKET = 'member-photos'
 const SIGNED_URL_TTL_SECONDS = 60 * 60
-const MEMBERSHIP_REVIEW_ROLES = ['admin'] as const
-
 
 function AdminMemberCardPage() {
   const { id } = Route.useParams()
@@ -117,7 +116,7 @@ function AdminMemberCardPage() {
 
         setMember(data)
 
-        if (!data.is_active || !data.member_no) {
+        if (!data.is_active || !data.member_no || !data.public_verify_token) {
           setPhotoUrl(null)
           setQrUrl(null)
           setVerifyUrl('')
@@ -125,7 +124,7 @@ function AdminMemberCardPage() {
           return
         }
 
-        const publicVerifyUrl = createPublicVerifyUrl(data.member_no)
+        const publicVerifyUrl = createPublicVerifyUrl(data.public_verify_token)
         setVerifyUrl(publicVerifyUrl)
 
         const generatedQr = await generateQrDataUrl(publicVerifyUrl, {
@@ -386,7 +385,7 @@ function AdminMemberCardPage() {
 
                     <Link
                       to="/verify/$memberNo"
-                      params={{ memberNo: member.member_no ?? '' }}
+                      params={{ memberNo: member.public_verify_token }}
                       className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-800 no-underline shadow-sm transition hover:bg-emerald-100"
                     >
                       <ExternalLink className="h-4 w-4" />
@@ -464,14 +463,7 @@ async function ensureAdminAccess(): Promise<AdminAccessResult> {
     return { ok: false, redirectTo: '/login' }
   }
 
-  const { data: roles, error: roleError } = await supabase
-    .from('user_roles')
-    .select('id, role')
-    .eq('user_id', user.id)
-    .eq('role', MEMBERSHIP_REVIEW_ROLES[0])
-    .maybeSingle()
-
-  if (roleError || !roles) {
+  if (!(await hasMembershipAdminAccess(user.id))) {
     return { ok: false, redirectTo: '/dashboard' }
   }
 
@@ -486,6 +478,7 @@ async function fetchMemberForCard(id: string) {
         'id',
         'user_id',
         'member_no',
+        'public_verify_token',
         'full_name',
         'father_name',
         'cnic',
@@ -519,8 +512,8 @@ async function fetchMemberForCard(id: string) {
   return data as Member | null
 }
 
-function createPublicVerifyUrl(memberNo: string) {
-  const encodedMemberNo = encodeURIComponent(memberNo)
+function createPublicVerifyUrl(verificationToken: string) {
+  const encodedMemberNo = encodeURIComponent(verificationToken)
   const configuredOrigin = String(
     import.meta.env.VITE_PUBLIC_SITE_URL ||
       import.meta.env.VITE_SITE_URL ||

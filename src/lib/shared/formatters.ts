@@ -37,7 +37,11 @@ export function maskMobile(value: string | null | undefined) {
 }
 
 export function csvCell(value: string | number | null | undefined) {
-  const safe = String(value ?? '').replace(/"/g, '""')
+  let safe = String(value ?? '').replace(/"/g, '""')
+
+  // Prevent spreadsheet formula injection when exported CSVs are opened in Excel/Sheets.
+  if (/^[=+\-@]/.test(safe)) safe = `'${safe}`
+
   return `"${safe}"`
 }
 

@@ -11,7 +11,6 @@ type VerifyResult = {
   found: boolean
   verified: boolean
   member: {
-    id: string
     member_no: string | null
     full_name: string
     district: string
@@ -101,9 +100,6 @@ function VerifyMemberPage() {
               {t('verify.notFoundText')}
             </p>
 
-            <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm font-semibold text-slate-700">
-              {memberNo}
-            </p>
           </section>
         ) : result.verified && result.member ? (
           <section className="rounded-2xl bg-white p-8 shadow-sm">
@@ -159,7 +155,7 @@ function VerifyMemberPage() {
             </p>
 
             <div className="mx-auto mt-5 max-w-md rounded-xl bg-slate-50 p-4 text-left">
-              <Info label={t('dashboard.memberNo')} value={memberNo} />
+              <Info label={t('admin.table.status')} value={t('verify.notVerifiedText')} />
               <Info
                 label={t('admin.table.status')}
                 value={result.member?.is_active ? activeStatusLabel(language) : inactiveStatusLabel(language)}
@@ -200,25 +196,22 @@ function Info({ label, value }: { label: string; value: string | null | undefine
 
 function issueDateLabel(language: string) {
   if (language === 'ur') return 'اجراء کی تاریخ'
-  if (language === 'sd') return 'جاري ٿيڻ جي تاريخ'
   return 'Issue Date'
 }
 
 function activeStatusLabel(language: string) {
   if (language === 'ur') return 'فعال'
-  if (language === 'sd') return 'فعال'
   return 'Active'
 }
 
 function inactiveStatusLabel(language: string) {
   if (language === 'ur') return 'غیر فعال'
-  if (language === 'sd') return 'غير فعال'
   return 'Inactive'
 }
 
 function formatDate(value: string | null | undefined, language: string) {
   if (!value) return null
 
-  const locale = language === 'ur' ? 'ur-PK' : language === 'sd' ? 'sd-PK' : 'en-PK'
+  const locale = language === 'ur' ? 'ur-PK' : 'en-PK'
   return new Date(value).toLocaleDateString(locale)
 }
